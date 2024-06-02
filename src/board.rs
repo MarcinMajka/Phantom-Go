@@ -153,6 +153,7 @@ pub struct Move {
 #[derive(Clone, PartialEq)]
 pub struct Board {
     fields: Vec<Vec<Color>>,
+    snapshots: HashSet<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
@@ -165,6 +166,7 @@ impl Board {
         // Initializing an empty board
         let mut board = Board {
             fields: vec![vec![Color::Empty; cols]; rows],
+            snapshots: HashSet::new(),
             game_history: vec![],
             current_player: Player::Black,
             komi,
@@ -364,15 +366,9 @@ impl Board {
             return false;
         }
 
-        let mut gh_copy = self.game_history.clone();
-        gh_copy.pop();
-        let mut board_from_2_moves_ago = self.reset();
-        for mv in gh_copy {
-            board_from_2_moves_ago.play(&mv);
-        }
         // If the group has been removed after the move, it was a suicidcal move
         let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
-        let board_is_repeated = board_from_2_moves_ago.board_position_is_reapated(potential_board);
+        let board_is_repeated = self.snapshots.contains(&potential_board.fields);
 
         !move_is_suicidal && !board_is_repeated
     }
@@ -400,6 +396,8 @@ impl Board {
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
         get_check_invalid_remove_group_combo(self, mv.loc.right());
+
+        self.snapshots.insert(self.fields.clone());
     }
 
     #[allow(dead_code)]
