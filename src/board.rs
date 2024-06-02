@@ -150,22 +150,6 @@ pub struct Move {
     pub loc: Loc,
 }
 
-impl Move {
-    pub fn pass(self) -> Self {
-        Move {
-            player: self.player,
-            loc: Loc { row: 99, col: 99 },
-        }
-    }
-
-    pub fn is_pass(&self) -> bool {
-        match self.loc {
-            Loc { row: 99, col: 99 } => true,
-            _ => false,
-        }
-    }
-}
-
 #[derive(Clone, PartialEq)]
 pub struct Board {
     fields: Vec<Vec<Color>>,
@@ -396,7 +380,7 @@ impl Board {
     fn unsafe_play(&mut self, mv: &Move) {
         self.game_history.push(mv.clone());
 
-        if mv.is_pass() {
+        if mv.loc.is_pass() {
             self.current_player = self.current_player.opponent();
             return;
         }
@@ -1335,16 +1319,22 @@ mod tests {
         let expected_move = current_move.clone();
         assert_eq!(current_move, expected_move);
 
-        current_move = current_move.pass();
-        assert!(current_move.is_pass());
+        current_move = Move {
+            player: current_move.player,
+            loc: Loc::pass(),
+        };
+        assert!(current_move.loc.is_pass());
 
         current_move = Move {
             player: Player::White,
             loc: Loc { row: 5, col: 3 },
         };
 
-        current_move = current_move.pass();
-        assert!(current_move.is_pass());
+        current_move = Move {
+            player: current_move.player,
+            loc: Loc::pass(),
+        };
+        assert!(current_move.loc.is_pass());
     }
     #[test]
     fn counting_captures() {
