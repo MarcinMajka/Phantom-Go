@@ -350,8 +350,12 @@ impl Board {
 
     #[allow(dead_code)]
     fn move_is_valid(&self, mv: &Move) -> bool {
+        if mv.loc.is_pass() {
+            return true;
+        }
+
         let board_size = self.board_size();
-        if !mv.loc.is_on_board(board_size) && !mv.loc.is_pass() {
+        if !mv.loc.is_on_board(board_size) {
             return false;
         }
 
