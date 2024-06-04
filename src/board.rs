@@ -156,15 +156,6 @@ struct BoardSize {
     cols: usize,
 }
 
-impl BoardSize {
-    fn get(fields: Vec<Vec<Color>>) -> Self {
-        BoardSize {
-            rows: fields.len(),
-            cols: fields[0].len(),
-        }
-    }
-}
-
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
