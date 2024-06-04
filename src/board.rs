@@ -125,10 +125,10 @@ impl Loc {
         upper_edge_check && lower_edge_check && left_edge_check && right_edge_check
     }
 
-    fn get_all(r: usize, c: usize) -> Vec<Loc> {
+    fn get_all(board_size: BoardSize) -> Vec<Loc> {
         let mut all_loc: Vec<Loc> = vec![];
-        for row in 0..r {
-            for col in 0..c {
+        for row in 0..board_size.rows {
+            for col in 0..board_size.cols {
                 all_loc.push(Loc { row, col })
             }
         }
@@ -150,8 +150,24 @@ pub struct Move {
     pub loc: Loc,
 }
 
+#[derive(Clone, Copy, PartialEq)]
+struct BoardSize {
+    rows: usize,
+    cols: usize,
+}
+
+impl BoardSize {
+    fn get(fields: Vec<Vec<Color>>) -> Self {
+        BoardSize {
+            rows: fields.len(),
+            cols: fields[0].len(),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
+    board_size: BoardSize,
     fields: Vec<Vec<Color>>,
     snapshots: HashSet<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
@@ -165,6 +181,7 @@ impl Board {
     pub fn new(rows: usize, cols: usize, komi: f32) -> Self {
         // Initializing an empty board
         let mut board = Board {
+            board_size: BoardSize { rows, cols },
             fields: vec![vec![Color::Empty; cols]; rows],
             snapshots: HashSet::new(),
             game_history: vec![],
@@ -228,8 +245,7 @@ impl Board {
     // Creates a set of potential points
     fn empty_islands(&self) -> HashSet<Vec<Loc>> {
         let mut islands: HashSet<Vec<Loc>> = HashSet::new();
-        let (rows, cols) = self.board_size();
-        for loc in Loc::get_all(rows, cols) {
+        for loc in Loc::get_all(self.board_size) {
             if self.get(loc) == Color::Empty {
                 // If the group of Locs contains current Loc, the group of this loc has already been added
                 if !islands.iter().any(|group| group.contains(&loc)) {
