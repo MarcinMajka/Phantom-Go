@@ -88,6 +88,8 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "rand",
+ "serde",
  "tokio",
 ]
 
