@@ -8,6 +8,7 @@ async fn main() {
     let app = Router::new().route("/", get(handler));
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("listening on {}", addr);
+
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
@@ -21,9 +22,11 @@ struct RangeParameters {
 }
 
 async fn handler(Query(range): Query<RangeParameters>) -> Html<String> {
-    let random_number = thread_rng().gen_range(range.start..range.end);
-    Html(format!(
-        "<h1>Random Number between {} and {}: {}",
-        range.start, range.end, random_number
-    ))
+    let random_number = thread_rng().gen_range(range.start..=range.end);
+    let html_template = include_str!("../../index.html");
+    let response_html = html_template
+        .replace("{{start}}", &range.start.to_string())
+        .replace("{{end}}", &range.end.to_string())
+        .replace("{{random_number}}", &random_number.to_string());
+    Html(response_html)
 }
