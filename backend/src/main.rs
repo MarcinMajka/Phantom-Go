@@ -10,17 +10,24 @@ use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
-    let routes_both = Router::new()
-        .route("/rng", get(handler_rng))
-        .route("/hello", get(handler_hello))
-        .route("/hello2/:name", get(handler_hello2));
+    let routes_all = Router::new().merge(routes_hellos()).merge(routes_rng());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("Listening on {addr}");
     axum::Server::bind(&addr)
-        .serve(routes_both.into_make_service())
+        .serve(routes_all.into_make_service())
         .await
         .unwrap();
+}
+
+fn routes_hellos() -> Router {
+    Router::new()
+        .route("/hello", get(handler_hello))
+        .route("/hello2/:name", get(handler_hello2))
+}
+
+fn routes_rng() -> Router {
+    Router::new().route("/rng", get(handler_rng))
 }
 
 #[derive(Debug, Deserialize)]
@@ -30,7 +37,7 @@ struct RangeParameters {
 }
 
 async fn handler_rng(Query(range): Query<RangeParameters>) -> Html<String> {
-    println!("->> {:<12} - handler_hello - {range:?}", "HANDLER");
+    println!("->> {:<12} - handler_rng - {range:?}", "HANDLER");
     let random_number = thread_rng().gen_range(range.start..=range.end);
     let html_template = include_str!("../../index.html");
     let response_html = html_template
@@ -53,6 +60,6 @@ async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
 }
 
 async fn handler_hello2(Path(name): Path<String>) -> impl IntoResponse {
-    println!("->> {:<12} - handler_hello - {name:?}", "HANDLER");
+    println!("->> {:<12} - handler_hello2 - {name:?}", "HANDLER");
     Html(format!("Hello <strong>{name}</strong>"))
 }
