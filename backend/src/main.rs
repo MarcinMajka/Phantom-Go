@@ -1,5 +1,5 @@
 use axum::{
-    extract::Query,
+    extract::{Path, Query},
     response::{Html, IntoResponse},
     routing::get,
     Router,
@@ -12,7 +12,8 @@ use std::net::SocketAddr;
 async fn main() {
     let routes_both = Router::new()
         .route("/rng", get(handler_rng))
-        .route("/hello", get(handler_hello));
+        .route("/hello", get(handler_hello))
+        .route("/hello2/:name", get(handler_hello2));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("Listening on {addr}");
@@ -48,5 +49,10 @@ async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
     println!("->> {:<12} - handler_hello - {params:?}", "HANDLER");
     // params.name is Option<String>, as_deref() returns Option<&str>, so we can use unwrap_or() for default value
     let name = params.name.as_deref().unwrap_or("Wordlasdfdstgr...");
+    Html(format!("Hello <strong>{name}</strong>"))
+}
+
+async fn handler_hello2(Path(name): Path<String>) -> impl IntoResponse {
+    println!("->> {:<12} - handler_hello - {name:?}", "HANDLER");
     Html(format!("Hello <strong>{name}</strong>"))
 }
