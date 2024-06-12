@@ -1,16 +1,32 @@
+pub use self::error::{Error, Result};
+
 use axum::{
     extract::{Path, Query},
-    response::{Html, IntoResponse},
-    routing::get,
+    middleware,
+    response::{Html, IntoResponse, Response},
+    routing::{get, get_service},
     Router,
 };
 use rand::{thread_rng, Rng};
 use serde::Deserialize;
 use std::net::SocketAddr;
+use tower_cookies::CookieManagerLayer;
+use tower_http::services::ServeDir;
+
+mod error;
+mod web;
 
 #[tokio::main]
 async fn main() {
-    let routes_all = Router::new().merge(routes_hellos()).merge(routes_rng());
+    let routes_all = Router::new()
+        .merge(routes_hellos())
+        .merge(routes_rng())
+        .merge(web::routes_login::routes())
+        // Layers get executed from bottom to top
+        // If we want the cookie layer data in all middlewares, CookieManagerLayer has to be last
+        .layer(middleware::map_response(main_response_mapper))
+        .layer(CookieManagerLayer::new())
+        .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("Listening on {addr}");
@@ -28,6 +44,17 @@ fn routes_hellos() -> Router {
 
 fn routes_rng() -> Router {
     Router::new().route("/rng", get(handler_rng))
+}
+
+fn routes_static() -> Router {
+    Router::new().nest_service("/", get_service(ServeDir::new("./")))
+}
+
+async fn main_response_mapper(res: Response) -> Response {
+    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+
+    println!();
+    res
 }
 
 #[derive(Debug, Deserialize)]
