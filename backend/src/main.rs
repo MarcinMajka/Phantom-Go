@@ -1,3 +1,5 @@
+use crate::model::ModelController;
+
 pub use self::error::{Error, Result};
 
 use axum::{
@@ -18,11 +20,14 @@ mod model;
 mod web;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    let mc = ModelController::new().await?;
+
     let routes_all = Router::new()
         .merge(routes_hellos())
         .merge(routes_rng())
         .merge(web::routes_login::routes())
+        .nest("/api", web::routes_tickets::routes(mc.clone()))
         // Layers get executed from bottom to top
         // If we want the cookie layer data in all middlewares, CookieManagerLayer has to be last
         .layer(middleware::map_response(main_response_mapper))
@@ -35,6 +40,8 @@ async fn main() {
         .serve(routes_all.into_make_service())
         .await
         .unwrap();
+
+    Ok(())
 }
 
 fn routes_hellos() -> Router {
