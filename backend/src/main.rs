@@ -23,11 +23,14 @@ mod web;
 async fn main() -> Result<()> {
     let mc = ModelController::new().await?;
 
+    let routes_apis = web::routes_tickets::routes(mc.clone())
+        .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
+
     let routes_all = Router::new()
         .merge(routes_hellos())
         .merge(routes_rng())
         .merge(web::routes_login::routes())
-        .nest("/api", web::routes_tickets::routes(mc.clone()))
+        .nest("/api", routes_apis)
         // Layers get executed from bottom to top
         // If we want the cookie layer data in all middlewares, CookieManagerLayer has to be last
         .layer(middleware::map_response(main_response_mapper))
