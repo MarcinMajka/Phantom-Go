@@ -1,6 +1,6 @@
 [workspace]
 members = [
     "go_board",
-    "backend",
+    "backend", "leptos-tutorial",
 ]
  
