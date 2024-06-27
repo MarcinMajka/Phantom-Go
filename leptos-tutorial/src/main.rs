@@ -14,9 +14,10 @@ fn App() -> impl IntoView {
             on:click=move |_| {
                 set_count.update(|n| *n += 1);
             }
+            class:red=move || count() % 2 == 1
         >
             "Click me: "
-
+            // This line is redundant in nightly Rust, because signals are already functions
             {move || count()}
         </button>
     }
