@@ -8,6 +8,7 @@ fn main() {
 #[component]
 fn App() -> impl IntoView {
     let (x, set_x) = create_signal(0);
+    let (p, set_p) = create_signal(0);
 
     view! {
         <button
@@ -25,5 +26,18 @@ fn App() -> impl IntoView {
         >
             "Click to move"
         </button>
+        <br />
+        <button
+        on:click=move |_| {
+            set_p.update(|n| *n += 1);
+        }
+        >
+        "Click to progress"
+        </button>
+        <br />
+        <progress
+            max="50"
+            value=p
+        />
     }
 }
