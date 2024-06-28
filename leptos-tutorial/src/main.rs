@@ -10,6 +10,11 @@ fn App() -> impl IntoView {
     let (x, set_x) = create_signal(0);
     let (p, set_p) = create_signal(0);
 
+    // Create a derived signal to monitor the multiplied value of `p`.
+    // Derived signals let you create reactive computed values that can be used in multiple places in your application with minimal overhead.
+    // This ensures the reactivity system correctly tracks changes to `p` and updates the derived signal accordingly.
+    let p_multiplied = move || p() * 3;
+
     view! {
         <button
             on:click=move |_| {
@@ -28,16 +33,23 @@ fn App() -> impl IntoView {
         </button>
         <br />
         <button
-        on:click=move |_| {
-            set_p.update(|n| *n += 1);
-        }
+            on:click=move |_| {
+                set_p.update(|n| *n += 1);
+            }
         >
-        "Click to progress"
+            "Click to progress"
         </button>
         <br />
+        // Display the raw `p` value for debugging
+        <p>{move || format!("p value: {}", p())}</p>
+        // Display the multiplied `p` value for debugging
+        <p>{move || format!("p multiplied value: {}", p_multiplied())}</p>
         <progress
             max="50"
-            value=p
+            // Use the derived signal `p_multiplied` for the `value` attribute
+            // When move || p() * 3 was used, the progress bar filling speed didn't change,
+            // regardless of however p() was multiplied
+            value=move || p_multiplied()
         />
     }
 }
