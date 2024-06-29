@@ -6,7 +6,10 @@ fn main() {
 }
 
 #[component]
-fn ProgressBar(#[prop(default = 100)] max: u16, progress: ReadSignal<i32>) -> impl IntoView {
+fn ProgressBar(
+    #[prop(default = 100)] max: u16,
+    progress: impl Fn() -> i32 + 'static,
+) -> impl IntoView {
     view! {
         <progress
             max=max
@@ -18,6 +21,7 @@ fn ProgressBar(#[prop(default = 100)] max: u16, progress: ReadSignal<i32>) -> im
 #[component]
 fn App() -> impl IntoView {
     let (p, set_p) = create_signal(0);
+    let double_p = move || p() * 2;
 
     view! {
         <button
@@ -33,5 +37,8 @@ fn App() -> impl IntoView {
         <ProgressBar progress=p/>
         <p>{format!("Progress bar with 'max=10' prop: ")}</p>
         <ProgressBar max=10 progress=p/>
+        <p>{format!("Progress bar with double_p: ")}</p>
+        <ProgressBar max=10 progress=double_p/>
+
     }
 }
