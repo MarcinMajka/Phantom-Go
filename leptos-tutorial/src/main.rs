@@ -6,10 +6,10 @@ fn main() {
 }
 
 #[component]
-fn ProgressBar(progress: ReadSignal<i32>) -> impl IntoView {
+fn ProgressBar(#[prop(optional)] max: u16, progress: ReadSignal<i32>) -> impl IntoView {
     view! {
         <progress
-            max="50"
+            max=max
             value=progress
         />
     }
@@ -17,26 +17,9 @@ fn ProgressBar(progress: ReadSignal<i32>) -> impl IntoView {
 
 #[component]
 fn App() -> impl IntoView {
-    let (x, set_x) = create_signal(0);
     let (p, set_p) = create_signal(0);
 
     view! {
-        <button
-            on:click=move |_| {
-                set_x.update(|n| *n += 10);
-            }
-
-            style="position: absolute"
-
-            style:left=move || format!("{}px", x() + 100)
-            style:background-color=move || format!("rgb({}, {}, 100)", x(), 100)
-            style:max-width="400px"
-
-            style=("--columns", x)
-        >
-            "Click to move"
-        </button>
-        <br />
         <button
             on:click=move |_| {
                 set_p.update(|n| *n += 1);
@@ -46,6 +29,9 @@ fn App() -> impl IntoView {
         </button>
         <br />
 
+        <p>{format!("Progress bar without 'max' prop: ")}</p>
         <ProgressBar progress=p/>
+        <p>{format!("Progress bar with 'max=10' prop: ")}</p>
+        <ProgressBar max=10 progress=p/>
     }
 }
