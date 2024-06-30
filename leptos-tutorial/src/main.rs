@@ -8,6 +8,7 @@ fn main() {
 #[component]
 fn ProgressBar(
     #[prop(default = 100)] max: u16,
+    //
     progress: impl Fn() -> i32 + 'static,
 ) -> impl IntoView {
     view! {
@@ -39,6 +40,13 @@ fn App() -> impl IntoView {
         <ProgressBar max=10 progress=p/>
         <p>{format!("Progress bar with double_p: ")}</p>
         <ProgressBar max=10 progress=double_p/>
+
+        <br />
+        <p>{format!("A line drawn with SVG:")}</p>
+        <br />
+        <svg height="300" width="300" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" x2="300" y1="0" y2="0" style="stroke:red;stroke-width:2" />
+        </svg>
 
     }
 }
