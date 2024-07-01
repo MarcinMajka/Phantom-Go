@@ -10,6 +10,15 @@ fn App() -> impl IntoView {
     // Define the positions and starting points for the lines
     let y_positions: Vec<_> = (1..=260).step_by(20).collect();
     let x_positions = y_positions.clone();
+    let circle_positions = vec![(61, 61), (61, 181), (121, 121), (181, 61), (181, 181)];
+    let circles = circle_positions
+        .into_iter()
+        .map(|(x, y)| {
+            view! {
+                <circle r="3" fill="black" cx={x.to_string()} cy={y.to_string()} />
+            }
+        })
+        .collect_view();
 
     // Create the horizontal lines using a loop
     let horizontal_lines = y_positions.into_iter().map(|y| {
@@ -26,7 +35,7 @@ fn App() -> impl IntoView {
     // Render the SVG element with the lines
     view! {
         <svg width="260" height="260" xmlns="http://www.w3.org/2000/svg">
-            {[horizontal_lines, vertical_lines]}
+            {[horizontal_lines, vertical_lines, circles]}
         </svg>
     }
 }
