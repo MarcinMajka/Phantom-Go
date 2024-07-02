@@ -1429,12 +1429,6 @@ mod tests {
 use leptos::*;
 
 fn main() {
-    console_error_panic_hook::set_once();
-    mount_to_body(|| view! { <PrintBoard/> })
-}
-
-#[component]
-fn PrintBoard() -> impl IntoView {
     let mut board = Board::new(15, 15, 1.5);
     board.play(&Move {
         player: Player::Black,
@@ -1444,6 +1438,13 @@ fn PrintBoard() -> impl IntoView {
         player: Player::White,
         loc: Loc { row: 3, col: 3 },
     });
+
+    console_error_panic_hook::set_once();
+    mount_to_body(move || view! { <PrintBoard board=board.clone() /> })
+}
+
+#[component]
+fn PrintBoard(board: Board) -> impl IntoView {
     view! {
         <pre>{board.to_string()}</pre>
     }
