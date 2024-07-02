@@ -1443,12 +1443,24 @@ fn main() {
         loc: Loc { row: 3, col: 4 },
     });
     board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 10, col: 10 },
+    });
+    board.play(&Move {
         player: Player::Black,
         loc: Loc { row: 5, col: 4 },
     });
     board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 4, col: 10 },
+    });
+    board.play(&Move {
         player: Player::Black,
         loc: Loc { row: 4, col: 3 },
+    });
+    board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 10, col: 4 },
     });
 
     console_error_panic_hook::set_once();
@@ -1510,11 +1522,41 @@ fn BoardLinesAndHoshis() -> impl IntoView {
 
 #[component]
 fn BoardComponent(board: Board) -> impl IntoView {
+    // Leptos didn't like it when I wanted to have a function inside the component - had to use a closure
+    let stones = || {
+        let mut vec_of_stones: Vec<Move> = Vec::new();
+
+        for (row_idx, row) in board.fields.iter().enumerate() {
+            for (col_idx, &col) in row.iter().enumerate() {
+                match col {
+                    Color::Black => vec_of_stones.push(Move {
+                        player: Player::Black,
+                        loc: Loc {
+                            row: row_idx,
+                            col: col_idx,
+                        },
+                    }),
+                    Color::White => vec_of_stones.push(Move {
+                        player: Player::White,
+                        loc: Loc {
+                            row: row_idx,
+                            col: col_idx,
+                        },
+                    }),
+                    _ => {}
+                }
+            }
+        }
+
+        vec_of_stones
+    };
+
     view! {
         <svg width="260" height="260" xmlns="http://www.w3.org/2000/svg">
             <BoardLinesAndHoshis />
             {
-                board.game_history.iter().map(|mv| {
+                // since stones is a closure, to get the returned value, we need to call it
+                stones().iter().map(|mv| {
                     match mv.player {
                         Player::Black => view! { <BlackStone loc=mv.loc /> },
                         Player::White => view! { <WhiteStone loc=mv.loc /> },
