@@ -1432,20 +1432,95 @@ fn main() {
     let mut board = Board::new(15, 15, 1.5);
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 5, col: 5 },
+        loc: Loc { row: 4, col: 5 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 3, col: 3 },
+        loc: Loc { row: 4, col: 4 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 3, col: 4 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 5, col: 4 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 4, col: 3 },
     });
 
     console_error_panic_hook::set_once();
-    mount_to_body(move || view! { <PrintBoard board=board.clone() /> })
+    mount_to_body(move || view! { <BoardComponent board=board.clone() /> });
 }
 
 #[component]
-fn PrintBoard(board: Board) -> impl IntoView {
+fn WhiteStone(loc: Loc) -> impl IntoView {
     view! {
-        <pre>{board.to_string()}</pre>
+        <circle r="10" fill="white" cx={((loc.col - 1) * 20 + 1).to_string()} cy={((loc.row - 1) * 20 + 1).to_string()} stroke="black" stroke-width="1" />
+    }
+}
+
+#[component]
+fn BlackStone(loc: Loc) -> impl IntoView {
+    view! {
+        <circle r="10" fill="black" cx={((loc.col - 1) * 20 + 1).to_string()} cy={((loc.row - 1) * 20 + 1).to_string()} />
+    }
+}
+
+#[component]
+fn BoardLinesAndHoshis() -> impl IntoView {
+    let y_positions: Vec<_> = (1..=260).step_by(20).collect();
+    let x_positions = y_positions.clone();
+    let circle_positions = vec![(61, 61), (61, 181), (121, 121), (181, 61), (181, 181)];
+    let circles = circle_positions
+        .into_iter()
+        .map(|(x, y)| {
+            view! {
+                <circle r="3" fill="black" cx={x.to_string()} cy={y.to_string()} />
+            }
+        })
+        .collect_view();
+
+    let horizontal_lines = y_positions
+        .iter()
+        .map(|&y| {
+            view! {
+                <line x1="0" y1={y.to_string()} x2="242" y2={y.to_string()} stroke="black" />
+            }
+        })
+        .collect_view();
+
+    let vertical_lines = x_positions
+        .iter()
+        .map(|&x| {
+            view! {
+                <line x1={x.to_string()} y1="0" x2={x.to_string()} y2="242" stroke="black" />
+            }
+        })
+        .collect_view();
+
+    view! {
+        {horizontal_lines}
+        {vertical_lines}
+        {circles}
+    }
+}
+
+#[component]
+fn BoardComponent(board: Board) -> impl IntoView {
+    view! {
+        <svg width="260" height="260" xmlns="http://www.w3.org/2000/svg">
+            <BoardLinesAndHoshis />
+            {
+                board.game_history.iter().map(|mv| {
+                    match mv.player {
+                        Player::Black => view! { <BlackStone loc=mv.loc /> },
+                        Player::White => view! { <WhiteStone loc=mv.loc /> },
+                    }
+                }).collect_view()
+            }
+        </svg>
     }
 }
