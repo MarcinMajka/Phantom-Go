@@ -1470,27 +1470,27 @@ fn main() {
 #[component]
 fn WhiteStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="10" fill="white" cx={((loc.col - 1) * 20 + 1).to_string()} cy={((loc.row - 1) * 20 + 1).to_string()} stroke="black" stroke-width="1" />
+        <circle r="0.1" fill="white" cx={(loc.col).to_string()} cy={(loc.row).to_string()} stroke="black" stroke-width="0.05" />
     }
 }
 
 #[component]
 fn BlackStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="10" fill="black" cx={((loc.col - 1) * 20 + 1).to_string()} cy={((loc.row - 1) * 20 + 1).to_string()} />
+        <circle r="0.1" fill="black" cx={(loc.col).to_string()} cy={(loc.row).to_string()} />
     }
 }
 
 #[component]
 fn BoardLinesAndHoshis() -> impl IntoView {
-    let y_positions: Vec<_> = (1..=260).step_by(20).collect();
+    let y_positions: Vec<_> = (0..=12).collect();
     let x_positions = y_positions.clone();
-    let circle_positions = vec![(61, 61), (61, 181), (121, 121), (181, 61), (181, 181)];
+    let circle_positions = vec![(3, 3), (3, 9), (6, 6), (9, 3), (9, 9)];
     let circles = circle_positions
         .into_iter()
         .map(|(x, y)| {
             view! {
-                <circle r="3" fill="black" cx={x.to_string()} cy={y.to_string()} />
+                <circle r="0.2" fill="black" cx={x.to_string()} cy={y.to_string()} />
             }
         })
         .collect_view();
@@ -1499,7 +1499,7 @@ fn BoardLinesAndHoshis() -> impl IntoView {
         .iter()
         .map(|&y| {
             view! {
-                <line x1="0" y1={y.to_string()} x2="242" y2={y.to_string()} stroke="black" />
+                <line x1="0" y1={y.to_string()} x2="12" y2={y.to_string()} stroke="black" stroke-width="0.1" />
             }
         })
         .collect_view();
@@ -1508,7 +1508,7 @@ fn BoardLinesAndHoshis() -> impl IntoView {
         .iter()
         .map(|&x| {
             view! {
-                <line x1={x.to_string()} y1="0" x2={x.to_string()} y2="242" stroke="black" />
+                <line x1={x.to_string()} y1="0" x2={x.to_string()} y2="12" stroke="black" stroke-width="0.1" />
             }
         })
         .collect_view();
@@ -1552,7 +1552,7 @@ fn BoardComponent(board: Board) -> impl IntoView {
     };
 
     view! {
-        <svg width="260" height="260" xmlns="http://www.w3.org/2000/svg">
+        <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
             <BoardLinesAndHoshis />
             {
                 // since stones is a closure, to get the returned value, we need to call it
