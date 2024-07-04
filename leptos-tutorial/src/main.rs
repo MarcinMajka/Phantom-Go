@@ -1432,27 +1432,19 @@ fn main() {
     let mut board = Board::new(15, 15, 1.5);
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 4, col: 5 },
-    });
-    board.play(&Move {
-        player: Player::White,
-        loc: Loc { row: 4, col: 4 },
-    });
-    board.play(&Move {
-        player: Player::Black,
         loc: Loc { row: 3, col: 4 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 10, col: 10 },
+        loc: Loc { row: 3, col: 3 },
     });
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 5, col: 4 },
+        loc: Loc { row: 2, col: 3 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 4, col: 10 },
+        loc: Loc { row: 9, col: 9 },
     });
     board.play(&Move {
         player: Player::Black,
@@ -1460,7 +1452,27 @@ fn main() {
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 10, col: 4 },
+        loc: Loc { row: 3, col: 9 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 3, col: 2 },
+    });
+    board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 9, col: 3 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 3, col: 8 },
+    });
+    board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 2, col: 8 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 2, col: 9 },
     });
 
     console_error_panic_hook::set_once();
@@ -1470,14 +1482,14 @@ fn main() {
 #[component]
 fn WhiteStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="0.1" fill="white" cx={(loc.col).to_string()} cy={(loc.row).to_string()} stroke="black" stroke-width="0.05" />
+        <circle r="0.5" fill="white" cx={(loc.col).to_string()} cy={(loc.row).to_string()} stroke="black" stroke-width="0.05 " />
     }
 }
 
 #[component]
 fn BlackStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="0.1" fill="black" cx={(loc.col).to_string()} cy={(loc.row).to_string()} />
+        <circle r="0.5" fill="black" cx={(loc.col).to_string()} cy={(loc.row).to_string()} />
     }
 }
 
@@ -1552,17 +1564,17 @@ fn BoardComponent(board: Board) -> impl IntoView {
     };
 
     view! {
-        <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-            <BoardLinesAndHoshis />
-            {
-                // since stones is a closure, to get the returned value, we need to call it
-                stones().iter().map(|mv| {
-                    match mv.player {
-                        Player::Black => view! { <BlackStone loc=mv.loc /> },
-                        Player::White => view! { <WhiteStone loc=mv.loc /> },
-                    }
-                }).collect_view()
-            }
-        </svg>
-    }
+            <svg viewBox="-0.5 -0.5 13 13" width="300" height="300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <BoardLinesAndHoshis />
+        {
+            stones().iter().map(|mv| {
+                match mv.player {
+                    Player::Black => view! { <BlackStone loc=mv.loc /> },
+                    Player::White => view! { <WhiteStone loc=mv.loc /> },
+                }
+            }).collect_view()
+        }
+    </svg>
+
+        }
 }
