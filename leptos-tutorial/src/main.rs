@@ -1428,23 +1428,14 @@ mod tests {
 
 use leptos::*;
 
-fn main() {
-    let mut board = Board::new(15, 15, 1.5);
+fn play_moves(board: &mut Board) {
     board.play(&Move {
         player: Player::Black,
         loc: Loc { row: 3, col: 4 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 3, col: 3 },
-    });
-    board.play(&Move {
-        player: Player::Black,
-        loc: Loc { row: 2, col: 3 },
-    });
-    board.play(&Move {
-        player: Player::White,
-        loc: Loc { row: 9, col: 9 },
+        loc: Loc { row: 4, col: 4 },
     });
     board.play(&Move {
         player: Player::Black,
@@ -1452,28 +1443,57 @@ fn main() {
     });
     board.play(&Move {
         player: Player::White,
+        loc: Loc { row: 10, col: 10 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 4, col: 5 },
+    });
+    board.play(&Move {
+        player: Player::White,
         loc: Loc { row: 3, col: 9 },
     });
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 3, col: 2 },
+        loc: Loc { row: 5, col: 4 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 9, col: 3 },
+        loc: Loc { row: 10, col: 4 },
     });
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 3, col: 8 },
+        loc: Loc { row: 4, col: 9 },
     });
     board.play(&Move {
         player: Player::White,
-        loc: Loc { row: 2, col: 8 },
+        loc: Loc { row: 4, col: 10 },
     });
     board.play(&Move {
         player: Player::Black,
-        loc: Loc { row: 2, col: 9 },
+        loc: Loc { row: 3, col: 10 },
     });
+    board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 1, col: 1 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 13, col: 13 },
+    });
+    board.play(&Move {
+        player: Player::White,
+        loc: Loc { row: 1, col: 13 },
+    });
+    board.play(&Move {
+        player: Player::Black,
+        loc: Loc { row: 13, col: 1 },
+    });
+}
+
+fn main() {
+    let mut board = Board::new(15, 15, 1.5);
+    play_moves(&mut board);
 
     console_error_panic_hook::set_once();
     mount_to_body(move || view! { <BoardComponent board=board.clone() /> });
@@ -1482,14 +1502,14 @@ fn main() {
 #[component]
 fn WhiteStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="0.5" fill="white" cx={(loc.col).to_string()} cy={(loc.row).to_string()} stroke="black" stroke-width="0.05 " />
+        <circle r="0.465" fill="white" cx={(loc.col - 1).to_string()} cy={(loc.row - 1).to_string()} stroke="black" stroke-width="0.05 " />
     }
 }
 
 #[component]
 fn BlackStone(loc: Loc) -> impl IntoView {
     view! {
-        <circle r="0.5" fill="black" cx={(loc.col).to_string()} cy={(loc.row).to_string()} />
+        <circle r="0.47" fill="black" cx={(loc.col - 1).to_string()} cy={(loc.row - 1).to_string()} />
     }
 }
 
@@ -1534,7 +1554,6 @@ fn BoardLinesAndHoshis() -> impl IntoView {
 
 #[component]
 fn BoardComponent(board: Board) -> impl IntoView {
-    // Leptos didn't like it when I wanted to have a function inside the component - had to use a closure
     let stones = || {
         let mut vec_of_stones: Vec<Move> = Vec::new();
 
@@ -1564,17 +1583,18 @@ fn BoardComponent(board: Board) -> impl IntoView {
     };
 
     view! {
-            <svg viewBox="-0.5 -0.5 13 13" width="300" height="300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-        <BoardLinesAndHoshis />
-        {
-            stones().iter().map(|mv| {
-                match mv.player {
-                    Player::Black => view! { <BlackStone loc=mv.loc /> },
-                    Player::White => view! { <WhiteStone loc=mv.loc /> },
-                }
-            }).collect_view()
-        }
-    </svg>
-
-        }
+        <svg viewBox="-0.5 -0.5 13 13" width="300" height="300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="background-color:green">
+            <BoardLinesAndHoshis />
+            {
+                stones().iter().map(|mv| {
+                    match mv.player {
+                        Player::Black => view! { <BlackStone loc=mv.loc /> },
+                        Player::White => view! { <WhiteStone loc=mv.loc /> },
+                    }
+                }).collect_view()
+            }
+        </svg>
+        // Added for confirmation of the actual board position
+        <pre>{board.to_string()}</pre>
+    }
 }
