@@ -1,8 +1,3 @@
-// Lingo:
-//     islands - sets of groups of Color::Empty from the Board
-
-// pub mod board;
-
 use std::collections::HashSet;
 use std::{io, usize};
 
@@ -1496,7 +1491,7 @@ fn main() {
     play_moves(&mut board);
 
     console_error_panic_hook::set_once();
-    mount_to_body(move || view! { <BoardComponent board=board.clone() /> });
+    mount_to_body(App);
 }
 
 #[component]
@@ -1596,5 +1591,18 @@ fn BoardComponent(board: Board) -> impl IntoView {
         </svg>
         // Added for confirmation of the actual board position
         <pre>{board.to_string()}</pre>
+    }
+}
+
+#[component]
+fn App() -> impl IntoView {
+    let (name, set_name) = create_signal("Controlled".to_string());
+
+    view! {
+        <input type="text"
+            on:input=move |ev| { set_name(event_target_value(&ev)); }
+            prop:value=name
+        />
+        <p>"Name is: " {name}</p>
     }
 }
