@@ -1,9 +1,0 @@
-[package]
-name = "leptos-tutorial"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-console_error_panic_hook = "0.1.7"
-leptos = { version = "0.6.12", features = ["csr", "nightly"] }
-go_board = { path = "../go_board" }
