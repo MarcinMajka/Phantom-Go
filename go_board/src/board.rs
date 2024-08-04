@@ -371,11 +371,7 @@ impl Board {
         }
 
         let mut potential_board = self.clone();
-        if potential_board.get(mv.loc) == Color::Empty {
-            potential_board.unsafe_play(mv);
-        } else {
-            return false;
-        }
+        potential_board.unsafe_play(mv);
 
         // If the group has been removed after the move, it was a suicidcal move
         let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
@@ -407,6 +403,7 @@ impl Board {
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
         get_check_invalid_remove_group_combo(self, mv.loc.right());
+        get_check_invalid_remove_group_combo(self, mv.loc);
 
         self.snapshots.insert(self.fields.clone());
     }
@@ -457,6 +454,7 @@ impl Board {
             get_check_empty_insert_combo(self, stone_coords.left(), &mut liberties);
             get_check_empty_insert_combo(self, stone_coords.right(), &mut liberties);
         }
+
         liberties.len()
     }
 
