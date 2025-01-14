@@ -1,6 +1,2 @@
 [workspace]
-members = [
-    "go_board",
-    "backend"
-]
- 
+members = ["go_board"]
