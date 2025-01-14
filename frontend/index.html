@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Board</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+
+        td {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="text-align: center;">19x19 Go Board</h1>
+    <table>
+        <tbody>
+            <!-- JavaScript to dynamically generate 19x19 table and handle clicks -->
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                        const tbody = document.querySelector('table tbody');
+                        for (let i = 0; i < 19; i++) {
+                            const row = document.createElement('tr');
+                            for (let j = 0; j < 19; j++) {
+                                const cell = document.createElement('td');
+                                cell.dataset.row = i;
+                                cell.dataset.col = j;
+
+                                // Add click event listener
+                                cell.addEventListener('click', () => {
+                                    const row = parseInt(cell.dataset.row, 10);
+                                    const col = parseInt(cell.dataset.col, 10);
+
+                                    fetch('http://localhost:8000/cell-click', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({ row, col }),
+                                    })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(`HTTP error! Status: ${response.status}`);
+                                            }
+                                            return response.json(); // Parse JSON response
+                                        })
+                                        .then(data => {
+                                            console.log('Server response:', data.message); // Log the message
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                        });
+                                });
+
+
+                                row.appendChild(cell);
+                            }
+                            tbody.appendChild(row);
+                        }
+                    });
+
+            </script>
+        </tbody>
+    </table>
+</body>
+
+</html>
