@@ -1,11 +1,17 @@
-use crate::board::{Board, Loc, Move};
+mod board;
+mod server;
 
-pub mod board;
+use board::{Board, Loc, Move};
+use tokio::task;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let mut board = Board::new(7, 7, 1.5);
 
-    // Game loop
+    // Spawn the server in the background
+    let server_task = task::spawn(server::start_server());
+
+    // CLI game loop
     while !board.last_two_moves_are_pass() {
         println!(
             "Turn: {:?}\nInput coordinates to play, 'u' to undo, 'p' to pass or 'q' to quit",
@@ -13,7 +19,6 @@ fn main() {
         );
         let player_input = board::take_player_input();
 
-        // TODO: This match is too long
         match player_input.as_str() {
             "q" => {
                 println!("\nQuit game!\n");
@@ -23,9 +28,6 @@ fn main() {
                 player: board.get_current_player(),
                 loc: Loc::pass(),
             }),
-            "gh" => {
-                println!("\n\n{:?}\n\n", board.get_game_history());
-            }
             "u" => {
                 board = board.undo();
             }
@@ -45,4 +47,7 @@ fn main() {
     }
 
     println!("{}", board.count_score().to_string());
+
+    // Wait for the server to stop (it won't unless you terminate the program)
+    let _ = server_task.await;
 }
