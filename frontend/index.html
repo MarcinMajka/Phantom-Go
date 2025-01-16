@@ -42,27 +42,47 @@
                                     const row = parseInt(cell.dataset.row, 10);
                                     const col = parseInt(cell.dataset.col, 10);
 
-                                    fetch('http://localhost:8000/cell-click', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({ row, col }),
+                                    // First, check if the cell is empty
+                                    fetch(`http://localhost:8000/cell-check?row=${row}&col=${col}`, {
+                                        method: 'GET',
                                     })
                                         .then(response => {
                                             if (!response.ok) {
                                                 throw new Error(`HTTP error! Status: ${response.status}`);
                                             }
+
                                             return response.json(); // Parse JSON response
                                         })
                                         .then(data => {
-                                            console.log('Server response:', data.message); // Log the message
+                                            if (data.is_empty) {
+                                                // Proceed with the POST request to register the move
+                                                fetch('http://localhost:8000/cell-click', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({ row, col }),
+                                                })
+                                                    .then(response => {
+                                                        if (!response.ok) {
+                                                            throw new Error(`HTTP error! Status: ${response.status}`);
+                                                        }
+                                                        return response.json(); // Parse JSON response
+                                                    })
+                                                    .then(data => {
+                                                        console.log('Server response:', data.message); // Log the message
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error:', error);
+                                                    });
+                                            } else {
+                                                console.log(`Cell at (${row}, ${col}) is already occupied.`);
+                                            }
                                         })
                                         .catch(error => {
                                             console.error('Error:', error);
                                         });
                                 });
-
 
                                 row.appendChild(cell);
                             }
