@@ -2,10 +2,39 @@ use poem::{
     middleware::Cors,
     handler,
     listener::TcpListener,
-    web::Json,
-    EndpointExt, Route, Server,
+    web::{ Json, Query },
+    EndpointExt, Route, Server, Result
 };
 use serde::{Serialize, Deserialize};
+
+#[derive(Deserialize)]
+pub struct CellCheckQuery {
+    pub row: usize,
+    pub col: usize,
+}
+
+#[derive(Serialize)]
+pub struct CellCheckResponse {
+    pub is_empty: bool,
+}
+
+#[handler]
+async fn cell_check(query: Query<CellCheckQuery>) -> Result<Json<CellCheckResponse>> {
+    let row = query.row;
+    let col = query.col;
+    
+    // All fields empty, except tengen
+    let is_empty: bool = {
+        if row == 9 && col == 9 {
+            false
+        } else {
+            true
+        }
+    };
+
+    Ok(Json(CellCheckResponse { is_empty }))
+}
+
 
 #[derive(Deserialize, Debug)]
 pub struct CellClick {
@@ -31,11 +60,12 @@ async fn cell_click(payload: Json<CellClick>) -> Json<Response> {
 pub async fn start_server() -> Result<(), std::io::Error> {
     let cors = Cors::new()
         .allow_origin("http://127.0.0.1:5501") // Allow the frontend origin
-        .allow_methods(vec!["POST"])           // Allow POST requests
+        .allow_methods(vec!["POST", "GET"])
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
         .at("/cell-click", poem::post(cell_click))
+        .at("/cell-check", poem::get(cell_check))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
