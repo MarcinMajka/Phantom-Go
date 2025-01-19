@@ -5,97 +5,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Board</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            margin: 20px auto;
-        }
-
-        td {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #000;
-            text-align: center;
-            vertical-align: middle;
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body>
-    <h1 style="text-align: center;">19x19 Go Board</h1>
-    <table>
-        <tbody>
-            <!-- JavaScript to dynamically generate 19x19 table and handle clicks -->
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    fetch('http://localhost:8000/dimensions')
-                        .then(response => response.json())
-                        .then(dimensions => {
-                        const tbody = document.querySelector('table tbody');
-                        for (let i = 0; i < dimensions.rows; i++) {
-                            const row = document.createElement('tr');
-                            for (let j = 0; j < dimensions.cols; j++) {
-                                const cell = document.createElement('td');
-                                cell.dataset.row = i;
-                                cell.dataset.col = j;
+    <div id="board-container"></div>
 
-                                // Add click event listener
-                                cell.addEventListener('click', () => {
-                                    const row = parseInt(cell.dataset.row, 10);
-                                    const col = parseInt(cell.dataset.col, 10);
-
-                                    // First, check if the cell is empty
-                                    fetch(`http://localhost:8000/cell-check?row=${row}&col=${col}`, {
-                                        method: 'GET',
-                                    })
-                                        .then(response => {
-                                            if (!response.ok) {
-                                                throw new Error(`HTTP error! Status: ${response.status}`);
-                                            }
-
-                                            return response.json(); // Parse JSON response
-                                        })
-                                        .then(data => {
-                                            if (data.is_empty) {
-                                                // Proceed with the POST request to register the move
-                                                fetch('http://localhost:8000/cell-click', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                    },
-                                                    body: JSON.stringify({ row, col }),
-                                                })
-                                                    .then(response => {
-                                                        if (!response.ok) {
-                                                            throw new Error(`HTTP error! Status: ${response.status}`);
-                                                        }
-                                                        return response.json(); // Parse JSON response
-                                                    })
-                                                    .then(data => {
-                                                        console.log('Server response:', data.message); // Log the message
-                                                    })
-                                                    .catch(error => {
-                                                        console.error('Error:', error);
-                                                    });
-                                            } else {
-                                                console.log(`Cell at (${row}, ${col}) is already occupied.`);
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error:', error);
-                                        });
-                                });
-
-                                row.appendChild(cell);
-                            }
-                            tbody.appendChild(row);
-                        }
-                    });
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // First fetch board dimensions
+            fetch('http://localhost:8000/dimensions')
+                .then(response => response.json())
+                .then(dimensions => {
+                    createBoard(dimensions.rows, dimensions.cols);
                 })
-            </script>
-        </tbody>
-    </table>
+                .catch(error => {
+                    console.error('Error fetching board dimensions:', error);
+                });
+        });
+
+        function createBoard(rows, cols) {
+            // SVG configuration
+            const cellSize = 40;
+            const padding = cellSize;
+            const lineWidth = 1;
+            const starPointRadius = 3;
+
+            // Calculate total dimensions
+            const boardWidth = cols * cellSize;
+            const boardHeight = rows * cellSize;
+            const totalWidth = boardWidth + (2 * padding);
+            const totalHeight = boardHeight + (2 * padding);
+
+            // Create SVG element
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", totalWidth);
+            svg.setAttribute("height", totalHeight);
+            svg.style.margin = "auto";
+            svg.style.display = "block";
+
+            // Add wooden background
+            const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            background.setAttribute("width", totalWidth);
+            background.setAttribute("height", totalHeight);
+            background.setAttribute("fill", "#DEB887");
+            svg.appendChild(background);
+
+            // Helper function to convert board coordinates to SVG coordinates
+            function toSvgCoords(x, y) {
+                return {
+                    x: x * cellSize + padding,
+                    y: y * cellSize + padding
+                };
+            }
+
+            // Draw vertical lines
+            for (let i = 0; i < cols; i++) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                const { x } = toSvgCoords(i, 0);
+                line.setAttribute("x1", x);
+                line.setAttribute("y1", padding);
+                line.setAttribute("x2", x);
+                line.setAttribute("y2", totalHeight - padding);
+                line.setAttribute("stroke", "black");
+                line.setAttribute("stroke-width", lineWidth);
+                svg.appendChild(line);
+            }
+
+            // Draw horizontal lines
+            for (let i = 0; i < rows; i++) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                const { y } = toSvgCoords(0, i);
+                line.setAttribute("x1", padding);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", totalWidth - padding);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "black");
+                line.setAttribute("stroke-width", lineWidth);
+                svg.appendChild(line);
+            }
+
+            // Add star points (hoshi)
+            // For a 7x7 board, we'll add points at the corners and center
+            const starPoints = [
+                { x: 2, y: 2 }, { x: 2, y: 4 }, { x: 2, y: 6 },
+                { x: 4, y: 2 }, { x: 4, y: 4 }, { x: 4, y: 6 },
+                { x: 6, y: 2 }, { x: 6, y: 4 }, { x: 6, y: 6 }
+            ];
+
+            starPoints.forEach(point => {
+                const { x, y } = toSvgCoords(point.x, point.y);
+                const starPoint = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                starPoint.setAttribute("cx", x);
+                starPoint.setAttribute("cy", y);
+                starPoint.setAttribute("r", starPointRadius);
+                starPoint.setAttribute("fill", "black");
+                svg.appendChild(starPoint);
+            });
+
+            // Add invisible click areas for placing stones
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const { x, y } = toSvgCoords(col, row);
+                    const clickArea = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    clickArea.setAttribute("x", x - cellSize / 2);
+                    clickArea.setAttribute("y", y - cellSize / 2);
+                    clickArea.setAttribute("width", cellSize);
+                    clickArea.setAttribute("height", cellSize);
+                    clickArea.setAttribute("fill", "transparent");
+                    clickArea.dataset.row = row;
+                    clickArea.dataset.col = col;
+
+                    // Add hover effect
+                    clickArea.addEventListener('mouseover', () => {
+                        clickArea.setAttribute("fill", "rgba(0,0,0,0.1)");
+                    });
+                    clickArea.addEventListener('mouseout', () => {
+                        clickArea.setAttribute("fill", "transparent");
+                    });
+
+                    // Add click handler
+                    clickArea.addEventListener('click', () => {
+                        const row = clickArea.dataset.row;
+                        const col = clickArea.dataset.col;
+
+                        fetch('http://localhost:8000/cell-click', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ row: parseInt(row), col: parseInt(col) }),
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Server response:', data.message);
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    });
+
+                    svg.appendChild(clickArea);
+                }
+            }
+
+            // Add the SVG to the page
+            document.getElementById('board-container').appendChild(svg);
+        }
+    </script>
 </body>
 
 </html>
