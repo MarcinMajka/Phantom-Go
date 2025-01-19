@@ -7,6 +7,20 @@ use poem::{
 };
 use serde::{Serialize, Deserialize};
 
+#[derive(Serialize)]
+struct BoardDimensions {
+    rows: usize,
+    cols: usize,
+}
+
+#[handler]
+async fn get_dimensions() -> Json<BoardDimensions> {
+    Json(BoardDimensions {
+        rows: 19,  // These values match your Board::new(7, 7, 1.5)
+        cols: 19,
+    })
+}
+
 #[derive(Deserialize)]
 pub struct CellCheckQuery {
     pub row: usize,
@@ -66,6 +80,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
     let app = Route::new()
         .at("/cell-click", poem::post(cell_click))
         .at("/cell-check", poem::get(cell_check))
+        .at("/dimensions", poem::get(get_dimensions))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
