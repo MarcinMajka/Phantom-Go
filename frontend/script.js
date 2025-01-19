@@ -18,8 +18,8 @@ function createBoard(rows, cols) {
   const starPointRadius = 3;
 
   // Calculate total dimensions
-  const boardWidth = cols * cellSize;
-  const boardHeight = rows * cellSize;
+  const boardWidth = (cols - 1) * cellSize;
+  const boardHeight = (rows - 1) * cellSize;
   const totalWidth = boardWidth + 2 * padding;
   const totalHeight = boardHeight + 2 * padding;
 
