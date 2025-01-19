@@ -16,8 +16,8 @@ struct BoardDimensions {
 #[handler]
 async fn get_dimensions() -> Json<BoardDimensions> {
     Json(BoardDimensions {
-        rows: 19,  // These values match your Board::new(7, 7, 1.5)
-        cols: 19,
+        rows: 9,
+        cols: 9,
     })
 }
 
