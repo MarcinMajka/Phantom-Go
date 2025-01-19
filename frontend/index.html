@@ -29,10 +29,13 @@
             <!-- JavaScript to dynamically generate 19x19 table and handle clicks -->
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
+                    fetch('http://localhost:8000/dimensions')
+                        .then(response => response.json())
+                        .then(dimensions => {
                         const tbody = document.querySelector('table tbody');
-                        for (let i = 0; i < 19; i++) {
+                        for (let i = 0; i < dimensions.rows; i++) {
                             const row = document.createElement('tr');
-                            for (let j = 0; j < 19; j++) {
+                            for (let j = 0; j < dimensions.cols; j++) {
                                 const cell = document.createElement('td');
                                 cell.dataset.row = i;
                                 cell.dataset.col = j;
@@ -89,7 +92,7 @@
                             tbody.appendChild(row);
                         }
                     });
-
+                })
             </script>
         </tbody>
     </table>
