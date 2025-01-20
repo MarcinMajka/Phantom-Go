@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::{io, usize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Color {
+pub enum Color {
     White,
     Black,
     Empty,
@@ -159,7 +159,7 @@ struct BoardSize {
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
-    fields: Vec<Vec<Color>>,
+    pub fields: Vec<Vec<Color>>,
     snapshots: HashSet<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
