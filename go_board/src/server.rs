@@ -2,7 +2,7 @@ use poem::{
     middleware::Cors,
     handler,
     listener::TcpListener,
-    web::{ Json, Query },
+    web::Json,
     EndpointExt, Route, Server, Result
 };
 use serde::{Serialize, Deserialize};
@@ -20,35 +20,6 @@ async fn get_dimensions() -> Json<BoardDimensions> {
         cols: 9,
     })
 }
-
-#[derive(Deserialize)]
-pub struct CellCheckQuery {
-    pub row: usize,
-    pub col: usize,
-}
-
-#[derive(Serialize)]
-pub struct CellCheckResponse {
-    pub is_empty: bool,
-}
-
-#[handler]
-async fn cell_check(query: Query<CellCheckQuery>) -> Result<Json<CellCheckResponse>> {
-    let row = query.row;
-    let col = query.col;
-    
-    // All fields empty, except tengen
-    let is_empty: bool = {
-        if row == 9 && col == 9 {
-            false
-        } else {
-            true
-        }
-    };
-
-    Ok(Json(CellCheckResponse { is_empty }))
-}
-
 
 #[derive(Deserialize, Debug)]
 pub struct CellClick {
@@ -79,7 +50,6 @@ pub async fn start_server() -> Result<(), std::io::Error> {
 
     let app = Route::new()
         .at("/cell-click", poem::post(cell_click))
-        .at("/cell-check", poem::get(cell_check))
         .at("/dimensions", poem::get(get_dimensions))
         .with(cors);
 
