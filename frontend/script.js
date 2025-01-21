@@ -134,6 +134,7 @@ function createBoard(rows, cols) {
           })
           .then((data) => {
             console.log("Server response:", data.message);
+            updateBoard(data.board, data.current_player);
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -180,6 +181,35 @@ function createBoard(rows, cols) {
     }
   }
 
+  function updateBoard(boardState, currentPlayer) {
+    // Remove existing stones
+    const stones = document.querySelectorAll(".stone");
+    stones.forEach((stone) => stone.remove());
+
+    // Add new stones based on board state
+    boardState.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (cell !== "empty" && cell !== "invalid") {
+          const { x, y } = toSvgCoords(colIndex, rowIndex);
+          const stone = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          stone.setAttribute("cx", x);
+          stone.setAttribute("cy", y);
+          stone.setAttribute("r", cellSize * 0.4); // Stone radius
+          stone.setAttribute("fill", cell === "black" ? "black" : "white");
+          stone.setAttribute("stroke", "black");
+          stone.setAttribute("stroke-width", "1");
+          stone.classList.add("stone");
+          svg.appendChild(stone);
+        }
+      });
+    });
+
+    // Update current player indicator if needed
+    console.log("Current player:", currentPlayer);
+  }
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
 }
