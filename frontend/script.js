@@ -153,20 +153,10 @@ function createBoard(rows, cols) {
     }
 
     const size = rows; // since board is square, we can use either dimension
+    const center = Math.floor(size / 2);
 
-    if (size < 13) {
-      // For small boards (7x7 and smaller), use 3-3 points and center
-      const center = Math.floor(size / 2);
-      return [
-        { x: 2, y: 2 },
-        { x: 2, y: size - 3 },
-        { x: center, y: center },
-        { x: size - 3, y: 2 },
-        { x: size - 3, y: size - 3 },
-      ];
-    } else if (size >= 13) {
-      // For larger boards (13x13 and up), use 4-4 points and center
-      const center = Math.floor(size / 2);
+    if (size > 15) {
+      // For larger boards (17x17 and up), use all 9 star points
       return [
         { x: 3, y: 3 },
         { x: 3, y: center },
@@ -178,6 +168,27 @@ function createBoard(rows, cols) {
         { x: size - 4, y: center },
         { x: size - 4, y: size - 4 },
       ];
+    } else if (size <= 15 && size >= 13) {
+      // For medium boards (13x13 and 15x15), use 4-4 points and center
+      return [
+        { x: 3, y: 3 },
+        { x: 3, y: size - 4 },
+        { x: center, y: center },
+        { x: size - 4, y: 3 },
+        { x: size - 4, y: size - 4 },
+      ];
+    } else if (size <= 11 && size > 7) {
+      // For small boards (9x9 and 11x11), use 3-3 points and center
+      return [
+        { x: 2, y: 2 },
+        { x: 2, y: size - 3 },
+        { x: center, y: center },
+        { x: size - 3, y: 2 },
+        { x: size - 3, y: size - 3 },
+      ];
+    } else {
+      // For even smaller, just the center
+      return [{ x: center, y: center }];
     }
   }
 
