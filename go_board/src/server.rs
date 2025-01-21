@@ -64,7 +64,6 @@ fn get_playable_dimensions(board: &Board) -> (usize, usize) {
 
 #[handler]
 async fn get_dimensions() -> Json<BoardDimensions> {
-    init_game();
     unsafe {
         let board = GAME_BOARD.as_ref().unwrap();
         let (rows, cols) = get_playable_dimensions(board);
