@@ -33,6 +33,7 @@ static mut GAME_BOARD: Option<Board> = None;
 fn init_game() {
     unsafe {
         if GAME_BOARD.is_none() {
+            // Actual board + sentinels
             GAME_BOARD = Some(Board::new(9, 9, 1.5));
         }
     }
@@ -54,13 +55,21 @@ fn player_to_string(player: Player) -> String {
     }
 }
 
+fn get_playable_dimensions(board: &Board) -> (usize, usize) {
+    let total_rows = board.fields.len();
+    let total_cols = board.fields[0].len();
+    // Subtract 2 from each dimension to account for sentinels
+    (total_rows - 2, total_cols - 2)
+}
+
 #[handler]
 async fn get_dimensions() -> Json<BoardDimensions> {
     init_game();
-    Json(BoardDimensions {
-        rows: 9,
-        cols: 9,
-    })
+    unsafe {
+        let board = GAME_BOARD.as_ref().unwrap();
+        let (rows, cols) = get_playable_dimensions(board);
+        Json(BoardDimensions { rows, cols })
+    }
 }
 
 #[handler]
@@ -72,16 +81,23 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         // Create move from payload
         let move_attempt = Move {
             player: current_player,
-            loc: Loc { row: payload.row, col: payload.col },
+            loc: Loc { 
+                // Add 1 to skip sentinel border
+                row: payload.row + 1,
+                col: payload.col + 1,
+            },
         };
 
         // Try to play the move - play() handles validation internally
         board.play(&move_attempt);
         
-        // Convert board state to string format for frontend
-        let board_state = board.fields.iter()
+        // Get the playable board dimensions
+        let (rows, cols) = get_playable_dimensions(board);
+        
+        // Convert board state to string format for frontend, excluding sentinel borders
+        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
             .map(|row| {
-                row.iter()
+                row[1..=cols].iter()
                     .map(|&color| color_to_string(color))
                     .collect()
             })
