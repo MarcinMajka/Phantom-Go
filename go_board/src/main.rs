@@ -1,7 +1,7 @@
 mod board;
 mod server;
 
-use board::{Board, Loc, Move, handle_player_input};
+use board::{Board, handle_player_input};
 use tokio::task;
 
 #[tokio::main]
