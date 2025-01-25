@@ -10,18 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function createBoard(rows, cols) {
-  // SVG configuration
-  const cellSize = 40;
-  const padding = cellSize;
-  const lineWidth = 1;
-  const starPointRadius = 3;
-
-  // Calculate total dimensions
-  const boardWidth = (cols - 1) * cellSize;
-  const boardHeight = (rows - 1) * cellSize;
-  const totalWidth = boardWidth + 2 * padding;
-  const totalHeight = boardHeight + 2 * padding;
+function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
+  const { cellSize, padding, totalWidth, totalHeight, toSvgCoords } =
+    calculateBoardGeometry(rows, cols);
 
   // Create SVG element
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -39,14 +30,6 @@ function createBoard(rows, cols) {
   background.setAttribute("height", totalHeight);
   background.setAttribute("fill", "#DEB887");
   svg.appendChild(background);
-
-  // Helper function to convert board coordinates to SVG coordinates
-  function toSvgCoords(x, y) {
-    return {
-      x: x * cellSize + padding,
-      y: y * cellSize + padding,
-    };
-  }
 
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
@@ -143,6 +126,27 @@ function createBoard(rows, cols) {
 
       svg.appendChild(clickArea);
     }
+  }
+
+  function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
+    const boardWidth = (cols - 1) * cellSize;
+    const boardHeight = (rows - 1) * cellSize;
+    const totalWidth = boardWidth + 2 * padding;
+    const totalHeight = boardHeight + 2 * padding;
+
+    return {
+      cellSize,
+      padding,
+      boardWidth,
+      boardHeight,
+      totalWidth,
+      totalHeight,
+      // Helper function to convert board coordinates to SVG coordinates
+      toSvgCoords: (x, y) => ({
+        x: x * cellSize + padding,
+        y: y * cellSize + padding,
+      }),
+    };
   }
 
   // Function to calculate hoshi positions based on board size
