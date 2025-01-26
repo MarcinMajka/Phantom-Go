@@ -71,6 +71,11 @@ async fn get_dimensions() -> Json<BoardDimensions> {
     }
 }
 
+// Core communication pattern:
+// 1. Receive click coordinates
+// 2. Validate move
+// 3. Update game state
+// 4. Return updated game state to frontend
 #[handler]
 async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     unsafe {
