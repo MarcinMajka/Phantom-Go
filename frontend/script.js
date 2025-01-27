@@ -102,21 +102,29 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
         const row = clickArea.dataset.row;
         const col = clickArea.dataset.col;
 
+        // Send cell click to server via POST request
         fetch("http://localhost:8000/cell-click", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          // Send clicked cell coordinates as JSON payload
           body: JSON.stringify({ row: parseInt(row), col: parseInt(col) }),
         })
           .then((response) => {
+            // Validate server response
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
           })
           .then((data) => {
+            // Log server response
             console.log("Server response:", data.message);
+            // Update UI board based on server's game state
+            // This includes:
+            // 1. Stone placements
+            // 2. Current player
             updateBoard(data.board, data.current_player);
           })
           .catch((error) => {
