@@ -233,6 +233,14 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     // Update current player indicator if needed
     console.log("Current player:", currentPlayer);
   }
+  const svgBlackPlayerBoard = svg.cloneNode(true);
+  const svgWhitePlayerBoard = svg.cloneNode(true);
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
+  document
+    .getElementById("black-player-board")
+    .appendChild(svgBlackPlayerBoard);
+  document
+    .getElementById("white-player-board")
+    .appendChild(svgWhitePlayerBoard);
 }
