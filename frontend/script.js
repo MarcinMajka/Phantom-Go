@@ -157,53 +157,6 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     };
   }
 
-  // Function to calculate hoshi positions based on board size
-  function getStarPoints(rows, cols) {
-    if (rows !== cols) {
-      // If board is not square, we might need different logic
-      return [];
-    }
-
-    const size = rows; // since board is square, we can use either dimension
-    const center = Math.floor(size / 2);
-
-    if (size > 15) {
-      // For larger boards (17x17 and up), use all 9 star points
-      return [
-        { x: 3, y: 3 },
-        { x: 3, y: center },
-        { x: 3, y: size - 4 },
-        { x: center, y: 3 },
-        { x: center, y: center },
-        { x: center, y: size - 4 },
-        { x: size - 4, y: 3 },
-        { x: size - 4, y: center },
-        { x: size - 4, y: size - 4 },
-      ];
-    } else if (size <= 15 && size >= 13) {
-      // For medium boards (13x13 and 15x15), use 4-4 points and center
-      return [
-        { x: 3, y: 3 },
-        { x: 3, y: size - 4 },
-        { x: center, y: center },
-        { x: size - 4, y: 3 },
-        { x: size - 4, y: size - 4 },
-      ];
-    } else if (size <= 11 && size > 7) {
-      // For small boards (9x9 and 11x11), use 3-3 points and center
-      return [
-        { x: 2, y: 2 },
-        { x: 2, y: size - 3 },
-        { x: center, y: center },
-        { x: size - 3, y: 2 },
-        { x: size - 3, y: size - 3 },
-      ];
-    } else {
-      // For even smaller, just the center
-      return [{ x: center, y: center }];
-    }
-  }
-
   function updateBoard(boardState, currentPlayer) {
     // Remove existing stones
     const stones = document.querySelectorAll(".stone");
@@ -233,8 +186,10 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     // Update current player indicator if needed
     console.log("Current player:", currentPlayer);
   }
+
   const svgBlackPlayerBoard = svg.cloneNode(true);
   const svgWhitePlayerBoard = svg.cloneNode(true);
+
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
   document
@@ -243,4 +198,51 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   document
     .getElementById("white-player-board")
     .appendChild(svgWhitePlayerBoard);
+}
+
+// Function to calculate hoshi positions based on board size
+function getStarPoints(rows, cols) {
+  if (rows !== cols) {
+    // If board is not square, we might need different logic
+    return [];
+  }
+
+  const size = rows; // since board is square, we can use either dimension
+  const center = Math.floor(size / 2);
+
+  if (size > 15) {
+    // For larger boards (17x17 and up), use all 9 star points
+    return [
+      { x: 3, y: 3 },
+      { x: 3, y: center },
+      { x: 3, y: size - 4 },
+      { x: center, y: 3 },
+      { x: center, y: center },
+      { x: center, y: size - 4 },
+      { x: size - 4, y: 3 },
+      { x: size - 4, y: center },
+      { x: size - 4, y: size - 4 },
+    ];
+  } else if (size <= 15 && size >= 13) {
+    // For medium boards (13x13 and 15x15), use 4-4 points and center
+    return [
+      { x: 3, y: 3 },
+      { x: 3, y: size - 4 },
+      { x: center, y: center },
+      { x: size - 4, y: 3 },
+      { x: size - 4, y: size - 4 },
+    ];
+  } else if (size <= 11 && size > 7) {
+    // For small boards (9x9 and 11x11), use 3-3 points and center
+    return [
+      { x: 2, y: 2 },
+      { x: 2, y: size - 3 },
+      { x: center, y: center },
+      { x: size - 3, y: 2 },
+      { x: size - 3, y: size - 3 },
+    ];
+  } else {
+    // For even smaller, just the center
+    return [{ x: center, y: center }];
+  }
 }
