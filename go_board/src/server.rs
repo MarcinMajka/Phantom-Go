@@ -24,6 +24,8 @@ pub struct CellClick {
 struct GameState {
     message: String,
     board: Vec<Vec<String>>,
+    black_player_board: Vec<Vec<String>>,
+    white_player_board: Vec<Vec<String>>,
     current_player: String,
 }
 
@@ -109,7 +111,9 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
 
         Json(GameState {
             message: format!("Move attempted at ({}, {})", payload.row, payload.col),
-            board: board_state,
+            board: board_state.clone(),
+            black_player_board: board_state.clone(),
+            white_player_board: board_state,
             current_player: player_to_string(board.get_current_player()),
         })
     }

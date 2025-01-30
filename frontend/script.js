@@ -126,6 +126,8 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
             // 1. Stone placements
             // 2. Current player
             updateBoard(data.board, data.current_player);
+            updateBoard(data.black_player_board, data.current_player);
+            updateBoard(data.white_player_board, data.current_player);
           })
           .catch((error) => {
             console.error("Error:", error);
