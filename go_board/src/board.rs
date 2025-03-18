@@ -372,10 +372,13 @@ impl Board {
 
         let mut potential_board = self.clone();
         potential_board.unsafe_play(mv);
+        println!("{}", potential_board.to_string());
 
         // If the group has been removed after the move, it was a suicidcal move
         let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
         let board_is_repeated = self.snapshots.contains(&potential_board.fields);
+
+        println!("Move is valid: {}", !move_is_suicidal && !board_is_repeated);
 
         !move_is_suicidal && !board_is_repeated
     }
@@ -399,6 +402,7 @@ impl Board {
             }
         }
 
+        // TODO: this needs to check for the group's liberties, not the stone's liberties
         get_check_invalid_remove_group_combo(self, mv.loc.up());
         get_check_invalid_remove_group_combo(self, mv.loc.down());
         get_check_invalid_remove_group_combo(self, mv.loc.left());
@@ -441,6 +445,7 @@ impl Board {
 
     fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
+        println!("{:?}", group);
         let mut liberties: HashSet<Loc> = HashSet::new();
         fn get_check_empty_insert_combo(board: &Board, loc: Loc, liberties: &mut HashSet<Loc>) {
             let color = board.get(loc);
@@ -454,7 +459,7 @@ impl Board {
             get_check_empty_insert_combo(self, stone_coords.left(), &mut liberties);
             get_check_empty_insert_combo(self, stone_coords.right(), &mut liberties);
         }
-
+        println!("{}", liberties.len());
         liberties.len()
     }
 
