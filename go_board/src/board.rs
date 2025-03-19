@@ -394,20 +394,20 @@ impl Board {
         self.set(mv.loc, mv.player.to_color());
         self.current_player = self.current_player.opponent();
 
-        // Remove dead groups
-        fn get_check_invalid_remove_group_combo(board: &mut Board, loc: Loc) {
-            let color = board.get(loc);
-            if color != Color::Invalid && color != Color::Empty && board.count_liberties(loc) == 0 {
-                board.remove_group(loc);
+        let group = self.group_stones(mv.loc);
+        let opponent_stones = self.get_adjecent_opponent_stones(group);
+
+        // Remove opponent's dead groups
+        for loc in opponent_stones {
+            if self.count_liberties(loc) == 0 {
+                self.remove_group(loc);
             }
         }
 
-        // TODO: this needs to check for the group's liberties, not the stone's liberties
-        get_check_invalid_remove_group_combo(self, mv.loc.up());
-        get_check_invalid_remove_group_combo(self, mv.loc.down());
-        get_check_invalid_remove_group_combo(self, mv.loc.left());
-        get_check_invalid_remove_group_combo(self, mv.loc.right());
-        get_check_invalid_remove_group_combo(self, mv.loc);
+        // If our group still has no liberties, remove it
+        if self.count_liberties(mv.loc) == 0 {
+            self.remove_group(mv.loc);
+        }
 
         self.snapshots.insert(self.fields.clone());
     }
@@ -887,6 +887,7 @@ mod tests {
         assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
         assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
         assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
+
     }
 
     #[test]
