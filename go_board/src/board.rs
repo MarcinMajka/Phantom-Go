@@ -473,13 +473,13 @@ impl Board {
                 liberties.insert(loc.up());
             }
             if self.get(loc.down()) == Color::Empty {
-                liberties.insert(loc.up());
+                liberties.insert(loc.down());
             }
             if self.get(loc.left()) == Color::Empty {
-                liberties.insert(loc.up());
+                liberties.insert(loc.left());
             }
             if self.get(loc.right()) == Color::Empty {
-                liberties.insert(loc.up());
+                liberties.insert(loc.right());
             }
         }
         liberties
