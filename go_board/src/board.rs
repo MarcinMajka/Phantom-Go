@@ -443,6 +443,29 @@ impl Board {
         self.flood_fill(loc.right(), color, visited);
     }
 
+    fn get_adjecent_opponent_stones(&self, group: Vec<Loc>) -> HashSet<Loc> {
+        let color = match self.get(group[0]) {
+            Color::Black => Color::White,
+            _ => Color::Black,  
+        };
+        let mut opponent_groups: HashSet<Loc> = HashSet::new();
+        for loc in group {
+            if self.get(loc.up()) == color {
+                opponent_groups.insert(loc.up());
+            }
+            if self.get(loc.down()) == color {
+                opponent_groups.insert(loc.down());
+            }
+            if self.get(loc.left()) == color {
+                opponent_groups.insert(loc.left());
+            }
+            if self.get(loc.right()) == color {
+                opponent_groups.insert(loc.right());
+            }
+        }
+        opponent_groups
+    }
+
     fn get_group_liberties(&self, group: Vec<Loc>) -> HashSet<Loc> {
         let mut liberties: HashSet<Loc> = HashSet::new();
         for loc in group {
