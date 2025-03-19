@@ -443,6 +443,25 @@ impl Board {
         self.flood_fill(loc.right(), color, visited);
     }
 
+    fn get_group_liberties(&self, group: Vec<Loc>) -> HashSet<Loc> {
+        let mut liberties: HashSet<Loc> = HashSet::new();
+        for loc in group {
+            if self.get(loc.up()) == Color::Empty {
+                liberties.insert(loc.up());
+            }
+            if self.get(loc.down()) == Color::Empty {
+                liberties.insert(loc.up());
+            }
+            if self.get(loc.left()) == Color::Empty {
+                liberties.insert(loc.up());
+            }
+            if self.get(loc.right()) == Color::Empty {
+                liberties.insert(loc.up());
+            }
+        }
+        liberties
+    }
+
     fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
         println!("{:?}", group);
