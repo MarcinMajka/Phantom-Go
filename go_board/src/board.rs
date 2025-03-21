@@ -160,6 +160,32 @@ struct BoardSize {
 pub struct Board {
     board_size: BoardSize,
     pub fields: Vec<Vec<Color>>,
+    // TODO: fix the snapshot logic
+    // Unlikely scenarios, where one player sacrifices stones and replays them:
+    // 1:
+    // . # .  
+    // # . #  
+    // O # O  
+    // O . O  
+    // . O .
+    // 2: 
+    // . # .  
+    // # . #  
+    // O # O  
+    // O # O  
+    // . O . 
+    // 3:
+    // . # .  
+    // # O #  
+    // O . O  
+    // O . O  
+    // . O . 
+    // 4 (currently invalid):
+    // . # .  
+    // # . #  
+    // O # O  
+    // O . O  
+    // . O .
     snapshots: HashSet<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
