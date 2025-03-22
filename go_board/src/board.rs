@@ -421,7 +421,7 @@ impl Board {
         self.current_player = self.current_player.opponent();
 
         let group = self.group_stones(mv.loc);
-        let opponent_stones = self.get_adjecent_opponent_stones(group);
+        let opponent_stones = self.get_adjacent_opponent_stones(group);
 
         // Remove opponent's dead groups
         for loc in opponent_stones {
@@ -469,7 +469,7 @@ impl Board {
         self.flood_fill(loc.right(), color, visited);
     }
 
-    fn get_adjecent_opponent_stones(&self, group: Vec<Loc>) -> HashSet<Loc> {
+    fn get_adjacent_opponent_stones(&self, group: Vec<Loc>) -> HashSet<Loc> {
         let color = match self.get(group[0]) {
             Color::Black => Color::White,
             _ => Color::Black,  
