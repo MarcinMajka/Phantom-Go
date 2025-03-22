@@ -409,6 +409,17 @@ impl Board {
         !move_is_suicidal && !board_is_repeated
     }
 
+    fn capture_surrounding_dead_stones(&mut self, mv: &Move) {
+        let group = self.group_stones(mv.loc);
+        let opponent_stones = self.get_adjacent_opponent_stones(group);
+
+        for loc in opponent_stones {
+            if self.count_liberties(loc) == 0 {
+                self.remove_group(loc);
+            }
+        }
+    }
+
     fn unsafe_play(&mut self, mv: &Move) {
         self.game_history.push(mv.clone());
 
@@ -420,15 +431,7 @@ impl Board {
         self.set(mv.loc, mv.player.to_color());
         self.current_player = self.current_player.opponent();
 
-        let group = self.group_stones(mv.loc);
-        let opponent_stones = self.get_adjacent_opponent_stones(group);
-
-        // Remove opponent's dead groups
-        for loc in opponent_stones {
-            if self.count_liberties(loc) == 0 {
-                self.remove_group(loc);
-            }
-        }
+        self.capture_surrounding_dead_stones(mv);
 
         // If our group still has no liberties, remove it
         if self.count_liberties(mv.loc) == 0 {
