@@ -186,6 +186,9 @@ pub struct Board {
     // O # O  
     // O . O  
     // . O .
+    // The idea is to add another snapshot hashset, for storing repeated snapshots.
+    // Only when the repeated snapshot is found again, the move is invalid.
+    // Will need to implement a check for illegal ko recapture in this case.
     snapshots: HashSet<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
