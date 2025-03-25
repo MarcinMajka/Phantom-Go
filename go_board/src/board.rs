@@ -160,35 +160,9 @@ struct BoardSize {
 pub struct Board {
     board_size: BoardSize,
     pub fields: Vec<Vec<Color>>,
-    // TODO: fix the snapshot logic
-    // Unlikely scenarios, where one player sacrifices stones and replays them:
-    // 1:
-    // . # .  
-    // # . #  
-    // O # O  
-    // O . O  
-    // . O .
-    // 2: 
-    // . # .  
-    // # . #  
-    // O # O  
-    // O # O  
-    // . O . 
-    // 3:
-    // . # .  
-    // # O #  
-    // O . O  
-    // O . O  
-    // . O . 
-    // 4 (currently invalid):
-    // . # .  
-    // # . #  
-    // O # O  
-    // O . O  
-    // . O .
-    // The idea is to add another snapshot hashset, for storing repeated snapshots.
-    // Only when the repeated snapshot is found again, the move is invalid.
-    // Will need to implement a check for illegal ko recapture in this case.
+    // TODO: improve the snapshot logic
+    // make a Vec<HashSet<Vec<Vec<Color>>>> and count the occurences of each snapshot each time, or
+    // HashMap<Vec<Vec<Color>>, usize> and store the number of occurences of each snapshot
     snapshots: HashSet<Vec<Vec<Color>>>,
     repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
