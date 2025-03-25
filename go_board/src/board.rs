@@ -190,6 +190,7 @@ pub struct Board {
     // Only when the repeated snapshot is found again, the move is invalid.
     // Will need to implement a check for illegal ko recapture in this case.
     snapshots: HashSet<Vec<Vec<Color>>>,
+    snapshot_history: Vec<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
@@ -204,6 +205,7 @@ impl Board {
             board_size: BoardSize { rows, cols },
             fields: vec![vec![Color::Empty; cols]; rows],
             snapshots: HashSet::new(),
+            snapshot_history: vec![],
             game_history: vec![],
             current_player: Player::Black,
             komi,
@@ -406,8 +408,10 @@ impl Board {
         // If the group has been removed after the move, it was a suicidcal move
         let move_is_suicidal = potential_board.get(mv.loc) == Color::Empty;
         let board_is_repeated = self.snapshots.contains(&potential_board.fields);
+        let ko_capture_is_illegal = potential_board.check_illegal_ko_recapture();
 
         println!("Move is valid: {}", !move_is_suicidal && !board_is_repeated);
+        println!("illegal ko recapture: {}", ko_capture_is_illegal);
 
         !move_is_suicidal && !board_is_repeated
     }
@@ -421,6 +425,17 @@ impl Board {
                 self.remove_group(loc);
             }
         }
+    }
+
+    fn check_illegal_ko_recapture(&self) -> bool {
+        if self.snapshot_history.len() < 5 {
+            return false;
+        }
+
+        let current_move_snapshot = &self.snapshot_history[self.snapshot_history.len() - 1];
+        let previous_move_snapshot = &self.snapshot_history[self.snapshot_history.len() - 3];
+
+        return current_move_snapshot == previous_move_snapshot;
     }
 
     fn unsafe_play(&mut self, mv: &Move) {
@@ -442,6 +457,7 @@ impl Board {
         }
 
         self.snapshots.insert(self.fields.clone());
+        self.snapshot_history.push(self.fields.clone());
     }
 
     #[allow(dead_code)]
