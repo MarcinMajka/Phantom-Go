@@ -190,6 +190,7 @@ pub struct Board {
     // Only when the repeated snapshot is found again, the move is invalid.
     // Will need to implement a check for illegal ko recapture in this case.
     snapshots: HashSet<Vec<Vec<Color>>>,
+    repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
     game_history: Vec<Move>,
     current_player: Player,
@@ -205,6 +206,7 @@ impl Board {
             board_size: BoardSize { rows, cols },
             fields: vec![vec![Color::Empty; cols]; rows],
             snapshots: HashSet::new(),
+            repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
             game_history: vec![],
             current_player: Player::Black,
@@ -387,7 +389,7 @@ impl Board {
     }
 
     #[allow(dead_code)]
-    fn move_is_valid(&self, mv: &Move) -> bool {
+    fn move_is_valid(&mut self, mv: &Move) -> bool {
         if mv.loc.is_pass() {
             return true;
         }
@@ -413,7 +415,20 @@ impl Board {
         println!("Move is valid: {}", !move_is_suicidal && !board_is_repeated);
         println!("illegal ko recapture: {}", ko_capture_is_illegal);
 
-        !move_is_suicidal && !board_is_repeated
+        if !ko_capture_is_illegal && !move_is_suicidal {
+            if board_is_repeated {
+                let board_was_repeated_before = self.repeated_snapshots.contains(&potential_board.fields);
+                if board_was_repeated_before {
+                    return false;
+                } else {
+                    self.repeated_snapshots.insert(potential_board.fields);
+                }
+            }
+            
+            return true;
+        }
+
+        false
     }
 
     fn capture_surrounding_dead_stones(&mut self, mv: &Move) {
