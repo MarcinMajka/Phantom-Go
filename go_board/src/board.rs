@@ -535,9 +535,7 @@ impl Board {
 
     fn count_liberties(&self, loc: Loc) -> usize {
         let group = self.group_stones(loc);
-        println!("{:?}", group);
         let liberties: HashSet<Loc> = self.get_group_liberties(group);
-        println!("{}", liberties.len());
         liberties.len()
     }
 
