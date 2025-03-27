@@ -1,12 +1,16 @@
 body {
     display: flex;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
 }
 
 div {
     margin: 10px;
-}
+    display: flex;
+    flex-direction: column;
+}   
 
 #undo-button {
     display: flex;
