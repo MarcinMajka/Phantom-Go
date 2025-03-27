@@ -9,7 +9,7 @@ body {
 div {
     margin: 10px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
 }   
 
 #undo-button {
