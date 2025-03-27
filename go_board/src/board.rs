@@ -541,17 +541,19 @@ impl Board {
         }
     }
 
-    pub fn undo(mut self) -> Self {
+    pub fn undo(&mut self) {
         if self.game_history.len() == 0 {
-            return self;
+            return;
         }
 
-        let mut board_after_undo = self.reset();
-        self.game_history.pop();
-        for mv in &self.game_history {
-            board_after_undo.play(mv);
+        let mut new_game_history = self.game_history.clone();
+        new_game_history.pop();
+
+        *self = self.reset();
+
+        for mv in &new_game_history {
+            self.play(mv);
         }
-        board_after_undo
     }
     // When the argument is (self), not (&self), cloning the board will be needed at every iteration of the while loop
     pub fn last_two_moves_are_pass(&self) -> bool {
@@ -583,7 +585,7 @@ pub fn handle_player_input(board: &mut Board, player_input: &str) {
             loc: Loc::pass(),
         }),
         "u" => {
-            *board = board.clone().undo();
+            board.undo();
         }
         _ => match Loc::from_string(player_input) {
             None => {
@@ -1129,7 +1131,7 @@ mod tests {
             let last_move = test_move_history.pop().unwrap();
             assert_ne!(board.get(last_move.loc), Color::Empty);
 
-            board = board.undo();
+            board.undo();
 
             assert_eq!(board.get(last_move.loc), Color::Empty);
         }
@@ -1201,7 +1203,7 @@ mod tests {
             board.play(&mv);
         }
 
-        board = board.undo();
+        board.undo();
 
         assert!(board.get(Loc { row: 1, col: 1 }) == Color::Empty);
         assert!(board.get(Loc { row: 2, col: 1 }) == Color::Empty);
