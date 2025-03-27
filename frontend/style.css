@@ -7,3 +7,14 @@ body {
 div {
     margin: 10px;
 }
+
+#undo-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    width: 200px;
+    font-size: larger;
+    color: white;
+    background-color: burlywood;
+}
