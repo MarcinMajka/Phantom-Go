@@ -119,6 +119,34 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     }
 }
 
+#[handler]
+async fn undo() -> Json<GameState> {
+    unsafe {
+        let board = GAME_BOARD.as_mut().unwrap();
+        board.undo();
+        
+        // Get the playable board dimensions
+        let (rows, cols) = get_playable_dimensions(board);
+        
+        // Convert board state to string format for frontend, excluding sentinel borders
+        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
+            .map(|row| {
+                row[1..=cols].iter()
+                    .map(|&color| color_to_string(color))
+                    .collect()
+            })
+            .collect();
+
+        Json(GameState {
+            message: "Undo successful".to_string(),
+            board: board_state.clone(),
+            black_player_board: board_state.clone(),
+            white_player_board: board_state,
+            current_player: player_to_string(board.get_current_player()),
+        })
+    }
+}
+
 pub async fn start_server() -> Result<(), std::io::Error> {
     init_game();
 
@@ -130,6 +158,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
     let app = Route::new()
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::get(get_dimensions))
+        .at("/undo", poem::post(undo))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
