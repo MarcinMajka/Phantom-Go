@@ -205,7 +205,6 @@ function updateBoard(boardState, currentPlayer) {
   console.log("Current player:", currentPlayer);
 }
 
-// Helper functions
 function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
   const boardWidth = (cols - 1) * cellSize;
   const boardHeight = (rows - 1) * cellSize;
