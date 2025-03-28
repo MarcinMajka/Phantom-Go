@@ -1,3 +1,5 @@
+let svg, globalCellSize, globalToSvgCoords;
+
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
   fetch("http://localhost:8000/dimensions")
@@ -14,8 +16,12 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const { cellSize, padding, totalWidth, totalHeight, toSvgCoords } =
     calculateBoardGeometry(rows, cols);
 
+  // Set global variables
+  globalCellSize = cellSize;
+  globalToSvgCoords = toSvgCoords;
+
   // Create SVG element
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", totalWidth);
   svg.setAttribute("height", totalHeight);
   svg.style.margin = "auto";
@@ -120,11 +126,11 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
           })
           .then((data) => {
             // Log server response
-            console.log("Server response:", data.message);
-            // Update UI board based on server's game state
             // This includes:
             // 1. Stone placements
             // 2. Current player
+            console.log("Server response:", data.message);
+            // Update UI board based on server's game state
             updateBoard(data.board, data.current_player);
           })
           .catch((error) => {
@@ -134,57 +140,6 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
 
       svg.appendChild(clickArea);
     }
-  }
-
-  function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
-    const boardWidth = (cols - 1) * cellSize;
-    const boardHeight = (rows - 1) * cellSize;
-    const totalWidth = boardWidth + 2 * padding;
-    const totalHeight = boardHeight + 2 * padding;
-
-    return {
-      cellSize,
-      padding,
-      boardWidth,
-      boardHeight,
-      totalWidth,
-      totalHeight,
-      // Helper function to convert board coordinates to SVG coordinates
-      toSvgCoords: (x, y) => ({
-        x: x * cellSize + padding,
-        y: y * cellSize + padding,
-      }),
-    };
-  }
-
-  function updateBoard(boardState, currentPlayer) {
-    // Remove existing stones
-    const stones = document.querySelectorAll(".stone");
-    stones.forEach((stone) => stone.remove());
-
-    // Add new stones based on board state
-    boardState.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
-        if (cell !== "empty" && cell !== "invalid") {
-          const { x, y } = toSvgCoords(colIndex, rowIndex);
-          const stone = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "circle"
-          );
-          stone.setAttribute("cx", x);
-          stone.setAttribute("cy", y);
-          stone.setAttribute("r", cellSize * 0.4); // Stone radius
-          stone.setAttribute("fill", cell === "black" ? "black" : "white");
-          stone.setAttribute("stroke", "black");
-          stone.setAttribute("stroke-width", "1");
-          stone.classList.add("stone");
-          svg.appendChild(stone);
-        }
-      });
-    });
-
-    // Update current player indicator if needed
-    console.log("Current player:", currentPlayer);
   }
 
   const svgBlackPlayerBoard = svg.cloneNode(true);
@@ -200,7 +155,78 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     .appendChild(svgWhitePlayerBoard);
 }
 
-// Function to calculate hoshi positions based on board size
+// Undo button handler
+document.getElementById("undo-button").addEventListener("click", () => {
+  fetch("http://localhost:8000/undo", {
+    method: "POST",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Server response:", data.message);
+      updateBoard(data.board, data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+
+function updateBoard(boardState, currentPlayer) {
+  // Remove existing stones
+  const stones = document.querySelectorAll(".stone");
+  stones.forEach((stone) => stone.remove());
+
+  // Add new stones based on board state
+  boardState.forEach((row, rowIndex) => {
+    row.forEach((cell, colIndex) => {
+      if (cell !== "empty" && cell !== "invalid") {
+        const { x, y } = globalToSvgCoords(colIndex, rowIndex);
+        const stone = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        stone.setAttribute("cx", x);
+        stone.setAttribute("cy", y);
+        stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
+        stone.setAttribute("fill", cell === "black" ? "black" : "white");
+        stone.setAttribute("stroke", "black");
+        stone.setAttribute("stroke-width", "1");
+        stone.classList.add("stone");
+        svg.appendChild(stone);
+      }
+    });
+  });
+
+  // Update current player indicator if needed
+  console.log("Current player:", currentPlayer);
+}
+
+// Helper functions
+function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
+  const boardWidth = (cols - 1) * cellSize;
+  const boardHeight = (rows - 1) * cellSize;
+  const totalWidth = boardWidth + 2 * padding;
+  const totalHeight = boardHeight + 2 * padding;
+
+  return {
+    cellSize,
+    padding,
+    boardWidth,
+    boardHeight,
+    totalWidth,
+    totalHeight,
+    // Helper function to convert board coordinates to SVG coordinates
+    toSvgCoords: (x, y) => ({
+      x: x * cellSize + padding,
+      y: y * cellSize + padding,
+    }),
+  };
+}
+
 function getStarPoints(rows, cols) {
   if (rows !== cols) {
     // If board is not square, we might need different logic
