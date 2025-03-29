@@ -12,7 +12,7 @@ div {
     flex-direction: column-reverse;
 }   
 
-#undo-button {
+.button {
     display: flex;
     align-items: center;
     justify-content: center;
