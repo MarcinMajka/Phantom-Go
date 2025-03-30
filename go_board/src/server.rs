@@ -120,6 +120,26 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
 }
 
 #[handler]
+async fn pass() -> Json<GameState> {
+    unsafe {
+        let board = GAME_BOARD.as_mut().unwrap();
+
+        board.play(&Move {
+            player: board.get_current_player(),
+            loc: Loc::pass(),
+        });
+
+        Json(GameState {
+            message: format!("Player {:?} passed", board.get_current_player().opponent()),
+            board: vec![],
+            black_player_board: vec![],
+            white_player_board: vec![],
+            current_player: player_to_string(board.get_current_player()),
+        })
+    }
+}
+
+#[handler]
 async fn undo() -> Json<GameState> {
     unsafe {
         let board = GAME_BOARD.as_mut().unwrap();
