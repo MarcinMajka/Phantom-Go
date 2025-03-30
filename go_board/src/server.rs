@@ -179,6 +179,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::get(get_dimensions))
         .at("/undo", poem::post(undo))
+        .at("/pass", poem::post(pass))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
