@@ -175,6 +175,24 @@ document.getElementById("undo-button").addEventListener("click", () => {
     });
 });
 
+document.getElementById("pass-button").addEventListener("click", () => {
+  fetch("http://localhost:8000/pass", {
+    method: "POST",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Pass response:", data.message);
+    })
+    .catch((error) => {
+      console.error("Error during pass:", error);
+    });
+});
+
 function updateBoard(boardState, currentPlayer) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
