@@ -129,13 +129,27 @@ async fn pass() -> Json<GameState> {
             loc: Loc::pass(),
         });
 
-        Json(GameState {
-            message: format!("Player {:?} passed", board.get_current_player().opponent()),
+        let game_is_over = board.last_two_moves_are_pass();
+
+        if !game_is_over {
+            Json(GameState {
+                message: format!("Player {:?} passed", board.get_current_player().opponent()),
+                board: vec![],
+                black_player_board: vec![],
+                white_player_board: vec![],
+                current_player: player_to_string(board.get_current_player()),
+            })
+        } else {
+            Json(GameState {
+            message: format!("Both players passed. Game over!"),
             board: vec![],
             black_player_board: vec![],
             white_player_board: vec![],
-            current_player: player_to_string(board.get_current_player()),
+            current_player: "counting".to_string(),
         })
+        }
+
+        
     }
 }
 
