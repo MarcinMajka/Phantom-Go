@@ -187,6 +187,10 @@ document.getElementById("pass-button").addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Pass response:", data.message);
+
+      if (data.current_player === "counting") {
+        console.log("Counting phase");
+      }
     })
     .catch((error) => {
       console.error("Error during pass:", error);
