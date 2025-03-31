@@ -1,4 +1,5 @@
 let svg, globalCellSize, globalToSvgCoords;
+let countingPhase = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -190,6 +191,7 @@ document.getElementById("pass-button").addEventListener("click", () => {
 
       if (data.current_player === "counting") {
         console.log("Counting phase");
+        countingPhase = true;
       }
     })
     .catch((error) => {
