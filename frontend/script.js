@@ -106,37 +106,39 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
 
       // Add click handler
       clickArea.addEventListener("click", () => {
-        const row = clickArea.dataset.row;
-        const col = clickArea.dataset.col;
+        if (!countingPhase) {
+          const row = clickArea.dataset.row;
+          const col = clickArea.dataset.col;
 
-        // Send cell click to server via POST request
-        fetch("http://localhost:8000/cell-click", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // Send clicked cell coordinates as JSON payload
-          body: JSON.stringify({ row: parseInt(row), col: parseInt(col) }),
-        })
-          .then((response) => {
-            // Validate server response
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
+          // Send cell click to server via POST request
+          fetch("http://localhost:8000/cell-click", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            // Send clicked cell coordinates as JSON payload
+            body: JSON.stringify({ row: parseInt(row), col: parseInt(col) }),
           })
-          .then((data) => {
-            // Log server response
-            // This includes:
-            // 1. Stone placements
-            // 2. Current player
-            console.log("Server response:", data.message);
-            // Update UI board based on server's game state
-            updateBoard(data.board, data.current_player);
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
+            .then((response) => {
+              // Validate server response
+              if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              // Log server response
+              // This includes:
+              // 1. Stone placements
+              // 2. Current player
+              console.log("Server response:", data.message);
+              // Update UI board based on server's game state
+              updateBoard(data.board, data.current_player);
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
       });
 
       svg.appendChild(clickArea);
@@ -220,6 +222,13 @@ function updateBoard(boardState, currentPlayer) {
         stone.setAttribute("stroke", "black");
         stone.setAttribute("stroke-width", "1");
         stone.classList.add("stone");
+
+        stone.addEventListener("click", () => {
+          if (countingPhase) {
+            console.log("Row: " + x + " Col: " + y);
+          }
+        });
+
         svg.appendChild(stone);
       }
     });
