@@ -11,7 +11,7 @@ div {
     margin: 10px;
     display: flex;
     flex-direction: column-reverse;
-}   
+}
 
 .button {
     display: flex;
@@ -22,4 +22,9 @@ div {
     font-size: larger;
     color: white;
     background-color: burlywood;
+}
+
+#player-turn {
+    color: white;
+    font-size: larger;
 }
