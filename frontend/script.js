@@ -1,5 +1,6 @@
 let svg, globalCellSize, globalToSvgCoords;
 let countingPhase = false;
+let playerTurnElement = document.getElementById("player-turn");
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -193,7 +194,10 @@ document.getElementById("pass-button").addEventListener("click", () => {
 
       if (data.current_player === "counting") {
         console.log("Counting phase");
+        playerTurnElement.innerText = "Counting points";
         countingPhase = true;
+      } else {
+        playerTurnElement.innerText = data.current_player;
       }
     })
     .catch((error) => {
@@ -234,8 +238,7 @@ function updateBoard(boardState, currentPlayer) {
     });
   });
 
-  // Update current player indicator if needed
-  console.log("Current player:", currentPlayer);
+  playerTurnElement.innerText = currentPlayer;
 }
 
 function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
