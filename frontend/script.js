@@ -229,7 +229,8 @@ function updateBoard(boardState, currentPlayer) {
 
         stone.addEventListener("click", () => {
           if (countingPhase) {
-            console.log("Row: " + x + " Col: " + y);
+            console.log("Row: " + rowIndex + " Col: " + colIndex);
+            console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
           }
         });
 
