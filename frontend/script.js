@@ -137,6 +137,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
               console.log("Server response:", data.message);
               // Update UI board based on server's game state
               updateBoard(data.board, data.current_player);
+              updateCaptures(data.black_captures, data.white_captures);
             })
             .catch((error) => {
               console.error("Error:", error);
@@ -175,6 +176,7 @@ document.getElementById("undo-button").addEventListener("click", () => {
     .then((data) => {
       console.log("Server response:", data.message);
       updateBoard(data.board, data.current_player);
+      updateCaptures(data.black_captures, data.white_captures);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -242,6 +244,11 @@ function updateBoard(boardState, currentPlayer) {
   });
 
   playerTurnElement.innerText = "Turn: " + currentPlayer;
+}
+
+function updateCaptures(blackCaptures, whiteCaptures) {
+  blackCapturesElement.innerText = "Black Captures: " + blackCaptures;
+  whiteCapturesElement.innerText = "White Captures: " + whiteCaptures;
 }
 
 function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
