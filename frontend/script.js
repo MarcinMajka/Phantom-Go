@@ -1,6 +1,8 @@
 let svg, globalCellSize, globalToSvgCoords;
 let countingPhase = false;
 let playerTurnElement = document.getElementById("player-turn");
+let blackCapturesElement = document.getElementById("black-captures");
+let whiteCapturesElement = document.getElementById("white-captures");
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
