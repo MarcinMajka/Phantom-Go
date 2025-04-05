@@ -236,6 +236,14 @@ impl Board {
         board_string
     }
 
+    pub fn get_black_captures(&self) -> isize {
+        self.black_captures
+    }
+
+    pub fn get_white_captures(&self) -> isize {
+        self.white_captures
+    }
+
     fn board_size(&self) -> (usize, usize) {
         (self.fields.len(), self.fields[0].len())
     }
