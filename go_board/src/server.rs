@@ -27,6 +27,8 @@ struct GameState {
     black_player_board: Vec<Vec<String>>,
     white_player_board: Vec<Vec<String>>,
     current_player: String,
+    black_captures: isize,
+    white_captures: isize,
 }
 
 static mut GAME_BOARD: Option<Board> = None;
@@ -115,6 +117,8 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
             black_player_board: board_state.clone(),
             white_player_board: board_state,
             current_player: player_to_string(board.get_current_player()),
+            black_captures: board.get_black_captures(),
+            white_captures: board.get_white_captures(),
         })
     }
 }
@@ -138,6 +142,8 @@ async fn pass() -> Json<GameState> {
                 black_player_board: vec![],
                 white_player_board: vec![],
                 current_player: player_to_string(board.get_current_player()),
+                black_captures: board.get_black_captures(),
+                white_captures: board.get_white_captures(),
             })
         } else {
             Json(GameState {
@@ -146,6 +152,8 @@ async fn pass() -> Json<GameState> {
             black_player_board: vec![],
             white_player_board: vec![],
             current_player: "counting".to_string(),
+            black_captures: board.get_black_captures(),
+            white_captures: board.get_white_captures(),
         })
         }
 
@@ -177,6 +185,8 @@ async fn undo() -> Json<GameState> {
             black_player_board: board_state.clone(),
             white_player_board: board_state,
             current_player: player_to_string(board.get_current_player()),
+            black_captures: board.get_black_captures(),
+            white_captures: board.get_white_captures(),
         })
     }
 }
