@@ -197,7 +197,7 @@ document.getElementById("pass-button").addEventListener("click", () => {
         playerTurnElement.innerText = "Counting points";
         countingPhase = true;
       } else {
-        playerTurnElement.innerText = data.current_player;
+        playerTurnElement.innerText = "Turn: " + data.current_player;
       }
     })
     .catch((error) => {
@@ -239,7 +239,7 @@ function updateBoard(boardState, currentPlayer) {
     });
   });
 
-  playerTurnElement.innerText = currentPlayer;
+  playerTurnElement.innerText = "Turn: " + currentPlayer;
 }
 
 function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
