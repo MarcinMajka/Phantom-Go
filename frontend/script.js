@@ -240,6 +240,12 @@ function updateBoard(boardState, currentPlayer) {
         });
 
         svg.appendChild(stone);
+
+        if (cell === "black") {
+          svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
+        } else {
+          svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
+        }
       }
     });
   });
