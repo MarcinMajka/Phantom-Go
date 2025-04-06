@@ -210,6 +210,36 @@ document.getElementById("pass-button").addEventListener("click", () => {
     });
 });
 
+function placeStone(cell, row, col) {
+  const { x, y } = globalToSvgCoords(col, row);
+  const stone = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  stone.setAttribute("cx", x);
+  stone.setAttribute("cy", y);
+  stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
+  stone.setAttribute("fill", cell === "black" ? "black" : "white");
+  stone.setAttribute("stroke", "black");
+  stone.setAttribute("stroke-width", "1");
+  stone.classList.add("stone");
+
+  stone.addEventListener("click", () => {
+    if (countingPhase) {
+      console.log("Row: " + row + " Col: " + col);
+      console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
+    }
+  });
+
+  svg.appendChild(stone);
+
+  if (cell === "black") {
+    svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
+  } else {
+    svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
+  }
+}
+
 function updateBoard(boardState, currentPlayer) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
@@ -219,33 +249,7 @@ function updateBoard(boardState, currentPlayer) {
   boardState.forEach((row, rowIndex) => {
     row.forEach((cell, colIndex) => {
       if (cell !== "empty" && cell !== "invalid") {
-        const { x, y } = globalToSvgCoords(colIndex, rowIndex);
-        const stone = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "circle"
-        );
-        stone.setAttribute("cx", x);
-        stone.setAttribute("cy", y);
-        stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
-        stone.setAttribute("fill", cell === "black" ? "black" : "white");
-        stone.setAttribute("stroke", "black");
-        stone.setAttribute("stroke-width", "1");
-        stone.classList.add("stone");
-
-        stone.addEventListener("click", () => {
-          if (countingPhase) {
-            console.log("Row: " + rowIndex + " Col: " + colIndex);
-            console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
-          }
-        });
-
-        svg.appendChild(stone);
-
-        if (cell === "black") {
-          svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
-        } else {
-          svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
-        }
+        placeStone(cell, rowIndex, colIndex);
       }
     });
   });
