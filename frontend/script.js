@@ -1,4 +1,5 @@
 let svg, globalCellSize, globalToSvgCoords;
+let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let countingPhase = false;
 let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
@@ -149,8 +150,8 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     }
   }
 
-  const svgBlackPlayerBoard = svg.cloneNode(true);
-  const svgWhitePlayerBoard = svg.cloneNode(true);
+  svgBlackPlayerBoard = svg.cloneNode(true);
+  svgWhitePlayerBoard = svg.cloneNode(true);
 
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
