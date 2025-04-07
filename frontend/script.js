@@ -84,18 +84,33 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     svg.appendChild(starPoint);
   });
 
-  // Add invisible click areas for placing stones
+  addClickAreas(svg, rows, cols);
+
+  svgBlackPlayerBoard = svg.cloneNode(true);
+  svgWhitePlayerBoard = svg.cloneNode(true);
+
+  // Add the SVG to the page
+  document.getElementById("board-container").appendChild(svg);
+  document
+    .getElementById("black-player-board")
+    .appendChild(svgBlackPlayerBoard);
+  document
+    .getElementById("white-player-board")
+    .appendChild(svgWhitePlayerBoard);
+}
+
+function addClickAreas(board, rows, cols) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const { x, y } = toSvgCoords(col, row);
+      const { x, y } = globalToSvgCoords(col, row);
       const clickArea = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "rect"
       );
-      clickArea.setAttribute("x", x - cellSize / 2);
-      clickArea.setAttribute("y", y - cellSize / 2);
-      clickArea.setAttribute("width", cellSize);
-      clickArea.setAttribute("height", cellSize);
+      clickArea.setAttribute("x", x - globalCellSize / 2);
+      clickArea.setAttribute("y", y - globalCellSize / 2);
+      clickArea.setAttribute("width", globalCellSize);
+      clickArea.setAttribute("height", globalCellSize);
       clickArea.setAttribute("fill", "transparent");
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
@@ -146,21 +161,9 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
         }
       });
 
-      svg.appendChild(clickArea);
+      board.appendChild(clickArea);
     }
   }
-
-  svgBlackPlayerBoard = svg.cloneNode(true);
-  svgWhitePlayerBoard = svg.cloneNode(true);
-
-  // Add the SVG to the page
-  document.getElementById("board-container").appendChild(svg);
-  document
-    .getElementById("black-player-board")
-    .appendChild(svgBlackPlayerBoard);
-  document
-    .getElementById("white-player-board")
-    .appendChild(svgWhitePlayerBoard);
 }
 
 // Undo button handler
