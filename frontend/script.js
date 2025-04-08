@@ -89,6 +89,9 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   svgBlackPlayerBoard = svg.cloneNode(true);
   svgWhitePlayerBoard = svg.cloneNode(true);
 
+  addClickAreas(svgBlackPlayerBoard, rows, cols);
+  addClickAreas(svgWhitePlayerBoard, rows, cols);
+
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
   document
