@@ -238,6 +238,29 @@ function placeStone(cell, row, col) {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
       console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
+      fetch("http://localhost:8000/remove-stones", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          row: parseInt(row),
+          col: parseInt(col),
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // data.group is an array of Locs to remove
+          console.log("Server response:", data.group);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     }
   });
 
