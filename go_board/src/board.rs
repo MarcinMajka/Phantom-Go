@@ -3,6 +3,7 @@
 
 use std::collections::HashSet;
 use std::{io, usize};
+use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -63,7 +64,7 @@ impl Player {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Loc {
     pub row: usize,
     pub col: usize,
@@ -464,7 +465,7 @@ impl Board {
         }
     }
 
-    fn group_stones(&self, loc: Loc) -> Vec<Loc> {
+    pub fn group_stones(&self, loc: Loc) -> Vec<Loc> {
         let mut group_stones_coordinates: Vec<Loc> = vec![];
         let color = self.fields[loc.row][loc.col];
         self.flood_fill(loc, color, &mut group_stones_coordinates);

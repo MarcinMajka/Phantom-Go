@@ -147,6 +147,17 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
 }
 
 #[handler]
+async fn group_remove(payload: Json<CellClick>) -> Json<Vec<Loc>> {
+    unsafe {
+        let board = GAME_BOARD.as_mut().unwrap();
+        let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
+
+        Json(group)
+    }
+}
+
+
+#[handler]
 async fn pass() -> Json<GameState> {
     unsafe {
         let board = GAME_BOARD.as_mut().unwrap();
@@ -227,6 +238,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/dimensions", poem::get(get_dimensions))
         .at("/undo", poem::post(undo))
         .at("/pass", poem::post(pass))
+        .at("/group-remove", poem::post(group_remove))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");

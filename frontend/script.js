@@ -238,12 +238,13 @@ function placeStone(cell, row, col) {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
       console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
-      fetch("http://localhost:8000/remove-stones", {
+      fetch("http://localhost:8000/group-remove", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          frontend_board: "main",
           row: parseInt(row),
           col: parseInt(col),
         }),
@@ -256,7 +257,7 @@ function placeStone(cell, row, col) {
         })
         .then((data) => {
           // data.group is an array of Locs to remove
-          console.log("Server response:", data.group);
+          console.log("Server response:", data);
         })
         .catch((error) => {
           console.error("Error:", error);
