@@ -107,7 +107,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
             Player::White => "white",
         };
 
-        if correct_board != frontent_board {
+        if correct_board != frontent_board && frontent_board != "main" {
             return Json(GameState {
                 message: format!("It's not your turn!"),
                 board: board_state.clone(),

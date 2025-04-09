@@ -84,7 +84,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     svg.appendChild(starPoint);
   });
 
-  addClickAreas(svg, rows, cols);
+  addClickAreas(svg, rows, cols, "main");
 
   svgBlackPlayerBoard = svg.cloneNode(true);
   svgWhitePlayerBoard = svg.cloneNode(true);
