@@ -89,8 +89,8 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   svgBlackPlayerBoard = svg.cloneNode(true);
   svgWhitePlayerBoard = svg.cloneNode(true);
 
-  addClickAreas(svgBlackPlayerBoard, rows, cols);
-  addClickAreas(svgWhitePlayerBoard, rows, cols);
+  addClickAreas(svgBlackPlayerBoard, rows, cols, "black");
+  addClickAreas(svgWhitePlayerBoard, rows, cols, "white");
 
   // Add the SVG to the page
   document.getElementById("board-container").appendChild(svg);
@@ -102,7 +102,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     .appendChild(svgWhitePlayerBoard);
 }
 
-function addClickAreas(board, rows, cols) {
+function addClickAreas(board, rows, cols, playerBoard) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const { x, y } = globalToSvgCoords(col, row);
@@ -139,7 +139,11 @@ function addClickAreas(board, rows, cols) {
               "Content-Type": "application/json",
             },
             // Send clicked cell coordinates as JSON payload
-            body: JSON.stringify({ row: parseInt(row), col: parseInt(col) }),
+            body: JSON.stringify({
+              frontend_board: playerBoard,
+              row: parseInt(row),
+              col: parseInt(col),
+            }),
           })
             .then((response) => {
               // Validate server response
