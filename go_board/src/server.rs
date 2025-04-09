@@ -99,7 +99,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         let board = GAME_BOARD.as_mut().unwrap();
         let current_player = board.get_current_player();
         // Check if the move was made on correct player's board
-        let frontent_board = payload.frontend_board.clone();
+        let frontend_board = payload.frontend_board.clone();
         let board_state: Vec<Vec<String>> = get_board_state(board);
 
         let correct_board = match current_player {
@@ -107,7 +107,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
             Player::White => "white",
         };
 
-        if correct_board != frontent_board && frontent_board != "main" {
+        if correct_board != frontend_board && frontend_board != "main" {
             return Json(GameState {
                 message: format!("It's not your turn!"),
                 board: board_state.clone(),
