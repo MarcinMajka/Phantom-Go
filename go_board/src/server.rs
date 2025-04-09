@@ -16,6 +16,7 @@ struct BoardDimensions {
 
 #[derive(Deserialize, Debug)]
 pub struct CellClick {
+    pub frontend_board: String,
     pub row: usize,
     pub col: usize,
 }
@@ -85,6 +86,31 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     unsafe {
         let board = GAME_BOARD.as_mut().unwrap();
         let current_player = board.get_current_player();
+        // Check if the move was made on correct player's board
+        let frontent_board = payload.frontend_board.clone();
+        // Get the playable board dimensions
+        let (rows, cols) = get_playable_dimensions(board);
+        // Convert board state to string format for frontend, excluding sentinel borders
+        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
+            .map(|row| {
+                row[1..=cols].iter()
+                    .map(|&color| color_to_string(color))
+                    .collect()
+            })
+            .collect();
+
+        if (frontent_board != "black" && current_player == Player::Black) ||
+           (frontent_board != "white" && current_player == Player::White) {
+            return Json(GameState {
+                message: format!("It's not your turn!"),
+                board: board_state.clone(),
+                black_player_board: board_state.clone(),
+                white_player_board: board_state,
+                current_player: player_to_string(board.get_current_player()),
+                black_captures: board.get_black_captures(),
+                white_captures: board.get_white_captures(),
+            });
+        }
         
         // Create move from payload
         let move_attempt = Move {
@@ -99,10 +125,6 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         // Try to play the move - play() handles validation internally
         board.play(&move_attempt);
         
-        // Get the playable board dimensions
-        let (rows, cols) = get_playable_dimensions(board);
-        
-        // Convert board state to string format for frontend, excluding sentinel borders
         let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
             .map(|row| {
                 row[1..=cols].iter()
@@ -110,7 +132,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
                     .collect()
             })
             .collect();
-
+        
         Json(GameState {
             message: format!("Move attempted at ({}, {})", payload.row, payload.col),
             board: board_state.clone(),
