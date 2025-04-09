@@ -76,6 +76,18 @@ async fn get_dimensions() -> Json<BoardDimensions> {
     }
 }
 
+// Convert board state to string format for frontend, excluding sentinel borders
+fn get_board_state(board: &Board) -> Vec<Vec<String>> {
+    let (rows, cols) = get_playable_dimensions(board);
+    board.fields[1..=rows].iter()
+        .map(|row| {
+            row[1..=cols].iter()
+                .map(|&color| color_to_string(color))
+                .collect()
+        })
+        .collect()
+}
+
 // Core communication pattern:
 // 1. Receive click coordinates
 // 2. Validate move
@@ -88,16 +100,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         let current_player = board.get_current_player();
         // Check if the move was made on correct player's board
         let frontent_board = payload.frontend_board.clone();
-        // Get the playable board dimensions
-        let (rows, cols) = get_playable_dimensions(board);
-        // Convert board state to string format for frontend, excluding sentinel borders
-        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
-            .map(|row| {
-                row[1..=cols].iter()
-                    .map(|&color| color_to_string(color))
-                    .collect()
-            })
-            .collect();
+        let board_state: Vec<Vec<String>> = get_board_state(board);
 
         if (frontent_board != "black" && current_player == Player::Black) ||
            (frontent_board != "white" && current_player == Player::White) {
@@ -125,13 +128,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         // Try to play the move - play() handles validation internally
         board.play(&move_attempt);
         
-        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
-            .map(|row| {
-                row[1..=cols].iter()
-                    .map(|&color| color_to_string(color))
-                    .collect()
-            })
-            .collect();
+        let board_state: Vec<Vec<String>> = get_board_state(board);
         
         Json(GameState {
             message: format!("Move attempted at ({}, {})", payload.row, payload.col),
