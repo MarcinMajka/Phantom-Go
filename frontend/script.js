@@ -5,6 +5,7 @@ let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
+let addingBlackStone = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -223,6 +224,7 @@ document.getElementById("pass-button").addEventListener("click", () => {
 
 addBlackStoneButton.addEventListener("click", () => {
   console.log("Black stone button clicked");
+  addingBlackStone = true;
 });
 
 function placeStone(cell, row, col) {
