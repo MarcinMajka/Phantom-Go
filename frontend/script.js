@@ -130,7 +130,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
       // Add click handler
       clickArea.addEventListener("click", () => {
-        if (!countingPhase) {
+        if (!countingPhase && !addingBlackStone) {
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
 
@@ -167,6 +167,13 @@ function addClickAreas(board, rows, cols, playerBoard) {
             .catch((error) => {
               console.error("Error:", error);
             });
+        } else if (addingBlackStone) {
+          addingBlackStone = false;
+
+          const row = clickArea.dataset.row;
+          const col = clickArea.dataset.col;
+
+          addBlackStone(row, col);
         }
       });
 
@@ -226,6 +233,23 @@ addBlackStoneButton.addEventListener("click", () => {
   console.log("Black stone button clicked");
   addingBlackStone = true;
 });
+
+function addBlackStone(row, col) {
+  const { x, y } = globalToSvgCoords(col, row);
+  const stone = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  stone.setAttribute("cx", x);
+  stone.setAttribute("cy", y);
+  stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
+  stone.setAttribute("fill", "black");
+  stone.setAttribute("stroke", "black");
+  stone.setAttribute("stroke-width", "1");
+  stone.classList.add("stone");
+
+  svgWhitePlayerBoard.appendChild(stone);
+}
 
 function placeStone(cell, row, col) {
   const { x, y } = globalToSvgCoords(col, row);
