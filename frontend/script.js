@@ -4,6 +4,7 @@ let countingPhase = false;
 let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
+let addBlackStoneButton = document.getElementById("black-stone-button");
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -218,6 +219,10 @@ document.getElementById("pass-button").addEventListener("click", () => {
     .catch((error) => {
       console.error("Error during pass:", error);
     });
+});
+
+addBlackStoneButton.addEventListener("click", () => {
+  console.log("Black stone button clicked");
 });
 
 function placeStone(cell, row, col) {
