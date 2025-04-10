@@ -6,6 +6,7 @@ let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
 let addingBlackStone = false;
+const blackStonesAdded = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -172,6 +173,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
+          blackStonesAdded.push([row, col]);
 
           addBlackStone(row, col);
         }
@@ -298,10 +300,12 @@ function placeStone(cell, row, col) {
 
   svg.appendChild(stone);
 
-  if (cell === "black") {
-    svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
-  } else {
-    svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
+  if (!addingBlackStone) {
+    if (cell === "black") {
+      svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
+    } else {
+      svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
+    }
   }
 }
 
@@ -318,6 +322,10 @@ function updateBoard(boardState, currentPlayer) {
       }
     });
   });
+
+  for (const stone of blackStonesAdded) {
+    addBlackStone(...stone);
+  }
 
   playerTurnElement.innerText = "Turn: " + currentPlayer;
 }
