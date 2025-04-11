@@ -6,7 +6,9 @@ let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
 let addingBlackStone = false;
+let addingWhiteStone = false;
 const blackStonesAdded = [];
+const whiteStonesAdded = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
