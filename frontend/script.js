@@ -9,6 +9,7 @@ let addWhiteStoneButton = document.getElementById("white-stone-button");
 let removeStoneButton = document.getElementById("remove-stone-button");
 let addingBlackStone = false;
 let addingWhiteStone = false;
+let removingStones = false;
 const blackStonesAdded = [];
 const whiteStonesAdded = [];
 
@@ -285,6 +286,22 @@ function addWhiteStone(row, col) {
   stone.classList.add("stone");
 
   svgBlackPlayerBoard.appendChild(stone);
+}
+
+function removeStone(row, col) {
+  for (let i = 0; i < blackStonesAdded.length; i++) {
+    if (blackStonesAdded[i][0] === row && blackStonesAdded[i][1] === col) {
+      blackStonesAdded.splice(i, 1);
+      break;
+    }
+  }
+  for (let i = 0; i < whiteStonesAdded.length; i++) {
+    if (whiteStonesAdded[i][0] === row && whiteStonesAdded[i][1] === col) {
+      whiteStonesAdded.splice(i, 1);
+      break;
+    }
+  }
+  updateBoard(boardState, currentPlayer);
 }
 
 function placeStone(cell, row, col) {
