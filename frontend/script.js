@@ -1,5 +1,6 @@
 let svg, globalCellSize, globalToSvgCoords;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
+let boardState;
 let countingPhase = false;
 let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
@@ -166,8 +167,11 @@ function addClickAreas(board, rows, cols, playerBoard) {
               // 1. Stone placements
               // 2. Current player
               console.log("Server response:", data.message);
+
+              boardState = data.board;
+
               // Update UI board based on server's game state
-              updateBoard(data.board, data.current_player);
+              updateBoard(boardState, data.current_player);
               updateCaptures(data.black_captures, data.white_captures);
             })
             .catch((error) => {
@@ -210,7 +214,8 @@ document.getElementById("undo-button").addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Server response:", data.message);
-      updateBoard(data.board, data.current_player);
+      boardState = data.board;
+      updateBoard(boardState, data.current_player);
       updateCaptures(data.black_captures, data.white_captures);
     })
     .catch((error) => {
