@@ -275,6 +275,10 @@ function addBlackStone(row, col) {
   stone.setAttribute("stroke-width", "1");
   stone.classList.add("stone");
 
+  stone.addEventListener("click", () => {
+    removeStone(row, col);
+  });
+
   svgWhitePlayerBoard.appendChild(stone);
 }
 
@@ -291,6 +295,10 @@ function addWhiteStone(row, col) {
   stone.setAttribute("stroke", "black");
   stone.setAttribute("stroke-width", "1");
   stone.classList.add("stone");
+
+  stone.addEventListener("click", () => {
+    removeStone(row, col);
+  });
 
   svgBlackPlayerBoard.appendChild(stone);
 }
