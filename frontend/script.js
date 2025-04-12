@@ -171,8 +171,9 @@ function addClickAreas(board, rows, cols, playerBoard) {
               boardState = data.board;
 
               // Update UI board based on server's game state
-              updateBoard(boardState, data.current_player);
+              updateBoard(boardState);
               updateCaptures(data.black_captures, data.white_captures);
+              updateTurn(data.current_player);
             })
             .catch((error) => {
               console.error("Error:", error);
@@ -215,8 +216,9 @@ document.getElementById("undo-button").addEventListener("click", () => {
     .then((data) => {
       console.log("Server response:", data.message);
       boardState = data.board;
-      updateBoard(boardState, data.current_player);
+      updateBoard(boardState);
       updateCaptures(data.black_captures, data.white_captures);
+      updateTurn(data.current_player);
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -306,7 +308,7 @@ function removeStone(row, col) {
       break;
     }
   }
-  updateBoard(boardState, currentPlayer);
+  updateBoard(boardState);
 }
 
 function placeStone(cell, row, col) {
@@ -365,7 +367,7 @@ function placeStone(cell, row, col) {
   }
 }
 
-function updateBoard(boardState, currentPlayer) {
+function updateBoard(boardState) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
   stones.forEach((stone) => stone.remove());
@@ -385,7 +387,9 @@ function updateBoard(boardState, currentPlayer) {
   for (const stone of whiteStonesAdded) {
     addWhiteStone(...stone);
   }
+}
 
+function updateTurn(currentPlayer) {
   playerTurnElement.innerText = "Turn: " + currentPlayer;
 }
 
