@@ -185,7 +185,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
           const col = clickArea.dataset.col;
           blackStonesAdded.push([row, col]);
 
-          addBlackStone(row, col);
+          addGuessStone("black", row, col);
         } else if (addingWhiteStone) {
           addingWhiteStone = false;
 
@@ -193,7 +193,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
           const col = clickArea.dataset.col;
           whiteStonesAdded.push([row, col]);
 
-          addWhiteStone(row, col);
+          addGuessStone("white", row, col);
         }
       });
 
@@ -261,7 +261,7 @@ addWhiteStoneButton.addEventListener("click", () => {
   addingWhiteStone = true;
 });
 
-function addBlackStone(row, col) {
+function addGuessStone(color, row, col) {
   const { x, y } = globalToSvgCoords(col, row);
   const stone = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -270,7 +270,7 @@ function addBlackStone(row, col) {
   stone.setAttribute("cx", x);
   stone.setAttribute("cy", y);
   stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
-  stone.setAttribute("fill", "black");
+  stone.setAttribute("fill", color);
   stone.setAttribute("stroke", "black");
   stone.setAttribute("stroke-width", "1");
   stone.classList.add("stone");
@@ -279,28 +279,12 @@ function addBlackStone(row, col) {
     removeStone(row, col);
   });
 
-  svgWhitePlayerBoard.appendChild(stone);
-}
-
-function addWhiteStone(row, col) {
-  const { x, y } = globalToSvgCoords(col, row);
-  const stone = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle"
-  );
-  stone.setAttribute("cx", x);
-  stone.setAttribute("cy", y);
-  stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
-  stone.setAttribute("fill", "white");
-  stone.setAttribute("stroke", "black");
-  stone.setAttribute("stroke-width", "1");
-  stone.classList.add("stone");
-
-  stone.addEventListener("click", () => {
-    removeStone(row, col);
-  });
-
-  svgBlackPlayerBoard.appendChild(stone);
+  if (color === "black") {
+    svgWhitePlayerBoard.appendChild(stone);
+  }
+  if (color === "white") {
+    svgBlackPlayerBoard.appendChild(stone);
+  }
 }
 
 function removeStone(row, col) {
@@ -390,10 +374,10 @@ function updateBoard(boardState) {
   });
 
   for (const stone of blackStonesAdded) {
-    addBlackStone(...stone);
+    addGuessStone("black", ...stone);
   }
   for (const stone of whiteStonesAdded) {
-    addWhiteStone(...stone);
+    addGuessStone("white", ...stone);
   }
 }
 
