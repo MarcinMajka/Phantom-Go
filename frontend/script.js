@@ -6,6 +6,7 @@ let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
 let addWhiteStoneButton = document.getElementById("white-stone-button");
+let removeStoneButton = document.getElementById("remove-stone-button");
 let addingBlackStone = false;
 let addingWhiteStone = false;
 const blackStonesAdded = [];
