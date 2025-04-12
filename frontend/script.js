@@ -5,6 +5,7 @@ let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
+let addWhiteStoneButton = document.getElementById("white-stone-button");
 let addingBlackStone = false;
 let addingWhiteStone = false;
 const blackStonesAdded = [];
@@ -133,7 +134,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
       // Add click handler
       clickArea.addEventListener("click", () => {
-        if (!countingPhase && !addingBlackStone) {
+        if (!countingPhase && !addingBlackStone && !addingWhiteStone) {
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
 
@@ -178,6 +179,14 @@ function addClickAreas(board, rows, cols, playerBoard) {
           blackStonesAdded.push([row, col]);
 
           addBlackStone(row, col);
+        } else if (addingWhiteStone) {
+          addingWhiteStone = false;
+
+          const row = clickArea.dataset.row;
+          const col = clickArea.dataset.col;
+          whiteStonesAdded.push([row, col]);
+
+          addWhiteStone(row, col);
         }
       });
 
@@ -238,6 +247,11 @@ addBlackStoneButton.addEventListener("click", () => {
   addingBlackStone = true;
 });
 
+addWhiteStoneButton.addEventListener("click", () => {
+  console.log("White stone button clicked");
+  addingWhiteStone = true;
+});
+
 function addBlackStone(row, col) {
   const { x, y } = globalToSvgCoords(col, row);
   const stone = document.createElementNS(
@@ -253,6 +267,23 @@ function addBlackStone(row, col) {
   stone.classList.add("stone");
 
   svgWhitePlayerBoard.appendChild(stone);
+}
+
+function addWhiteStone(row, col) {
+  const { x, y } = globalToSvgCoords(col, row);
+  const stone = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  stone.setAttribute("cx", x);
+  stone.setAttribute("cy", y);
+  stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
+  stone.setAttribute("fill", "white");
+  stone.setAttribute("stroke", "black");
+  stone.setAttribute("stroke-width", "1");
+  stone.classList.add("stone");
+
+  svgBlackPlayerBoard.appendChild(stone);
 }
 
 function placeStone(cell, row, col) {
@@ -327,6 +358,9 @@ function updateBoard(boardState, currentPlayer) {
 
   for (const stone of blackStonesAdded) {
     addBlackStone(...stone);
+  }
+  for (const stone of whiteStonesAdded) {
+    addWhiteStone(...stone);
   }
 
   playerTurnElement.innerText = "Turn: " + currentPlayer;
