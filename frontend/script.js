@@ -185,8 +185,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
           addGuessStone("black", row, col);
         } else if (addingWhiteStone) {
-          addingWhiteStone = false;
-
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
           whiteStonesAdded.push([row, col]);
@@ -261,7 +259,12 @@ addBlackStoneButton.addEventListener("click", () => {
 
 addWhiteStoneButton.addEventListener("click", () => {
   console.log("White stone button clicked");
-  addingWhiteStone = true;
+  addWhiteStoneButton.classList.toggle("clicked");
+  if (addWhiteStoneButton.classList.contains("clicked")) {
+    addingWhiteStone = true;
+  } else {
+    addingWhiteStone = false;
+  }
 });
 
 function getStone(color, row, col) {
