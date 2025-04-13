@@ -24,6 +24,10 @@ div {
     background-color: burlywood;
 }
 
+.clicked {
+    background-color: lightblue;
+}
+
 #info-container {
     display: flex;
     flex-direction: column;
