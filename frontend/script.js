@@ -315,7 +315,6 @@ function placeStone(cell, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      console.log("Row SVG coord: " + x + " Col SVG coord: " + y);
       fetch("http://localhost:8000/group-remove", {
         method: "POST",
         headers: {
