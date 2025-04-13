@@ -261,7 +261,7 @@ addWhiteStoneButton.addEventListener("click", () => {
   addingWhiteStone = true;
 });
 
-function getStone(row, col) {
+function getStone(color, row, col) {
   const { x, y } = globalToSvgCoords(col, row);
   const stone = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -270,6 +270,7 @@ function getStone(row, col) {
   stone.setAttribute("cx", x);
   stone.setAttribute("cy", y);
   stone.setAttribute("r", globalCellSize * 0.4); // Stone radius
+  stone.setAttribute("fill", color);
   stone.setAttribute("stroke", "black");
   stone.setAttribute("stroke-width", "1");
   stone.classList.add("stone");
@@ -277,8 +278,7 @@ function getStone(row, col) {
 }
 
 function addGuessStone(color, row, col) {
-  const stone = getStone(row, col);
-  stone.setAttribute("fill", color);
+  const stone = getStone(color, row, col);
 
   stone.addEventListener("click", () => {
     removeStone(row, col);
@@ -309,8 +309,8 @@ function removeStone(row, col) {
 }
 
 function placeStone(cell, row, col) {
-  const stone = getStone(row, col);
-  stone.setAttribute("fill", cell === "black" ? "black" : "white");
+  const stoneColor = cell === "black" ? "black" : "white";
+  const stone = getStone(stoneColor, row, col);
 
   stone.addEventListener("click", () => {
     if (countingPhase) {
