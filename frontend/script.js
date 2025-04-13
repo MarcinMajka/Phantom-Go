@@ -267,6 +267,20 @@ addWhiteStoneButton.addEventListener("click", () => {
   }
 });
 
+removeStoneButton.addEventListener("click", () => {
+  console.log("Remove stone button clicked");
+  removeStoneButton.classList.toggle("clicked");
+  if (removeStoneButton.classList.contains("clicked")) {
+    removingStones = true;
+    addBlackStoneButton.classList.remove("clicked");
+    addWhiteStoneButton.classList.remove("clicked");
+    addingBlackStone = false;
+    addingWhiteStone = false;
+  } else {
+    removingStones = false;
+  }
+});
+
 function getStone(color, row, col) {
   const { x, y } = globalToSvgCoords(col, row);
   const stone = document.createElementNS(
@@ -287,6 +301,7 @@ function addGuessStone(color, row, col) {
   const stone = getStone(color, row, col);
 
   stone.addEventListener("click", () => {
+    if (!removingStones) return;
     removeStone(row, col);
   });
 
