@@ -179,8 +179,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
               console.error("Error:", error);
             });
         } else if (addingBlackStone) {
-          addingBlackStone = false;
-
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
           blackStonesAdded.push([row, col]);
@@ -253,7 +251,12 @@ document.getElementById("pass-button").addEventListener("click", () => {
 
 addBlackStoneButton.addEventListener("click", () => {
   console.log("Black stone button clicked");
-  addingBlackStone = true;
+  addBlackStoneButton.classList.toggle("clicked");
+  if (addBlackStoneButton.classList.contains("clicked")) {
+    addingBlackStone = true;
+  } else {
+    addingBlackStone = false;
+  }
 });
 
 addWhiteStoneButton.addEventListener("click", () => {
