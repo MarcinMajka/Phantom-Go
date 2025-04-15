@@ -1,3 +1,5 @@
+import { getBoardSVG } from "./utils.js";
+
 let svg, globalCellSize, globalToSvgCoords;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
@@ -34,12 +36,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   globalCellSize = cellSize;
   globalToSvgCoords = toSvgCoords;
 
-  // Create SVG element
-  svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", totalWidth);
-  svg.setAttribute("height", totalHeight);
-  svg.style.margin = "auto";
-  svg.style.display = "block";
+  svg = getBoardSVG(totalHeight, totalWidth);
 
   // Add wooden background
   const background = document.createElementNS(
