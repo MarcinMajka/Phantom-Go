@@ -19,3 +19,8 @@ export function addBackground(svg, width, height) {
   background.setAttribute("fill", "#DEB887");
   svg.appendChild(background);
 }
+
+// Helper function to convert board coordinates to SVG coordinates
+export function toSvgCoords(x, y, cellSize, padding = 40) {
+  return [x * cellSize + padding, y * cellSize + padding];
+}

@@ -1,6 +1,6 @@
-import { getBoardSVG, addBackground } from "./utils.js";
+import { getBoardSVG, addBackground, toSvgCoords } from "./utils.js";
 
-let svg, globalCellSize, globalToSvgCoords;
+let svg, globalCellSize;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
 let countingPhase = false;
@@ -29,12 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
-  const { cellSize, padding, totalWidth, totalHeight, toSvgCoords } =
-    calculateBoardGeometry(rows, cols);
+  const { cellSize, padding, totalWidth, totalHeight } = calculateBoardGeometry(
+    rows,
+    cols
+  );
 
   // Set global variables
   globalCellSize = cellSize;
-  globalToSvgCoords = toSvgCoords;
 
   svg = getBoardSVG(totalHeight, totalWidth);
 
@@ -44,7 +45,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const { x } = toSvgCoords(i, 0);
+    const [x, y] = toSvgCoords(i, 0, cellSize, padding);
     line.setAttribute("x1", x);
     line.setAttribute("y1", padding);
     line.setAttribute("x2", x);
@@ -57,7 +58,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   // Draw horizontal lines
   for (let i = 0; i < rows; i++) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const { y } = toSvgCoords(0, i);
+    const [x, y] = toSvgCoords(0, i, cellSize, padding);
     line.setAttribute("x1", padding);
     line.setAttribute("y1", y);
     line.setAttribute("x2", totalWidth - padding);
@@ -71,7 +72,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const starPoints = getStarPoints(rows, cols);
 
   starPoints.forEach((point) => {
-    const { x, y } = toSvgCoords(point.x, point.y);
+    const [x, y] = toSvgCoords(point.x, point.y, cellSize, padding);
     const starPoint = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
@@ -104,7 +105,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
 function addClickAreas(board, rows, cols, playerBoard) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const { x, y } = globalToSvgCoords(col, row);
+      const [x, y] = toSvgCoords(col, row, globalCellSize);
       const clickArea = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "rect"
@@ -272,7 +273,7 @@ removeStoneButton.addEventListener("click", () => {
 });
 
 function getStone(color, row, col) {
-  const { x, y } = globalToSvgCoords(col, row);
+  const [x, y] = toSvgCoords(col, row, globalCellSize);
   const stone = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "circle"
@@ -408,11 +409,6 @@ function calculateBoardGeometry(rows, cols, cellSize = 40, padding = 40) {
     boardHeight,
     totalWidth,
     totalHeight,
-    // Helper function to convert board coordinates to SVG coordinates
-    toSvgCoords: (x, y) => ({
-      x: x * cellSize + padding,
-      y: y * cellSize + padding,
-    }),
   };
 }
 
