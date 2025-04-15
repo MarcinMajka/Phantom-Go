@@ -1,4 +1,4 @@
-import { getBoardSVG } from "./utils.js";
+import { getBoardSVG, addBackground } from "./utils.js";
 
 let svg, globalCellSize, globalToSvgCoords;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
@@ -39,14 +39,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   svg = getBoardSVG(totalHeight, totalWidth);
 
   // Add wooden background
-  const background = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "rect"
-  );
-  background.setAttribute("width", totalWidth);
-  background.setAttribute("height", totalHeight);
-  background.setAttribute("fill", "#DEB887");
-  svg.appendChild(background);
+  addBackground(svg, totalWidth, totalHeight);
 
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
