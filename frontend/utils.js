@@ -1,4 +1,5 @@
 export const cellSize = 40; // Size of each cell in pixels
+export const padding = 40;
 
 // Creates SVG element for the go board
 export function getBoardSVG(height, width) {
@@ -23,6 +24,6 @@ export function addBackground(svg, width, height) {
 }
 
 // Helper function to convert board coordinates to SVG coordinates
-export function toSvgCoords(x, y, padding = 40) {
+export function toSvgCoords(x, y) {
   return [x * cellSize + padding, y * cellSize + padding];
 }

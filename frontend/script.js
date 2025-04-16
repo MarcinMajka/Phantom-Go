@@ -1,4 +1,10 @@
-import { getBoardSVG, addBackground, toSvgCoords, cellSize } from "./utils.js";
+import {
+  getBoardSVG,
+  addBackground,
+  toSvgCoords,
+  cellSize,
+  padding,
+} from "./utils.js";
 
 let svg;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
@@ -29,10 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
-  const { cellSize, padding, totalWidth, totalHeight } = calculateBoardGeometry(
-    rows,
-    cols
-  );
+  const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
 
   svg = getBoardSVG(totalHeight, totalWidth);
 
@@ -393,16 +396,13 @@ function updateCaptures(blackCaptures, whiteCaptures) {
   whiteCapturesElement.innerText = "White Captures: " + whiteCaptures;
 }
 
-function calculateBoardGeometry(rows, cols, padding = 40) {
+function calculateBoardGeometry(rows, cols) {
   const boardWidth = (cols - 1) * cellSize;
   const boardHeight = (rows - 1) * cellSize;
   const totalWidth = boardWidth + 2 * padding;
   const totalHeight = boardHeight + 2 * padding;
 
   return {
-    padding,
-    boardWidth,
-    boardHeight,
     totalWidth,
     totalHeight,
   };
