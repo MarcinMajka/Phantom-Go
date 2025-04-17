@@ -24,8 +24,6 @@ let svg;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
 let countingPhase = false;
-let addBlackStoneButton = document.getElementById("black-stone-button");
-let addWhiteStoneButton = document.getElementById("white-stone-button");
 let removeStoneButton = document.getElementById("remove-stone-button");
 let addingBlackStone = false;
 let addingWhiteStone = false;
@@ -242,20 +240,20 @@ document.getElementById("pass-button").addEventListener("click", () => {
     });
 });
 
-addBlackStoneButton.addEventListener("click", () => {
+elements.addStone.black.addEventListener("click", () => {
   console.log("Black stone button clicked");
-  addBlackStoneButton.classList.toggle("clicked");
-  if (addBlackStoneButton.classList.contains("clicked")) {
+  elements.addStone.black.classList.toggle("clicked");
+  if (elements.addStone.black.classList.contains("clicked")) {
     addingBlackStone = true;
   } else {
     addingBlackStone = false;
   }
 });
 
-addWhiteStoneButton.addEventListener("click", () => {
+elements.addStone.white.addEventListener("click", () => {
   console.log("White stone button clicked");
-  addWhiteStoneButton.classList.toggle("clicked");
-  if (addWhiteStoneButton.classList.contains("clicked")) {
+  elements.addStone.white.classList.toggle("clicked");
+  if (elements.addStone.white.classList.contains("clicked")) {
     addingWhiteStone = true;
   } else {
     addingWhiteStone = false;
@@ -267,8 +265,8 @@ removeStoneButton.addEventListener("click", () => {
   removeStoneButton.classList.toggle("clicked");
   if (removeStoneButton.classList.contains("clicked")) {
     removingStones = true;
-    addBlackStoneButton.classList.remove("clicked");
-    addWhiteStoneButton.classList.remove("clicked");
+    elements.addStone.black.classList.remove("clicked");
+    elements.addStone.white.classList.remove("clicked");
     addingBlackStone = false;
     addingWhiteStone = false;
   } else {
