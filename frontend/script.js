@@ -24,8 +24,6 @@ let svg;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
 let countingPhase = false;
-let blackCapturesElement = document.getElementById("black-captures");
-let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
 let addWhiteStoneButton = document.getElementById("white-stone-button");
 let removeStoneButton = document.getElementById("remove-stone-button");
@@ -403,6 +401,6 @@ function updateTurn(currentPlayer) {
 }
 
 function updateCaptures(blackCaptures, whiteCaptures) {
-  blackCapturesElement.innerText = "Black Captures: " + blackCaptures;
-  whiteCapturesElement.innerText = "White Captures: " + whiteCaptures;
+  elements.captures.black.innerText = "Black Captures: " + blackCaptures;
+  elements.captures.white.innerText = "White Captures: " + whiteCaptures;
 }
