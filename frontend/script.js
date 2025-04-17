@@ -24,7 +24,6 @@ let svg;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
 let countingPhase = false;
-let playerTurnElement = document.getElementById("player-turn");
 let blackCapturesElement = document.getElementById("black-captures");
 let whiteCapturesElement = document.getElementById("white-captures");
 let addBlackStoneButton = document.getElementById("black-stone-button");
@@ -241,10 +240,10 @@ document.getElementById("pass-button").addEventListener("click", () => {
 
       if (data.current_player === "counting") {
         console.log("Counting phase");
-        playerTurnElement.innerText = "Counting points";
+        elements.turn.innerText = "Counting points";
         countingPhase = true;
       } else {
-        playerTurnElement.innerText = "Turn: " + data.current_player;
+        elements.turn.innerText = "Turn: " + data.current_player;
       }
     })
     .catch((error) => {
@@ -402,7 +401,7 @@ function updateBoard(boardState) {
 }
 
 function updateTurn(currentPlayer) {
-  playerTurnElement.innerText = "Turn: " + currentPlayer;
+  elements.turn.innerText = "Turn: " + currentPlayer;
 }
 
 function updateCaptures(blackCaptures, whiteCaptures) {
