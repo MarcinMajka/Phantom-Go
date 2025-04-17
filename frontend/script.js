@@ -237,14 +237,7 @@ document.getElementById("pass-button").addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Pass response:", data.message);
-
-      if (data.current_player === "counting") {
-        console.log("Counting phase");
-        elements.turn.innerText = "Counting points";
-        countingPhase = true;
-      } else {
-        elements.turn.innerText = "Turn: " + data.current_player;
-      }
+      updateTurn(data.current_player);
     })
     .catch((error) => {
       console.error("Error during pass:", error);
@@ -401,7 +394,12 @@ function updateBoard(boardState) {
 }
 
 function updateTurn(currentPlayer) {
-  elements.turn.innerText = "Turn: " + currentPlayer;
+  if (currentPlayer === "counting") {
+    elements.turn.innerText = "Counting points";
+    countingPhase = true;
+  } else {
+    elements.turn.innerText = "Turn: " + currentPlayer;
+  }
 }
 
 function updateCaptures(blackCaptures, whiteCaptures) {
