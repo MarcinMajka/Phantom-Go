@@ -18,13 +18,13 @@ const elements = {
     black: document.getElementById("black-stone-button"),
     white: document.getElementById("white-stone-button"),
   },
+  removeStone: document.getElementById("remove-stone-button"),
 };
 
 let svg;
 let svgBlackPlayerBoard, svgWhitePlayerBoard;
 let boardState;
 let countingPhase = false;
-let removeStoneButton = document.getElementById("remove-stone-button");
 let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
@@ -260,10 +260,10 @@ elements.addStone.white.addEventListener("click", () => {
   }
 });
 
-removeStoneButton.addEventListener("click", () => {
+elements.removeStone.addEventListener("click", () => {
   console.log("Remove stone button clicked");
-  removeStoneButton.classList.toggle("clicked");
-  if (removeStoneButton.classList.contains("clicked")) {
+  elements.removeStone.classList.toggle("clicked");
+  if (elements.removeStone.classList.contains("clicked")) {
     removingStones = true;
     elements.addStone.black.classList.remove("clicked");
     elements.addStone.white.classList.remove("clicked");
