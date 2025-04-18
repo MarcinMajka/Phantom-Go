@@ -28,6 +28,19 @@ export function toSvgCoords(x, y) {
   return [x * cellSize + padding, y * cellSize + padding];
 }
 
+export function getFillColor(color) {
+  let fill;
+  if (color === "black") {
+    fill = "rgba(0, 0, 0, 0.3)";
+  } else if (color === "white") {
+    fill = "rgba(255, 255, 255, 0.35)";
+  } else {
+    fill = "rgba(150, 150, 150, 0.4)";
+  }
+
+  return fill;
+}
+
 export function calculateBoardGeometry(rows, cols) {
   const boardWidth = (cols - 1) * cellSize;
   const boardHeight = (rows - 1) * cellSize;

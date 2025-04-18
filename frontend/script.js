@@ -9,6 +9,7 @@ import {
   getBoardSVG,
   addBackground,
   toSvgCoords,
+  getFillColor,
   calculateBoardGeometry,
   getStarPoints,
   cellSize,
@@ -119,7 +120,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
 
-      addHoverEffect(clickArea);
+      addHoverEffect(clickArea, getFillColor(playerBoard));
 
       // Add click handler
       clickArea.addEventListener("click", () => {
