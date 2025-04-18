@@ -26,3 +26,12 @@ export function updateCaptures(blackCaptures, whiteCaptures) {
   elements.captures.black.innerText = "Black Captures: " + blackCaptures;
   elements.captures.white.innerText = "White Captures: " + whiteCaptures;
 }
+
+export function addHoverEffect(cell) {
+  cell.addEventListener("mouseover", () => {
+    cell.setAttribute("fill", "rgba(0,0,0,0.1)");
+  });
+  cell.addEventListener("mouseout", () => {
+    cell.setAttribute("fill", "transparent");
+  });
+}

@@ -1,4 +1,10 @@
-import { elements, updateTurn, updateCaptures, countingPhase } from "./UI.js";
+import {
+  countingPhase,
+  elements,
+  updateTurn,
+  updateCaptures,
+  addHoverEffect,
+} from "./UI.js";
 import {
   getBoardSVG,
   addBackground,
@@ -114,13 +120,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
 
-      // Add hover effect
-      clickArea.addEventListener("mouseover", () => {
-        clickArea.setAttribute("fill", "rgba(0,0,0,0.1)");
-      });
-      clickArea.addEventListener("mouseout", () => {
-        clickArea.setAttribute("fill", "transparent");
-      });
+      addHoverEffect(clickArea);
 
       // Add click handler
       clickArea.addEventListener("click", () => {
