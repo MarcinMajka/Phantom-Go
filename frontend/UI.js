@@ -1,3 +1,5 @@
+export let countingPhase = false;
+
 export const elements = {
   turn: document.getElementById("player-turn"),
   captures: {

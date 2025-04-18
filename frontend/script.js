@@ -1,4 +1,4 @@
-import { elements, updateTurn, updateCaptures } from "./UI.js";
+import { elements, updateTurn, updateCaptures, countingPhase } from "./UI.js";
 import {
   getBoardSVG,
   addBackground,
@@ -16,7 +16,6 @@ const boards = {
 };
 
 let boardState;
-let countingPhase = false;
 let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
