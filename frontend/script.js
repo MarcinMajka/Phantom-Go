@@ -110,12 +110,11 @@ function addClickAreas(board, rows, cols, playerBoard) {
       const [x, y] = toSvgCoords(col, row);
       const clickArea = document.createElementNS(
         "http://www.w3.org/2000/svg",
-        "rect"
+        "circle"
       );
-      clickArea.setAttribute("x", x - cellSize / 2);
-      clickArea.setAttribute("y", y - cellSize / 2);
-      clickArea.setAttribute("width", cellSize);
-      clickArea.setAttribute("height", cellSize);
+      clickArea.setAttribute("cx", x);
+      clickArea.setAttribute("cy", y);
+      clickArea.setAttribute("r", cellSize * 0.4);
       clickArea.setAttribute("fill", "transparent");
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
