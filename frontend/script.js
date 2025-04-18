@@ -1,5 +1,4 @@
 import { elements, updateTurn, updateCaptures } from "./UI.js";
-
 import {
   getBoardSVG,
   addBackground,
@@ -10,8 +9,12 @@ import {
   padding,
 } from "./utils.js";
 
-let svg;
-let svgBlackPlayerBoard, svgWhitePlayerBoard;
+const boards = {
+  main: null,
+  black: null,
+  white: null,
+};
+
 let boardState;
 let countingPhase = false;
 let addingBlackStone = false;
@@ -35,10 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
 
-  svg = getBoardSVG(totalHeight, totalWidth);
+  boards.main = getBoardSVG(totalHeight, totalWidth);
 
   // Add wooden background
-  addBackground(svg, totalWidth, totalHeight);
+  addBackground(boards.main, totalWidth, totalHeight);
 
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
@@ -50,7 +53,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     line.setAttribute("y2", totalHeight - padding);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);
-    svg.appendChild(line);
+    boards.main.appendChild(line);
   }
 
   // Draw horizontal lines
@@ -63,7 +66,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     line.setAttribute("y2", y);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);
-    svg.appendChild(line);
+    boards.main.appendChild(line);
   }
 
   // Add star points (hoshi)
@@ -79,25 +82,21 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     starPoint.setAttribute("cy", y);
     starPoint.setAttribute("r", starPointRadius);
     starPoint.setAttribute("fill", "black");
-    svg.appendChild(starPoint);
+    boards.main.appendChild(starPoint);
   });
 
-  addClickAreas(svg, rows, cols, "main");
+  addClickAreas(boards.main, rows, cols, "main");
 
-  svgBlackPlayerBoard = svg.cloneNode(true);
-  svgWhitePlayerBoard = svg.cloneNode(true);
+  boards.black = boards.main.cloneNode(true);
+  addClickAreas(boards.black, rows, cols, "black");
 
-  addClickAreas(svgBlackPlayerBoard, rows, cols, "black");
-  addClickAreas(svgWhitePlayerBoard, rows, cols, "white");
+  boards.white = boards.main.cloneNode(true);
+  addClickAreas(boards.white, rows, cols, "white");
 
   // Add the SVG to the page
-  document.getElementById("board-container").appendChild(svg);
-  document
-    .getElementById("black-player-board")
-    .appendChild(svgBlackPlayerBoard);
-  document
-    .getElementById("white-player-board")
-    .appendChild(svgWhitePlayerBoard);
+  document.getElementById("board-container").appendChild(boards.main);
+  document.getElementById("black-player-board").appendChild(boards.black);
+  document.getElementById("white-player-board").appendChild(boards.white);
 }
 
 function addClickAreas(board, rows, cols, playerBoard) {
@@ -288,10 +287,10 @@ function addGuessStone(color, row, col) {
   });
 
   if (color === "black") {
-    svgWhitePlayerBoard.appendChild(stone);
+    boards.white.appendChild(stone);
   }
   if (color === "white") {
-    svgBlackPlayerBoard.appendChild(stone);
+    boards.black.appendChild(stone);
   }
 }
 
@@ -345,13 +344,13 @@ function placeStone(cell, row, col) {
     }
   });
 
-  svg.appendChild(stone);
+  boards.main.appendChild(stone);
 
   if (!addingBlackStone) {
     if (cell === "black") {
-      svgBlackPlayerBoard.appendChild(stone.cloneNode(true));
+      boards.black.appendChild(stone.cloneNode(true));
     } else {
-      svgWhitePlayerBoard.appendChild(stone.cloneNode(true));
+      boards.white.appendChild(stone.cloneNode(true));
     }
   }
 }
