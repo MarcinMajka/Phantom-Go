@@ -320,7 +320,7 @@ function placeStone(cell, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      fetch("http://localhost:8000/group-remove", {
+      fetch("http://localhost:8000/get-group", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
