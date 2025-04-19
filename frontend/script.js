@@ -349,10 +349,12 @@ function placeStone(cell, row, col) {
 
             const color = stoneToColor.getAttribute("data-color");
             const currentFill = stoneToColor.getAttribute("fill");
-            const newFill =
-              currentFill === "transparent" ? color : "transparent";
 
-            stoneToColor.setAttribute("fill", newFill);
+            if (currentFill === "transparent") {
+              stoneToColor.setAttribute("fill", color);
+            } else {
+              stoneToColor.setAttribute("fill", "transparent");
+            }
           }
         })
         .catch((error) => {
