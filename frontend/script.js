@@ -346,7 +346,13 @@ function placeStone(cell, row, col) {
             const stoneToColor = boards.main.querySelector(
               `.stone[data-row="${row}"][data-col="${col}"]`
             );
-            stoneToColor.setAttribute("fill", "transparent");
+
+            const color = stoneToColor.getAttribute("data-color");
+            const currentFill = stoneToColor.getAttribute("fill");
+            const newFill =
+              currentFill === "transparent" ? color : "transparent";
+
+            stoneToColor.setAttribute("fill", newFill);
           }
         })
         .catch((error) => {
