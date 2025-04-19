@@ -28,6 +28,7 @@ let addingWhiteStone = false;
 let removingStones = false;
 const blackStonesAdded = [];
 const whiteStonesAdded = [];
+const groupsToRemove = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
@@ -339,6 +340,9 @@ function placeStone(cell, row, col) {
         .then((data) => {
           // data.group is an array of Locs to remove
           console.log("Server response:", data);
+
+          const groupKey = JSON.stringify(data);
+
           for (const loc of data) {
             const [row, col] = [loc.row - 1, loc.col - 1];
             console.log(`Changing color of: ${row} - ${col} stone`);
@@ -351,8 +355,10 @@ function placeStone(cell, row, col) {
             const currentFill = stoneToColor.getAttribute("fill");
 
             if (currentFill === "transparent") {
+              delete groupsToRemove[groupKey];
               stoneToColor.setAttribute("fill", color);
             } else {
+              groupsToRemove[groupKey] = data;
               stoneToColor.setAttribute("fill", "transparent");
             }
           }
