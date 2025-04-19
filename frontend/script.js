@@ -339,6 +339,15 @@ function placeStone(cell, row, col) {
         .then((data) => {
           // data.group is an array of Locs to remove
           console.log("Server response:", data);
+          for (const loc of data) {
+            const [row, col] = [loc.row - 1, loc.col - 1];
+            console.log(`Changing color of: ${row} - ${col} stone`);
+
+            const stoneToColor = boards.main.querySelector(
+              `.stone[data-row="${row}"][data-col="${col}"]`
+            );
+            stoneToColor.setAttribute("fill", "transparent");
+          }
         })
         .catch((error) => {
           console.error("Error:", error);
