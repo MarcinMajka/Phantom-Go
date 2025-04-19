@@ -146,6 +146,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     }
 }
 
+// Returns clicked group of stones during counting
 #[handler]
 async fn group_remove(payload: Json<CellClick>) -> Json<Vec<Loc>> {
     unsafe {
