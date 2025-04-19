@@ -274,6 +274,9 @@ function getStone(color, row, col) {
   stone.setAttribute("stroke", "black");
   stone.setAttribute("stroke-width", "1");
   stone.classList.add("stone");
+  stone.dataset.row = row;
+  stone.dataset.col = col;
+  stone.setAttribute("data-color", color);
   return stone;
 }
 
