@@ -11,6 +11,7 @@ export const elements = {
     white: document.getElementById("white-stone-button"),
   },
   removeStone: document.getElementById("remove-stone-button"),
+  countScore: document.getElementById("count-score-button"),
 };
 
 export function updateTurn(currentPlayer) {
