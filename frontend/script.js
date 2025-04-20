@@ -262,6 +262,28 @@ elements.removeStone.addEventListener("click", () => {
   }
 });
 
+elements.countScore.addEventListener("click", () => {
+  fetch("http://localhost:8000/get-score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(Object.values(groupsToRemove)),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Result:", data);
+    })
+    .catch((error) => {
+      console.error("Error during count score:", error);
+    });
+});
+
 function getStone(color, row, col) {
   const [x, y] = toSvgCoords(col, row);
   const stone = document.createElementNS(
