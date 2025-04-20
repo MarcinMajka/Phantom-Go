@@ -3,7 +3,7 @@
 
 use std::collections::HashSet;
 use std::{io, usize};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -64,7 +64,7 @@ impl Player {
     }
 }
 
-#[derive(Serialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Loc {
     pub row: usize,
     pub col: usize,
@@ -325,6 +325,7 @@ impl Board {
         (black_points, white_points)
     }
 
+    #[allow(dead_code)]
     fn remove_dead_stones_for_counting(&mut self) {
         loop {
             println!("\nRemove dead stones or input 'r' to calculate the result:\n");
@@ -345,7 +346,7 @@ impl Board {
     }
 
     pub fn count_score(&mut self) -> GameResult {
-        self.remove_dead_stones_for_counting();
+        // self.remove_dead_stones_for_counting();
         let all_points = self.count_board_points();
         let black_total_points: f32 = all_points.0 as f32 + self.black_captures as f32;
         let white_total_points: f32 = all_points.1 as f32 + self.white_captures as f32 + self.komi;
