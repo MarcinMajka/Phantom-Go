@@ -157,6 +157,25 @@ async fn get_group(payload: Json<CellClick>) -> Json<Vec<Loc>> {
     }
 }
 
+#[handler]
+async fn get_score(payload: Json<Vec<Vec<Loc>>>) -> Json<String> {
+    unsafe {
+        let board = GAME_BOARD.as_mut().unwrap();
+        
+        remove_dead_groups(board, payload);
+
+        let score = board.count_score().to_string();
+
+        Json(score)
+    }
+}
+
+fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
+    for group in groups.iter() {
+        let loc = group[0];
+        board.remove_group(loc);
+    }
+}
 
 #[handler]
 async fn pass() -> Json<GameState> {
@@ -240,6 +259,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/undo", poem::post(undo))
         .at("/pass", poem::post(pass))
         .at("/get-group", poem::post(get_group))
+        .at("/get-score", poem::post(get_score))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
