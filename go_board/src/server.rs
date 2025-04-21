@@ -7,6 +7,9 @@ use poem::{
 };
 use serde::{Serialize, Deserialize};
 use crate::board::{Board, Move, Loc, Player, Color};
+use std::collections::HashMap;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
 
 #[derive(Serialize)]
 struct BoardDimensions {
@@ -33,6 +36,10 @@ struct GameState {
 }
 
 static mut GAME_BOARD: Option<Board> = None;
+lazy_static! {
+    static ref GAME_ROOMS: Mutex<HashMap<String, (Option<Player>, Option<Player>)>> = 
+        Mutex::new(HashMap::new());
+}
 
 // Initialize the game board
 fn init_game() {
