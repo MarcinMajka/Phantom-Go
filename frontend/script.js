@@ -30,6 +30,9 @@ const blackStonesAdded = [];
 const whiteStonesAdded = [];
 const groupsToRemove = {};
 
+const urlParams = new URLSearchParams(window.location.search);
+const matchString = urlParams.get("match");
+
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
   fetch("http://localhost:8000/dimensions")
@@ -140,6 +143,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               frontend_board: playerBoard,
               row: parseInt(row),
               col: parseInt(col),
+              match_string: matchString,
             }),
           })
             .then((response) => {
