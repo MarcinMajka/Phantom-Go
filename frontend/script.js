@@ -301,6 +301,20 @@ elements.countScore.addEventListener("click", () => {
     });
 });
 
+function syncGuessStones(color, stones) {
+  fetch("http://localhost:8000/sync-guess-stones", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      color: color,
+      stones: stones,
+      match_string: matchString,
+    }),
+  }).catch((error) => console.error("Error syncing guess stones:", error));
+}
+
 function getStone(color, row, col) {
   const [x, y] = toSvgCoords(col, row);
   const stone = document.createElementNS(
