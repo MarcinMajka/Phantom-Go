@@ -1,37 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Phantom Go Game</title>
     <link rel="stylesheet" href="style.css" />
-    <title>Go Board</title>
 </head>
-
 <body>
-    <div id="board-container">
-        <div id="main-board"></div>
-        <div id="black-player-board"></div>
-        <div id="white-player-board"></div>
+    <div class="login-container">
+        <h1>Join Go Game</h1>
+        <input type="text" id="match-string" placeholder="Enter match string">
+        <button id="join-button">Join Game</button>
     </div>
-    <div id="info-container">
-        <div id="player-turn"></div>
-        <div id="captures-container">
-            <p id="black-captures">0</p>
-            <p id="white-captures">0</p>
-        </div>
-    </div>
-    <div id="button-container">
-        <div class="button" id="undo-button">Undo</div>
-        <div class="button" id="pass-button">Pass</div>
-        <div class="button" id="black-stone-button">Add black stone</div>
-        <div class="button" id="white-stone-button">Add white stone</div>
-        <div class="button" id="remove-stone-button">Remove stone</div>
-        <div class="button" id="count-score-button">Count score</div>
-    </div>
-    <script src="UI.js" type="module"></script>
-    <script src="utils.js" type="module"></script>
-    <script src="script.js" type="module"></script>
+    <script>
+        document.getElementById('join-button').addEventListener('click', async () => {
+            const matchString = document.getElementById('match-string').value;
+            
+            try {
+                const response = await fetch('http://localhost:8000/join-game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ match_string: matchString })
+                });
+                
+                const data = await response.json();
+                window.location.href = `${data.redirect_url}?match=${matchString}`;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
-
 </html>
