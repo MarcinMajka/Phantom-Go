@@ -11,6 +11,17 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 
+#[derive(Serialize, Deserialize)]
+struct JoinGameRequest {
+    match_string: String
+}
+
+#[derive(Serialize)]
+struct JoinGameResponse {
+    color: String,
+    redirect_url: String
+}
+
 #[derive(Serialize)]
 struct BoardDimensions {
     rows: usize,
@@ -252,6 +263,29 @@ async fn undo() -> Json<GameState> {
     }
 }
 
+#[handler]
+async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.entry(payload.match_string.clone()).or_insert((None, None));
+    
+    let (color, url) = match room {
+        (None, _) => {
+            room.0 = Some(Player::Black);
+            ("black".to_string(), "/frontend/black.html".to_string())
+        },
+        (Some(_), None) => {
+            room.1 = Some(Player::White);
+            ("white".to_string(), "/frontend/white.html".to_string())
+        },
+        _ => ("spectator".to_string(), "/frontend/main.html".to_string())
+    };
+
+    Json(JoinGameResponse {
+        color: color.to_string(),
+        redirect_url: url.to_string()
+    })
+}
+
 pub async fn start_server() -> Result<(), std::io::Error> {
     init_game();
 
@@ -261,6 +295,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
+    .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::get(get_dimensions))
         .at("/undo", poem::post(undo))
