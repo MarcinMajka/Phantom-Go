@@ -33,6 +33,13 @@ const groupsToRemove = {};
 const urlParams = new URLSearchParams(window.location.search);
 const matchString = urlParams.get("match");
 
+const currentPage = window.location.pathname;
+const playerColor = currentPage.includes("black.html")
+  ? "black"
+  : currentPage.includes("white.html")
+  ? "white"
+  : "spectator";
+
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
   fetch("http://localhost:8000/dimensions")
@@ -104,9 +111,15 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   addClickAreas(boards.white, rows, cols, "white");
 
   // Add the SVG to the page
-  document.getElementById("board-container").appendChild(boards.main);
-  document.getElementById("black-player-board").appendChild(boards.black);
-  document.getElementById("white-player-board").appendChild(boards.white);
+  if (playerColor === "spectator") {
+    document.getElementById("board-container").appendChild(boards.main);
+    document.getElementById("black-player-board").appendChild(boards.black);
+    document.getElementById("white-player-board").appendChild(boards.white);
+  } else if (playerColor === "black") {
+    document.getElementById("black-player-board").appendChild(boards.black);
+  } else if (playerColor === "white") {
+    document.getElementById("white-player-board").appendChild(boards.white);
+  }
 }
 
 function addClickAreas(board, rows, cols, playerBoard) {
@@ -396,6 +409,14 @@ function placeStone(cell, row, col) {
   });
 
   boards.main.appendChild(stone);
+
+  if (playerColor !== "spectator") {
+    if (playerColor === "black" && stoneColor === "black") {
+      boards.black.appendChild(stone.cloneNode(true));
+    } else if (playerColor === "white" && stoneColor === "white") {
+      boards.white.appendChild(stone.cloneNode(true));
+    }
+  }
 
   if (!addingBlackStone) {
     if (cell === "black") {
