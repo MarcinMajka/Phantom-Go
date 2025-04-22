@@ -355,6 +355,12 @@ function addGuessStone(color, row, col) {
   if (color === "white") {
     boards.black.appendChild(stone);
   }
+
+  let stonesToSync = color === "black" ? blackStonesAdded : whiteStonesAdded;
+  // Making sure types are consistent
+  stonesToSync = stonesToSync.map(([r, c]) => [Number(r), Number(c)]);
+  // TODO: BUG FIX: Last removed guess stone is not synced
+  syncGuessStones(color, stonesToSync);
 }
 
 function removeStone(row, col) {
