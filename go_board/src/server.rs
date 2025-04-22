@@ -46,9 +46,20 @@ struct GameState {
     white_captures: isize,
 }
 
+#[derive(Deserialize, Debug)]
+struct GuessStonesSync {
+    color: String,
+    stones: Vec<Vec<usize>>,
+    match_string: String,
+}
+
 static mut GAME_BOARD: Option<Board> = None;
 lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, (Option<Player>, Option<Player>)>> = 
+        Mutex::new(HashMap::new());
+}
+lazy_static! {
+    static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
         Mutex::new(HashMap::new());
 }
 
@@ -286,6 +297,25 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     })
 }
 
+#[handler]
+async fn sync_guess_stones(payload: Json<GuessStonesSync
+>) -> Json<String> {
+    println!("Received payload: {:?}", payload);
+    let mut guess_stones = GUESS_STONES.lock().unwrap();
+    let (black_stones, white_stones) = guess_stones.entry(payload.match_string.clone()).or_insert((Vec::new(), Vec::new()));
+
+    if payload.color == "black" {
+        *black_stones = payload.stones.clone();
+    } else {
+        *white_stones = payload.stones.clone();
+
+    }
+
+    println!("{:?}", guess_stones);
+
+    Json("Stones synced".to_string())
+}
+
 pub async fn start_server() -> Result<(), std::io::Error> {
     init_game();
 
@@ -302,6 +332,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/pass", poem::post(pass))
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
+        .at("/sync-guess-stones", poem::post(sync_guess_stones))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");

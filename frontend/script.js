@@ -312,7 +312,14 @@ function syncGuessStones(color, stones) {
       stones: stones,
       match_string: matchString,
     }),
-  }).catch((error) => console.error("Error syncing guess stones:", error));
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .catch((error) => console.error("Error syncing guess stones:", error));
 }
 
 function getStone(color, row, col) {
