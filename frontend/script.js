@@ -379,6 +379,28 @@ function removeStone(row, col) {
   updateBoard(boardState);
 }
 
+function toggleGroupVisibility(data, groupKey) {
+  for (const loc of data) {
+    const [row, col] = [loc.row - 1, loc.col - 1];
+    console.log(`Changing color of: ${row} - ${col} stone`);
+
+    const stoneToColor = boards.main.querySelector(
+      `.stone[data-row="${row}"][data-col="${col}"]`
+    );
+
+    const color = stoneToColor.getAttribute("data-color");
+    const currentFill = stoneToColor.getAttribute("fill");
+
+    if (currentFill === "transparent") {
+      delete groupsToRemove[groupKey];
+      stoneToColor.setAttribute("fill", color);
+    } else {
+      groupsToRemove[groupKey] = data;
+      stoneToColor.setAttribute("fill", "transparent");
+    }
+  }
+}
+
 function placeStone(cell, row, col) {
   const stoneColor = cell === "black" ? "black" : "white";
   const stone = getStone(stoneColor, row, col);
@@ -409,25 +431,7 @@ function placeStone(cell, row, col) {
 
           const groupKey = JSON.stringify(data);
 
-          for (const loc of data) {
-            const [row, col] = [loc.row - 1, loc.col - 1];
-            console.log(`Changing color of: ${row} - ${col} stone`);
-
-            const stoneToColor = boards.main.querySelector(
-              `.stone[data-row="${row}"][data-col="${col}"]`
-            );
-
-            const color = stoneToColor.getAttribute("data-color");
-            const currentFill = stoneToColor.getAttribute("fill");
-
-            if (currentFill === "transparent") {
-              delete groupsToRemove[groupKey];
-              stoneToColor.setAttribute("fill", color);
-            } else {
-              groupsToRemove[groupKey] = data;
-              stoneToColor.setAttribute("fill", "transparent");
-            }
-          }
+          toggleGroupVisibility(data, groupKey);
         })
         .catch((error) => {
           console.error("Error:", error);
