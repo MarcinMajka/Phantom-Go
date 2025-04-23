@@ -379,8 +379,8 @@ function removeStone(row, col) {
   updateBoard(boardState);
 }
 
-function toggleGroupVisibility(data, groupKey) {
-  for (const loc of data) {
+function toggleGroupVisibility(group, groupKey) {
+  for (const loc of group) {
     const [row, col] = [loc.row - 1, loc.col - 1];
     console.log(`Changing color of: ${row} - ${col} stone`);
 
@@ -395,7 +395,7 @@ function toggleGroupVisibility(data, groupKey) {
       delete groupsToRemove[groupKey];
       stoneToColor.setAttribute("fill", color);
     } else {
-      groupsToRemove[groupKey] = data;
+      groupsToRemove[groupKey] = group;
       stoneToColor.setAttribute("fill", "transparent");
     }
   }
