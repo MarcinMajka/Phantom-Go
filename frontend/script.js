@@ -426,7 +426,6 @@ function placeStone(cell, row, col) {
           return response.json();
         })
         .then((data) => {
-          // data.group is an array of Locs to remove
           console.log("Server response:", data);
 
           const groupKey = JSON.stringify(data);
