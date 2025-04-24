@@ -379,7 +379,9 @@ function removeStone(row, col) {
   updateBoard(boardState);
 }
 
-function toggleGroupVisibility(group, groupKey) {
+function toggleGroupVisibility(group) {
+  const groupKey = JSON.stringify(group);
+
   for (const loc of group) {
     const [row, col] = [loc.row - 1, loc.col - 1];
     console.log(`Changing color of: ${row} - ${col} stone`);
@@ -427,10 +429,7 @@ function placeStone(cell, row, col) {
         })
         .then((data) => {
           console.log("Server response:", data);
-
-          const groupKey = JSON.stringify(data);
-
-          toggleGroupVisibility(data, groupKey);
+          toggleGroupVisibility(data);
         })
         .catch((error) => {
           console.error("Error:", error);
