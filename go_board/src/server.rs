@@ -298,8 +298,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
 }
 
 #[handler]
-async fn sync_guess_stones(payload: Json<GuessStonesSync
->) -> Json<String> {
+async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Json<String> {
     println!("Received payload: {:?}", payload);
     let mut guess_stones = GUESS_STONES.lock().unwrap();
     let (black_stones, white_stones) = guess_stones.entry(payload.match_string.clone()).or_insert((Vec::new(), Vec::new()));
@@ -315,6 +314,8 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync
 
     Json("Stones synced".to_string())
 }
+
+
 
 pub async fn start_server() -> Result<(), std::io::Error> {
     init_game();
