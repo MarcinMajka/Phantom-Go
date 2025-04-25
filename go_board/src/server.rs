@@ -275,6 +275,33 @@ async fn undo() -> Json<GameState> {
 }
 
 #[handler]
+async fn sync_boards() -> Json<GameState> {
+    unsafe {
+        let board = GAME_BOARD.as_mut().unwrap();
+
+        let (rows, cols) = get_playable_dimensions(board);
+
+        let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
+            .map(|row| {
+                row[1..=cols].iter()
+                    .map(|&color| color_to_string(color))
+                    .collect()
+            })
+            .collect();
+
+        Json(GameState {
+            message: "Current board state sent".to_string(),
+            board: board_state.clone(),
+            black_player_board: board_state.clone(),
+            white_player_board: board_state,
+            current_player: player_to_string(board.get_current_player()),
+            black_captures: board.get_black_captures(),
+            white_captures: board.get_white_captures(),
+        })
+    }
+}
+
+#[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     let mut rooms = GAME_ROOMS.lock().unwrap();
     let room = rooms.entry(payload.match_string.clone()).or_insert((None, None));
@@ -315,8 +342,6 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Json<String> {
     Json("Stones synced".to_string())
 }
 
-
-
 pub async fn start_server() -> Result<(), std::io::Error> {
     init_game();
 
@@ -334,6 +359,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
+        .at("/sync-boards", poem::get(sync_boards))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
