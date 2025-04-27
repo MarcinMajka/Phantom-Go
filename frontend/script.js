@@ -364,18 +364,35 @@ function addGuessStone(color, row, col) {
 }
 
 function removeStone(row, col) {
+  let colorRemoved = null;
+
   for (let i = 0; i < blackStonesAdded.length; i++) {
     if (blackStonesAdded[i][0] === row && blackStonesAdded[i][1] === col) {
       blackStonesAdded.splice(i, 1);
+      colorRemoved = "black";
       break;
     }
   }
   for (let i = 0; i < whiteStonesAdded.length; i++) {
     if (whiteStonesAdded[i][0] === row && whiteStonesAdded[i][1] === col) {
       whiteStonesAdded.splice(i, 1);
+      colorRemoved = "white";
       break;
     }
   }
+
+  if (colorRemoved === "black") {
+    syncGuessStones(
+      "black",
+      blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
+    );
+  } else if (colorRemoved === "white") {
+    syncGuessStones(
+      "white",
+      whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
+    );
+  }
+
   updateBoard(boardState);
 }
 
