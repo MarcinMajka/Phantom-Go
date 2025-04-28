@@ -359,7 +359,6 @@ function addGuessStone(color, row, col) {
   let stonesToSync = color === "black" ? blackStonesAdded : whiteStonesAdded;
   // Making sure types are consistent
   stonesToSync = stonesToSync.map(([r, c]) => [Number(r), Number(c)]);
-  // TODO: BUG FIX: Last removed guess stone is not synced
   syncGuessStones(color, stonesToSync);
 }
 
