@@ -44,6 +44,8 @@ struct GameState {
     current_player: String,
     black_captures: isize,
     white_captures: isize,
+    black_guess_stones: Vec<Vec<usize>>,
+    white_guess_stones: Vec<Vec<usize>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -145,6 +147,8 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
                 current_player: player_to_string(board.get_current_player()),
                 black_captures: board.get_black_captures(),
                 white_captures: board.get_white_captures(),
+                white_guess_stones: vec![],
+                black_guess_stones: vec![],
             });
         }
         
@@ -171,6 +175,8 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
             current_player: player_to_string(board.get_current_player()),
             black_captures: board.get_black_captures(),
             white_captures: board.get_white_captures(),
+            white_guess_stones: vec![],
+            black_guess_stones: vec![],
         })
     }
 }
@@ -227,17 +233,21 @@ async fn pass() -> Json<GameState> {
                 current_player: player_to_string(board.get_current_player()),
                 black_captures: board.get_black_captures(),
                 white_captures: board.get_white_captures(),
+                white_guess_stones: vec![],
+                black_guess_stones: vec![],
             })
         } else {
             Json(GameState {
-            message: format!("Both players passed. Game over!"),
-            board: vec![],
-            black_player_board: vec![],
-            white_player_board: vec![],
-            current_player: "counting".to_string(),
-            black_captures: board.get_black_captures(),
-            white_captures: board.get_white_captures(),
-        })
+                message: format!("Both players passed. Game over!"),
+                board: vec![],
+                black_player_board: vec![],
+                white_player_board: vec![],
+                current_player: "counting".to_string(),
+                black_captures: board.get_black_captures(),
+                white_captures: board.get_white_captures(),
+                white_guess_stones: vec![],
+                black_guess_stones: vec![],
+            })
         }
 
         
@@ -270,6 +280,8 @@ async fn undo() -> Json<GameState> {
             current_player: player_to_string(board.get_current_player()),
             black_captures: board.get_black_captures(),
             white_captures: board.get_white_captures(),
+            white_guess_stones: vec![],
+            black_guess_stones: vec![],
         })
     }
 }
@@ -278,6 +290,8 @@ async fn undo() -> Json<GameState> {
 async fn sync_boards() -> Json<GameState> {
     unsafe {
         let board = GAME_BOARD.as_mut().unwrap();
+        // Needs to be mutable to use .entry() - .get() was troublesome
+        let mut guess_stones = GUESS_STONES.lock().unwrap();
 
         let (rows, cols) = get_playable_dimensions(board);
 
@@ -289,6 +303,10 @@ async fn sync_boards() -> Json<GameState> {
             })
             .collect();
 
+        let (black_stones, white_stones) = guess_stones
+        .entry(String::from(""))
+        .or_insert((Vec::new(), Vec::new()));
+
         Json(GameState {
             message: "Current board state sent".to_string(),
             board: board_state.clone(),
@@ -297,6 +315,8 @@ async fn sync_boards() -> Json<GameState> {
             current_player: player_to_string(board.get_current_player()),
             black_captures: board.get_black_captures(),
             white_captures: board.get_white_captures(),
+            black_guess_stones: black_stones.clone(),
+            white_guess_stones: white_stones.clone(),
         })
     }
 }
