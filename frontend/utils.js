@@ -98,3 +98,22 @@ export function getStarPoints(rows, cols) {
     return [{ x: center, y: center }];
   }
 }
+
+export function getStone(color, row, col) {
+  const [x, y] = toSvgCoords(col, row);
+  const stone = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  stone.setAttribute("cx", x);
+  stone.setAttribute("cy", y);
+  stone.setAttribute("r", cellSize * 0.4); // Stone radius
+  stone.setAttribute("fill", color);
+  stone.setAttribute("stroke", "black");
+  stone.setAttribute("stroke-width", "1");
+  stone.classList.add("stone");
+  stone.dataset.row = row;
+  stone.dataset.col = col;
+  stone.setAttribute("data-color", color);
+  return stone;
+}
