@@ -26,8 +26,8 @@ let boardState;
 let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
-const blackStonesAdded = [];
-const whiteStonesAdded = [];
+let blackStonesAdded = [];
+let whiteStonesAdded = [];
 const groupsToRemove = {};
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -499,6 +499,9 @@ document.getElementById("refresh-button").onclick = () => {
     .then((response) => response.json())
     .then((data) => {
       console.log("Server response:", data.message);
+      blackStonesAdded = data.black_guess_stones;
+      whiteStonesAdded = data.white_guess_stones;
+
       boardState = data.board;
       updateBoard(boardState);
       updateCaptures(data.black_captures, data.white_captures);
