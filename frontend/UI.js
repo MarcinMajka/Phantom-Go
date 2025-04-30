@@ -12,6 +12,7 @@ export const elements = {
   },
   removeStone: document.getElementById("remove-stone-button"),
   countScore: document.getElementById("count-score-button"),
+  syncBoards: document.getElementById("refresh-button"),
 };
 
 export function updateTurn(currentPlayer) {
