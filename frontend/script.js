@@ -476,7 +476,7 @@ function updateBoard(boardState) {
   }
 }
 
-document.getElementById("refresh-button").onclick = () => {
+elements.syncBoards.onclick = () => {
   fetch("http://localhost:8000/sync-boards")
     .then((response) => response.json())
     .then((data) => {
