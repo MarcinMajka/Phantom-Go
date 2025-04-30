@@ -476,20 +476,22 @@ function updateBoard(boardState) {
   }
 }
 
-elements.syncBoards.onclick = () => {
-  fetch("http://localhost:8000/sync-boards")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Server response:", data.message);
-      blackStonesAdded = data.black_guess_stones;
-      whiteStonesAdded = data.white_guess_stones;
+if (elements.syncBoards) {
+  elements.syncBoards.onclick = () => {
+    fetch("http://localhost:8000/sync-boards")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Server response:", data.message);
+        blackStonesAdded = data.black_guess_stones;
+        whiteStonesAdded = data.white_guess_stones;
 
-      boardState = data.board;
-      updateBoard(boardState);
-      updateCaptures(data.black_captures, data.white_captures);
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error fetching board dimensions:", error);
-    });
-};
+        boardState = data.board;
+        updateBoard(boardState);
+        updateCaptures(data.black_captures, data.white_captures);
+        updateTurn(data.current_player);
+      })
+      .catch((error) => {
+        console.error("Error fetching board dimensions:", error);
+      });
+  };
+}
