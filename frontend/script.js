@@ -41,18 +41,6 @@ const playerColor = currentPage.includes("black.html")
   ? "white"
   : "spectator";
 
-document.addEventListener("DOMContentLoaded", () => {
-  // First fetch board dimensions
-  fetch("http://localhost:8000/dimensions")
-    .then((response) => response.json())
-    .then((dimensions) => {
-      createBoard(dimensions.rows, dimensions.cols);
-    })
-    .catch((error) => {
-      console.error("Error fetching board dimensions:", error);
-    });
-});
-
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
 
@@ -203,103 +191,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
     }
   }
 }
-
-elements.undo.addEventListener("click", () => {
-  fetch("http://localhost:8000/undo", {
-    method: "POST",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Server response:", data.message);
-      boardState = data.board;
-      updateBoard(boardState);
-      updateCaptures(data.black_captures, data.white_captures);
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-});
-
-elements.pass.addEventListener("click", () => {
-  fetch("http://localhost:8000/pass", {
-    method: "POST",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Pass response:", data.message);
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error during pass:", error);
-    });
-});
-
-elements.addStone.black.addEventListener("click", () => {
-  console.log("Black stone button clicked");
-  elements.addStone.black.classList.toggle("clicked");
-  if (elements.addStone.black.classList.contains("clicked")) {
-    addingBlackStone = true;
-  } else {
-    addingBlackStone = false;
-  }
-});
-
-elements.addStone.white.addEventListener("click", () => {
-  console.log("White stone button clicked");
-  elements.addStone.white.classList.toggle("clicked");
-  if (elements.addStone.white.classList.contains("clicked")) {
-    addingWhiteStone = true;
-  } else {
-    addingWhiteStone = false;
-  }
-});
-
-elements.removeStone.addEventListener("click", () => {
-  console.log("Remove stone button clicked");
-  elements.removeStone.classList.toggle("clicked");
-  if (elements.removeStone.classList.contains("clicked")) {
-    removingStones = true;
-    elements.addStone.black.classList.remove("clicked");
-    elements.addStone.white.classList.remove("clicked");
-    addingBlackStone = false;
-    addingWhiteStone = false;
-  } else {
-    removingStones = false;
-  }
-});
-
-elements.countScore.addEventListener("click", () => {
-  fetch("http://localhost:8000/get-score", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(Object.values(groupsToRemove)),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Result:", data);
-    })
-    .catch((error) => {
-      console.error("Error during count score:", error);
-    });
-});
 
 function syncGuessStones(color, stones) {
   fetch("http://localhost:8000/sync-guess-stones", {
@@ -475,6 +366,18 @@ function updateBoard(boardState) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  // First fetch board dimensions
+  fetch("http://localhost:8000/dimensions")
+    .then((response) => response.json())
+    .then((dimensions) => {
+      createBoard(dimensions.rows, dimensions.cols);
+    })
+    .catch((error) => {
+      console.error("Error fetching board dimensions:", error);
+    });
+});
+
 if (elements.syncBoards) {
   elements.syncBoards.onclick = () => {
     fetch("http://localhost:8000/sync-boards")
@@ -494,3 +397,100 @@ if (elements.syncBoards) {
       });
   };
 }
+
+elements.undo.addEventListener("click", () => {
+  fetch("http://localhost:8000/undo", {
+    method: "POST",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Server response:", data.message);
+      boardState = data.board;
+      updateBoard(boardState);
+      updateCaptures(data.black_captures, data.white_captures);
+      updateTurn(data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+
+elements.pass.addEventListener("click", () => {
+  fetch("http://localhost:8000/pass", {
+    method: "POST",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Pass response:", data.message);
+      updateTurn(data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error during pass:", error);
+    });
+});
+
+elements.addStone.black.addEventListener("click", () => {
+  console.log("Black stone button clicked");
+  elements.addStone.black.classList.toggle("clicked");
+  if (elements.addStone.black.classList.contains("clicked")) {
+    addingBlackStone = true;
+  } else {
+    addingBlackStone = false;
+  }
+});
+
+elements.addStone.white.addEventListener("click", () => {
+  console.log("White stone button clicked");
+  elements.addStone.white.classList.toggle("clicked");
+  if (elements.addStone.white.classList.contains("clicked")) {
+    addingWhiteStone = true;
+  } else {
+    addingWhiteStone = false;
+  }
+});
+
+elements.removeStone.addEventListener("click", () => {
+  console.log("Remove stone button clicked");
+  elements.removeStone.classList.toggle("clicked");
+  if (elements.removeStone.classList.contains("clicked")) {
+    removingStones = true;
+    elements.addStone.black.classList.remove("clicked");
+    elements.addStone.white.classList.remove("clicked");
+    addingBlackStone = false;
+    addingWhiteStone = false;
+  } else {
+    removingStones = false;
+  }
+});
+
+elements.countScore.addEventListener("click", () => {
+  fetch("http://localhost:8000/get-score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(Object.values(groupsToRemove)),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Result:", data);
+    })
+    .catch((error) => {
+      console.error("Error during count score:", error);
+    });
+});
