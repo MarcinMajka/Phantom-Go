@@ -204,8 +204,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
   }
 }
 
-// Undo button handler
-document.getElementById("undo-button").addEventListener("click", () => {
+elements.undo.addEventListener("click", () => {
   fetch("http://localhost:8000/undo", {
     method: "POST",
   })

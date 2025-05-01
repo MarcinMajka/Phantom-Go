@@ -13,6 +13,7 @@ export const elements = {
   removeStone: document.getElementById("remove-stone-button"),
   countScore: document.getElementById("count-score-button"),
   syncBoards: document.getElementById("refresh-button"),
+  undo: document.getElementById("undo-button"),
 };
 
 export function updateTurn(currentPlayer) {
