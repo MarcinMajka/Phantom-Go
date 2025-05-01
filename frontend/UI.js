@@ -14,6 +14,7 @@ export const elements = {
   countScore: document.getElementById("count-score-button"),
   syncBoards: document.getElementById("refresh-button"),
   undo: document.getElementById("undo-button"),
+  pass: document.getElementById("pass-button"),
 };
 
 export function updateTurn(currentPlayer) {

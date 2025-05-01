@@ -226,7 +226,7 @@ elements.undo.addEventListener("click", () => {
     });
 });
 
-document.getElementById("pass-button").addEventListener("click", () => {
+elements.pass.addEventListener("click", () => {
   fetch("http://localhost:8000/pass", {
     method: "POST",
   })
