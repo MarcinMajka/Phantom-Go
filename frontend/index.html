@@ -10,11 +10,13 @@
     <div class="login-container">
         <h1>Join Go Game</h1>
         <input type="text" id="match-string" placeholder="Enter match string">
+        <input type="password" id="player-password" placeholder="Enter your password">
         <button id="join-button">Join Game</button>
     </div>
     <script>
         document.getElementById('join-button').addEventListener('click', async () => {
             const matchString = document.getElementById('match-string').value;
+            const password = document.getElementById('player-password').value;
             
             try {
                 const response = await fetch('http://localhost:8000/join-game', {
@@ -22,11 +24,14 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ match_string: matchString })
+                    body: JSON.stringify({ 
+                        match_string: matchString,
+                        password: password
+                    })
                 });
                 
                 const data = await response.json();
-                window.location.href = `${data.redirect_url}?match=${matchString}`;
+                window.location.href = `${data.redirect_url}?match=${matchString}&pwd=${password}`;
             } catch (error) {
                 console.error('Error:', error);
             }
