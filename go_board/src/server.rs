@@ -13,7 +13,8 @@ use lazy_static::lazy_static;
 
 #[derive(Serialize, Deserialize)]
 struct JoinGameRequest {
-    match_string: String
+    match_string: String,
+    password: String,
 }
 
 #[derive(Serialize)]
@@ -57,8 +58,8 @@ struct GuessStonesSync {
 
 static mut GAME_BOARD: Option<Board> = None;
 lazy_static! {
-    static ref GAME_ROOMS: Mutex<HashMap<String, (Option<Player>, Option<Player>)>> = 
-        Mutex::new(HashMap::new());
+    static ref GAME_ROOMS: Mutex<HashMap<String, ((Option<Player>, Option<String>), (Option<Player>, Option<String>))>> = 
+    Mutex::new(HashMap::new());
 }
 lazy_static! {
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
@@ -324,15 +325,15 @@ async fn sync_boards() -> Json<GameState> {
 #[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     let mut rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.entry(payload.match_string.clone()).or_insert((None, None));
+    let room = rooms.entry(payload.match_string.clone()).or_insert(((None, None), (None, None)));
     
     let (color, url) = match room {
-        (None, _) => {
-            room.0 = Some(Player::Black);
+        ((None, _), _) => {
+            room.0 = (Some(Player::Black), Some(payload.password.clone()));
             ("black".to_string(), "/frontend/black.html".to_string())
         },
-        (Some(_), None) => {
-            room.1 = Some(Player::White);
+        ((Some(_), _), (None, _)) => {
+            room.1 = (Some(Player::White), Some(payload.password.clone()));
             ("white".to_string(), "/frontend/white.html".to_string())
         },
         _ => ("spectator".to_string(), "/frontend/main.html".to_string())
