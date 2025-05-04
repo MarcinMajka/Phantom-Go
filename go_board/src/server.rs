@@ -56,6 +56,7 @@ struct GuessStonesSync {
     match_string: String,
 }
 
+// TODO: Bug fix: Not sure if this is the case, but I remember testing 2 separate games (2 differnt match_strings) and seeing it working. Maybe static mut is not the cause, but it should be avoided
 static mut GAME_BOARD: Option<Board> = None;
 lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, ((Option<Player>, Option<String>), (Option<Player>, Option<String>))>> = 
