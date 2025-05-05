@@ -449,15 +449,17 @@ elements.addStone.black.addEventListener("click", () => {
   }
 });
 
-elements.addStone.white.addEventListener("click", () => {
-  console.log("White stone button clicked");
-  elements.addStone.white.classList.toggle("clicked");
-  if (elements.addStone.white.classList.contains("clicked")) {
-    addingWhiteStone = true;
-  } else {
-    addingWhiteStone = false;
-  }
-});
+if (elements.addStone.white) {
+  elements.addStone.white.addEventListener("click", () => {
+    console.log("White stone button clicked");
+    elements.addStone.white.classList.toggle("clicked");
+    if (elements.addStone.white.classList.contains("clicked")) {
+      addingWhiteStone = true;
+    } else {
+      addingWhiteStone = false;
+    }
+  });
+}
 
 elements.removeStone.addEventListener("click", () => {
   console.log("Remove stone button clicked");
