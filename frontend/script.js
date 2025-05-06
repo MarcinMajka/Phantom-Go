@@ -439,15 +439,17 @@ elements.pass.addEventListener("click", () => {
     });
 });
 
-elements.addStone.black.addEventListener("click", () => {
-  console.log("Black stone button clicked");
-  elements.addStone.black.classList.toggle("clicked");
-  if (elements.addStone.black.classList.contains("clicked")) {
-    addingBlackStone = true;
-  } else {
-    addingBlackStone = false;
-  }
-});
+if (elements.addStone.black) {
+  elements.addStone.black.addEventListener("click", () => {
+    console.log("Black stone button clicked");
+    elements.addStone.black.classList.toggle("clicked");
+    if (elements.addStone.black.classList.contains("clicked")) {
+      addingBlackStone = true;
+    } else {
+      addingBlackStone = false;
+    }
+  });
+}
 
 if (elements.addStone.white) {
   elements.addStone.white.addEventListener("click", () => {
