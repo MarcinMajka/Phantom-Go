@@ -493,6 +493,13 @@ elements.countScore.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Result:", data);
+
+      // TODO: Handle the result of the scoring
+      // TODO: Update board (fetch sync-boards?)
+
+      // updateBoard(boardState);
+      // updateCaptures(data.black_captures, data.white_captures);
+      // updateTurn(data.current_player);
     })
     .catch((error) => {
       console.error("Error during count score:", error);
