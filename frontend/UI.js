@@ -42,3 +42,11 @@ export function addHoverEffect(cell, fillColor) {
     cell.setAttribute("fill", "transparent");
   });
 }
+
+export function createButton(id, text, onClick) {
+  const button = document.createElement("button");
+  button.id = id;
+  button.innerText = text;
+  button.onclick = onClick;
+  return button;
+}
