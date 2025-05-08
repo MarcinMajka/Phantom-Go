@@ -61,12 +61,8 @@ struct GuessStonesSync {
 */
 lazy_static! {
     static ref GAME_BOARD: Mutex<Board> = Mutex::new(Board::new(9, 9, 1.5));
-}
-lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, ((Option<Player>, Option<String>), (Option<Player>, Option<String>))>> = 
     Mutex::new(HashMap::new());
-}
-lazy_static! {
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
         Mutex::new(HashMap::new());
 }
