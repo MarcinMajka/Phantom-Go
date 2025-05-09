@@ -4,6 +4,7 @@ import {
   updateTurn,
   updateCaptures,
   addHoverEffect,
+  createButton,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -504,4 +505,16 @@ elements.countScore.addEventListener("click", () => {
     .catch((error) => {
       console.error("Error during count score:", error);
     });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (
+    currentPage.includes("black.html") ||
+    currentPage.includes("white.html")
+  ) {
+    const refreshButton = createButton("refresh-button", "Refresh", () => {
+      console.log("Refresh button clicked");
+    });
+    document.querySelector("#button-container").appendChild(refreshButton);
+  }
 });
