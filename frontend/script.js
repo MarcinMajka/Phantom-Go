@@ -385,6 +385,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         console.log("Server response:", data.message);
 
+        blackStonesAdded = data.black_guess_stones;
+        whiteStonesAdded = data.white_guess_stones;
+
         updateBoard(data.board);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
