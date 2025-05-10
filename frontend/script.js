@@ -388,6 +388,8 @@ document.addEventListener("DOMContentLoaded", () => {
         blackStonesAdded = data.black_guess_stones;
         whiteStonesAdded = data.white_guess_stones;
 
+        // TODO: how to show which stones were captured, so players can't make a mistake? Groups are removed on server by board.play()
+
         updateBoard(data.board);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
