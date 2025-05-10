@@ -522,26 +522,3 @@ elements.countScore.addEventListener("click", () => {
       console.error("Error during count score:", error);
     });
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (
-    currentPage.includes("black.html") ||
-    currentPage.includes("white.html")
-  ) {
-    const refreshButton = createButton("refresh-button", "Refresh", () => {
-      fetch("http://localhost:8000/sync-boards")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Server response:", data.message);
-
-          updateBoard(data.board);
-          updateCaptures(data.black_captures, data.white_captures);
-          updateTurn(data.current_player);
-        })
-        .catch((error) => {
-          console.error("Error fetching board dimensions:", error);
-        });
-    });
-    document.querySelector("#button-container").appendChild(refreshButton);
-  }
-});
