@@ -43,11 +43,9 @@ export function addHoverEffect(cell, fillColor) {
 }
 
 export function createButton(id, text, onClick) {
-  const button = document.createElement("div");
-  button.id = id;
+  const button = createDiv(id, "button");
   button.innerText = text;
   button.onclick = onClick;
-  button.className = "button";
   return button;
 }
 
