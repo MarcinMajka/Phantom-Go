@@ -500,7 +500,6 @@ elements.countScore.addEventListener("click", () => {
       res.innerText = "Result: " + data;
       document.getElementById("info-container").appendChild(res);
 
-      // TODO: Handle the result of the scoring
       // TODO: Update board (fetch sync-boards?)
 
       // updateBoard(boardState);
