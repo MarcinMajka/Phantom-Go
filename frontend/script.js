@@ -498,7 +498,8 @@ elements.countScore.addEventListener("click", () => {
       console.log("Result:", data);
       const res = createDiv("result", "button");
       res.innerText = "Result: " + data;
-      document.getElementById("info-container").appendChild(res);
+      elements.infoContainer.innerHTML = "";
+      elements.infoContainer.appendChild(res);
 
       // TODO: Update board (fetch sync-boards?)
 
