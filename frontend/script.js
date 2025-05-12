@@ -501,7 +501,7 @@ elements.countScore.addEventListener("click", () => {
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
 
-      // TODO: Update board (fetch sync-boards?)
+      // TODO: Board update is happening every 10s currently and it works almost as expected - it unselects dead stones
 
       // updateBoard(boardState);
       // updateCaptures(data.black_captures, data.white_captures);
