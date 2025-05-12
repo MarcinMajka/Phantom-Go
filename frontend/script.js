@@ -5,6 +5,7 @@ import {
   updateCaptures,
   addHoverEffect,
   createButton,
+  createDiv,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -495,6 +496,9 @@ elements.countScore.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Result:", data);
+      const res = createDiv("result", "button");
+      res.innerText = "Result: " + data;
+      document.getElementById("info-container").appendChild(res);
 
       // TODO: Handle the result of the scoring
       // TODO: Update board (fetch sync-boards?)
