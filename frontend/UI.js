@@ -50,3 +50,10 @@ export function createButton(id, text, onClick) {
   button.className = "button";
   return button;
 }
+
+export function createDiv(id, className) {
+  const div = document.createElement("div");
+  div.id = id;
+  div.className = className;
+  return div;
+}
