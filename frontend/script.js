@@ -194,7 +194,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
   }
 }
 
-function syncGuessStones(color, stones) {
+function sendGuessStonesToBackend(color, stones) {
   fetch("http://localhost:8000/sync-guess-stones", {
     method: "POST",
     headers: {
@@ -233,7 +233,7 @@ function addGuessStone(color, row, col) {
   let stonesToSync = color === "black" ? blackStonesAdded : whiteStonesAdded;
   // Making sure types are consistent
   stonesToSync = stonesToSync.map(([r, c]) => [Number(r), Number(c)]);
-  syncGuessStones(color, stonesToSync);
+  sendGuessStonesToBackend(color, stonesToSync);
 }
 
 function removeStone(row, col) {
@@ -255,12 +255,12 @@ function removeStone(row, col) {
   }
 
   if (colorRemoved === "black") {
-    syncGuessStones(
+    sendGuessStonesToBackend(
       "black",
       blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
     );
   } else if (colorRemoved === "white") {
-    syncGuessStones(
+    sendGuessStonesToBackend(
       "white",
       whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
     );
