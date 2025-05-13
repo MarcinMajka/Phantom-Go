@@ -368,17 +368,7 @@ function updateBoard(boardState) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // First fetch board dimensions
-  fetch("http://localhost:8000/dimensions")
-    .then((response) => response.json())
-    .then((dimensions) => {
-      createBoard(dimensions.rows, dimensions.cols);
-    })
-    .catch((error) => {
-      console.error("Error fetching board dimensions:", error);
-    });
-
+function syncBoards() {
   setInterval(() => {
     console.log("Refreshing board...");
     fetch("http://localhost:8000/sync-boards")
@@ -398,7 +388,21 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => {
         console.error("Error fetching board dimensions:", error);
       });
-  }, 10000);
+  }, 5000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // First fetch board dimensions
+  fetch("http://localhost:8000/dimensions")
+    .then((response) => response.json())
+    .then((dimensions) => {
+      createBoard(dimensions.rows, dimensions.cols);
+    })
+    .catch((error) => {
+      console.error("Error fetching board dimensions:", error);
+    });
+
+  syncBoards();
 });
 
 elements.undo.addEventListener("click", () => {
