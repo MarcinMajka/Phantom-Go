@@ -269,7 +269,7 @@ function removeStone(row, col) {
   updateBoard(boardState);
 }
 
-function toggleGroupVisibility(group) {
+function toggleGroupSelection(group) {
   const groupKey = JSON.stringify(group);
 
   for (const loc of group) {
@@ -319,7 +319,7 @@ function placeStone(cell, row, col) {
         })
         .then((data) => {
           console.log("Server response:", data);
-          toggleGroupVisibility(data);
+          toggleGroupSelection(data);
         })
         .catch((error) => {
           console.error("Error:", error);
