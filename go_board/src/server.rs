@@ -34,6 +34,7 @@ pub struct CellClick {
     pub frontend_board: String,
     pub row: usize,
     pub col: usize,
+    match_string: String,
 }
 
 #[derive(Serialize)]
@@ -129,7 +130,10 @@ fn get_board_state(board: &Board) -> Vec<Vec<String>> {
 // 4. Return updated game state to frontend
 #[handler]
 async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
-    let mut board = GAME_BOARD.lock().unwrap();
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+    let board = &mut room.board;
+
     let current_player = board.get_current_player();
     // Check if the move was made on correct player's board
     let frontend_board = payload.frontend_board.clone();
@@ -185,7 +189,9 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
 // Returns clicked group of stones during counting
 #[handler]
 async fn get_group(payload: Json<CellClick>) -> Json<Vec<Loc>> {
-    let board = GAME_BOARD.lock().unwrap();
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+    let board = &mut room.board;
     let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
     Json(group)
 }
