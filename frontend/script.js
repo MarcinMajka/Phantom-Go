@@ -371,7 +371,13 @@ function updateBoard(boardState) {
 function syncBoards() {
   setInterval(() => {
     console.log("Refreshing board...");
-    fetch("http://localhost:8000/sync-boards")
+    fetch("http://localhost:8000/sync-boards", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ match_string: matchString }),
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("Server response:", data.message);
@@ -393,7 +399,13 @@ function syncBoards() {
 
 document.addEventListener("DOMContentLoaded", () => {
   // First fetch board dimensions
-  fetch("http://localhost:8000/dimensions")
+  fetch("http://localhost:8000/dimensions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ match_string: matchString }),
+  })
     .then((response) => response.json())
     .then((dimensions) => {
       createBoard(dimensions.rows, dimensions.cols);
@@ -408,6 +420,10 @@ document.addEventListener("DOMContentLoaded", () => {
 elements.undo.addEventListener("click", () => {
   fetch("http://localhost:8000/undo", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ match_string: matchString }),
   })
     .then((response) => {
       if (!response.ok) {
@@ -430,6 +446,10 @@ elements.undo.addEventListener("click", () => {
 elements.pass.addEventListener("click", () => {
   fetch("http://localhost:8000/pass", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ match_string: matchString }),
   })
     .then((response) => {
       if (!response.ok) {
@@ -490,7 +510,10 @@ elements.countScore.addEventListener("click", () => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(Object.values(groupsToRemove)),
+    body: JSON.stringify({
+      match_string: matchString,
+      groupsToRemove: Object.values(groupsToRemove),
+    }),
   })
     .then((response) => {
       if (!response.ok) {
