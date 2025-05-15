@@ -56,13 +56,26 @@ struct GuessStonesSync {
     match_string: String,
 }
 
+#[derive(Clone)]
+struct GameRoom {
+    board: Board,
+    players: ((Option<Player>, Option<String>), (Option<Player>, Option<String>)),
+}
+
+impl GameRoom {
+    fn new() -> Self {
+        GameRoom {
+            board: Board::new(9, 9, 1.5),
+            players: ((None, None), (None, None)),
+        }
+    }
+}
+
 /*
     TODO: Bug fix: Not sure if this is the case, but I remember testing 2 separate games (2 differnt match_strings) and seeing it working. Maybe static mut is not the cause, but it should be avoided. - It was not the cause, but it's still a good practice to avoid static mut.
 */
 lazy_static! {
-    static ref GAME_BOARD: Mutex<Board> = Mutex::new(Board::new(9, 9, 1.5));
-    static ref GAME_ROOMS: Mutex<HashMap<String, ((Option<Player>, Option<String>), (Option<Player>, Option<String>))>> = 
-    Mutex::new(HashMap::new());
+    static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
         Mutex::new(HashMap::new());
 }
@@ -303,23 +316,31 @@ async fn sync_boards() -> Json<GameState> {
 #[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     let mut rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.entry(payload.match_string.clone()).or_insert(((None, None), (None, None)));
     
-    let (color, url) = match room {
+    if !rooms.contains_key(&payload.match_string) {
+        rooms.insert(payload.match_string.clone(), GameRoom::new());
+    }
+    
+    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+
+    let (color, url) = match (&room.players.0, &room.players.1) {
         ((None, _), _) => {
-            room.0 = (Some(Player::Black), Some(payload.password.clone()));
-            ("black".to_string(), "/frontend/black.html".to_string())
+            room.players.0 = (Some(Player::Black), Some(payload.password.clone()));
+            ("black", "/frontend/black.html")
         },
         ((Some(_), _), (None, _)) => {
-            room.1 = (Some(Player::White), Some(payload.password.clone()));
-            ("white".to_string(), "/frontend/white.html".to_string())
+            room.players.1 = (Some(Player::White), Some(payload.password.clone()));
+            ("white", "/frontend/white.html")
         },
-        _ => ("spectator".to_string(), "/frontend/main.html".to_string())
+        _ => ("spectator", "/frontend/main.html")
     };
+
+    // Add match_string as query parameter
+    let redirect_url = format!("{}?match={}", url, payload.match_string);
 
     Json(JoinGameResponse {
         color: color.to_string(),
-        redirect_url: url.to_string()
+        redirect_url
     })
 }
 
