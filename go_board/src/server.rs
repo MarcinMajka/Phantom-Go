@@ -104,10 +104,16 @@ fn get_playable_dimensions(board: &Board) -> (usize, usize) {
     (total_rows - 2, total_cols - 2)
 }
 
+#[derive(Deserialize)]
+struct MatchStringPayload {
+    match_string: String,
+}
+
 #[handler]
-async fn get_dimensions() -> Json<BoardDimensions> {
-    let board = GAME_BOARD.lock().unwrap();
-    let (rows, cols) = get_playable_dimensions(&board);
+async fn get_dimensions(payload: Json<MatchStringPayload>) -> Json<BoardDimensions> {
+    let rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.get(&payload.match_string).unwrap();
+    let (rows, cols) = get_playable_dimensions(&room.board);
     Json(BoardDimensions { rows, cols })
 }
 
@@ -196,13 +202,22 @@ async fn get_group(payload: Json<CellClick>) -> Json<Vec<Loc>> {
     Json(group)
 }
 
-#[handler]
-async fn get_score(payload: Json<Vec<Vec<Loc>>>) -> Json<String> {
-    let mut board = GAME_BOARD.lock().unwrap();
-    
-    remove_dead_groups(&mut board, payload);
+#[derive(Deserialize)]
+struct GetScorePayload {
+    match_string: String,
+    groups: Vec<Vec<Loc>>,
+}
 
-    let score = board.count_score().to_string();
+#[handler]
+async fn get_score(payload: Json<GetScorePayload>) -> Json<String> {
+    let match_string = payload.match_string.clone();
+    let groups = payload.groups.clone();
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.get_mut(&match_string).unwrap();
+
+    remove_dead_groups(&mut room.board, Json(groups));
+
+    let score = room.board.count_score().to_string();
 
     Json(score)
 }
@@ -215,27 +230,28 @@ fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
 }
 
 #[handler]
-async fn pass() -> Json<GameState> {
-    let mut board = GAME_BOARD.lock().unwrap();
+async fn pass(match_string: Json<String>) -> Json<GameState> {
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.get_mut(&match_string.to_string()).unwrap();
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
-    let player = board.get_current_player();
+    let player = room.board.get_current_player();
 
-    board.play(&Move {
+    room.board.play(&Move {
         player,
         loc: Loc::pass(),
     });
 
-    let game_is_over = board.last_two_moves_are_pass();
+    let game_is_over = room.board.last_two_moves_are_pass();
 
     if !game_is_over {
         Json(GameState {
-            message: format!("Player {:?} passed", board.get_current_player().opponent()),
+            message: format!("Player {:?} passed", room.board.get_current_player().opponent()),
             board: vec![],
             black_player_board: vec![],
             white_player_board: vec![],
-            current_player: player_to_string(board.get_current_player()),
-            black_captures: board.get_black_captures(),
-            white_captures: board.get_white_captures(),
+            current_player: player_to_string(room.board.get_current_player()),
+            black_captures: room.board.get_black_captures(),
+            white_captures: room.board.get_white_captures(),
             white_guess_stones: vec![],
             black_guess_stones: vec![],
         })
@@ -246,8 +262,8 @@ async fn pass() -> Json<GameState> {
             black_player_board: vec![],
             white_player_board: vec![],
             current_player: "counting".to_string(),
-            black_captures: board.get_black_captures(),
-            white_captures: board.get_white_captures(),
+            black_captures: room.board.get_black_captures(),
+            white_captures: room.board.get_white_captures(),
             white_guess_stones: vec![],
             black_guess_stones: vec![],
         })
@@ -257,15 +273,16 @@ async fn pass() -> Json<GameState> {
 }
 
 #[handler]
-async fn undo() -> Json<GameState> {
-    let mut board = GAME_BOARD.lock().unwrap();
-    board.undo();
+async fn undo(match_string: Json<String>) -> Json<GameState> {
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.get_mut(&match_string.to_string()).unwrap();
+    room.board.undo();
     
     // Get the playable board dimensions
-    let (rows, cols) = get_playable_dimensions(&board);
+    let (rows, cols) = get_playable_dimensions(&room.board);
     
     // Convert board state to string format for frontend, excluding sentinel borders
-    let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
+    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows].iter()
         .map(|row| {
             row[1..=cols].iter()
                 .map(|&color| color_to_string(color))
@@ -278,23 +295,23 @@ async fn undo() -> Json<GameState> {
         board: board_state.clone(),
         black_player_board: board_state.clone(),
         white_player_board: board_state,
-        current_player: player_to_string(board.get_current_player()),
-        black_captures: board.get_black_captures(),
-        white_captures: board.get_white_captures(),
+        current_player: player_to_string(room.board.get_current_player()),
+        black_captures: room.board.get_black_captures(),
+        white_captures: room.board.get_white_captures(),
         white_guess_stones: vec![],
         black_guess_stones: vec![],
     })
 }
 
 #[handler]
-async fn sync_boards() -> Json<GameState> {
-    let board = GAME_BOARD.lock().unwrap();
-    // Needs to be mutable to use .entry() - .get() was troublesome
-    let mut guess_stones = GUESS_STONES.lock().unwrap();
+async fn sync_boards(payload: Json<MatchStringPayload>) -> Json<GameState> {
+    let rooms = GAME_ROOMS.lock().unwrap();
+    let room = rooms.get(&payload.match_string).unwrap();
+        let mut guess_stones = GUESS_STONES.lock().unwrap();
 
-    let (rows, cols) = get_playable_dimensions(&board);
+    let (rows, cols) = get_playable_dimensions(&room.board);
 
-    let board_state: Vec<Vec<String>> = board.fields[1..=rows].iter()
+    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows].iter()
         .map(|row| {
             row[1..=cols].iter()
                 .map(|&color| color_to_string(color))
@@ -303,7 +320,7 @@ async fn sync_boards() -> Json<GameState> {
         .collect();
 
     let (black_stones, white_stones) = guess_stones
-    .entry(String::from(""))
+    .entry(payload.match_string.clone())
     .or_insert((Vec::new(), Vec::new()));
 
     Json(GameState {
@@ -311,9 +328,9 @@ async fn sync_boards() -> Json<GameState> {
         board: board_state.clone(),
         black_player_board: board_state.clone(),
         white_player_board: board_state,
-        current_player: player_to_string(board.get_current_player()),
-        black_captures: board.get_black_captures(),
-        white_captures: board.get_white_captures(),
+        current_player: player_to_string(room.board.get_current_player()),
+        black_captures: room.board.get_black_captures(),
+        white_captures: room.board.get_white_captures(),
         black_guess_stones: black_stones.clone(),
         white_guess_stones: white_stones.clone(),
     })
@@ -377,13 +394,13 @@ pub async fn start_server() -> Result<(), std::io::Error> {
     let app = Route::new()
     .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
-        .at("/dimensions", poem::get(get_dimensions))
+        .at("/dimensions", poem::post(get_dimensions))
         .at("/undo", poem::post(undo))
         .at("/pass", poem::post(pass))
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
-        .at("/sync-boards", poem::get(sync_boards))
+        .at("/sync-boards", poem::post(sync_boards))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
