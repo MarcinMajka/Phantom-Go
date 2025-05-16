@@ -3,7 +3,8 @@ use poem::{
     handler,
     listener::TcpListener,
     web::Json,
-    EndpointExt, Route, Server, Result
+    EndpointExt, Route, Server, Result, Error,
+    http::StatusCode, Response
 };
 use serde::{Serialize, Deserialize};
 use crate::board::{Board, Move, Loc, Player, Color};
@@ -110,11 +111,18 @@ struct MatchStringPayload {
 }
 
 #[handler]
-async fn get_dimensions(payload: Json<MatchStringPayload>) -> Json<BoardDimensions> {
-    let rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.get(&payload.match_string).unwrap();
+async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    
+    // Create room if it doesn't exist
+    let room = rooms
+        .entry(payload.match_string.clone())
+        .or_insert_with(GameRoom::new);
+    
     let (rows, cols) = get_playable_dimensions(&room.board);
-    Json(BoardDimensions { rows, cols })
+    Ok(Json(BoardDimensions { rows, cols }))
 }
 
 // Convert board state to string format for frontend, excluding sentinel borders
@@ -304,10 +312,19 @@ async fn undo(match_string: Json<String>) -> Json<GameState> {
 }
 
 #[handler]
-async fn sync_boards(payload: Json<MatchStringPayload>) -> Json<GameState> {
-    let rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.get(&payload.match_string).unwrap();
-        let mut guess_stones = GUESS_STONES.lock().unwrap();
+async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    
+    // Create room if it doesn't exist
+    let room = rooms
+        .entry(payload.match_string.clone())
+        .or_insert_with(GameRoom::new);
+        
+    let mut guess_stones = GUESS_STONES
+        .lock()
+        .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))?;
 
     let (rows, cols) = get_playable_dimensions(&room.board);
 
@@ -320,10 +337,10 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Json<GameState> {
         .collect();
 
     let (black_stones, white_stones) = guess_stones
-    .entry(payload.match_string.clone())
-    .or_insert((Vec::new(), Vec::new()));
+        .entry(payload.match_string.clone())
+        .or_insert((Vec::new(), Vec::new()));
 
-    Json(GameState {
+    Ok(Json(GameState {
         message: "Current board state sent".to_string(),
         board: board_state.clone(),
         black_player_board: board_state.clone(),
@@ -333,18 +350,15 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Json<GameState> {
         white_captures: room.board.get_white_captures(),
         black_guess_stones: black_stones.clone(),
         white_guess_stones: white_stones.clone(),
-    })
+    }))
 }
 
 #[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     let mut rooms = GAME_ROOMS.lock().unwrap();
     
-    if !rooms.contains_key(&payload.match_string) {
-        rooms.insert(payload.match_string.clone(), GameRoom::new());
-    }
-    
-    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+    let room = rooms.entry(payload.match_string.clone())
+        .or_insert_with(GameRoom::new);
 
     let (color, url) = match (&room.players.0, &room.players.1) {
         ((None, _), _) => {
@@ -383,6 +397,20 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Json<String> {
     println!("{:?}", guess_stones);
 
     Json("Stones synced".to_string())
+}
+
+#[derive(Serialize)]
+struct ErrorResponse {
+    error: String,
+}
+
+fn json_error(msg: &str, status: StatusCode) -> Error {
+    Error::from_response(
+        Response::builder()
+            .status(status)
+            .content_type("application/json")
+            .body(serde_json::to_string(&ErrorResponse { error: msg.to_string() }).unwrap())
+    )
 }
 
 pub async fn start_server() -> Result<(), std::io::Error> {

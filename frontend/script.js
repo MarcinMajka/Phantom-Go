@@ -368,20 +368,39 @@ function updateBoard(boardState) {
   }
 }
 
+function fetchWithErrorHandling(url, options) {
+  return fetch(url, options)
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+      }
+      return data;
+    })
+    .catch((error) => {
+      console.error(`Error fetching ${url}:`, error);
+      throw error;
+    });
+}
+
+// Add retry logic for sync boards
 function syncBoards() {
+  const retryInterval = 5000; // 5 seconds
+  let failedAttempts = 0;
+  const maxRetries = 3;
+
   setInterval(() => {
     console.log("Refreshing board...");
-    fetch("http://localhost:8000/sync-boards", {
+    fetchWithErrorHandling("http://localhost:8000/sync-boards", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ match_string: matchString }),
     })
-      .then((response) => response.json())
       .then((data) => {
         console.log("Server response:", data.message);
-
+        failedAttempts = 0; // Reset counter on success
         blackStonesAdded = data.black_guess_stones;
         whiteStonesAdded = data.white_guess_stones;
 
@@ -392,21 +411,32 @@ function syncBoards() {
         updateTurn(data.current_player);
       })
       .catch((error) => {
-        console.error("Error fetching board dimensions:", error);
+        failedAttempts++;
+        console.error(
+          `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
+          error
+        );
+        if (failedAttempts >= maxRetries) {
+          console.error("Max retry attempts reached. Please refresh the page.");
+        }
       });
-  }, 5000);
+  }, retryInterval);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (!matchString) {
+    console.error("No match string provided");
+    return;
+  }
+
   // First fetch board dimensions
-  fetch("http://localhost:8000/dimensions", {
+  fetchWithErrorHandling("http://localhost:8000/dimensions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ match_string: matchString }),
   })
-    .then((response) => response.json())
     .then((dimensions) => {
       createBoard(dimensions.rows, dimensions.cols);
     })
