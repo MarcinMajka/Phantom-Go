@@ -281,9 +281,13 @@ async fn pass(match_string: Json<String>) -> Json<GameState> {
 }
 
 #[handler]
-async fn undo(match_string: Json<String>) -> Json<GameState> {
-    let mut rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.get_mut(&match_string.to_string()).unwrap();
+async fn undo(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let room = rooms
+        .get_mut(&payload.match_string.to_string())
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
     room.board.undo();
     
     // Get the playable board dimensions
@@ -298,7 +302,7 @@ async fn undo(match_string: Json<String>) -> Json<GameState> {
         })
         .collect();
 
-    Json(GameState {
+    Ok(Json(GameState {
         message: "Undo successful".to_string(),
         board: board_state.clone(),
         black_player_board: board_state.clone(),
@@ -308,7 +312,7 @@ async fn undo(match_string: Json<String>) -> Json<GameState> {
         white_captures: room.board.get_white_captures(),
         white_guess_stones: vec![],
         black_guess_stones: vec![],
-    })
+    }))
 }
 
 #[handler]
