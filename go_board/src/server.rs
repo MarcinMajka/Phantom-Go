@@ -238,9 +238,13 @@ fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
 }
 
 #[handler]
-async fn pass(match_string: Json<String>) -> Json<GameState> {
-    let mut rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.get_mut(&match_string.to_string()).unwrap();
+async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let room = rooms
+        .get_mut(&payload.match_string.to_string())
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
     let player = room.board.get_current_player();
 
@@ -252,7 +256,7 @@ async fn pass(match_string: Json<String>) -> Json<GameState> {
     let game_is_over = room.board.last_two_moves_are_pass();
 
     if !game_is_over {
-        Json(GameState {
+        Ok(Json(GameState {
             message: format!("Player {:?} passed", room.board.get_current_player().opponent()),
             board: vec![],
             black_player_board: vec![],
@@ -262,9 +266,9 @@ async fn pass(match_string: Json<String>) -> Json<GameState> {
             white_captures: room.board.get_white_captures(),
             white_guess_stones: vec![],
             black_guess_stones: vec![],
-        })
+        }))
     } else {
-        Json(GameState {
+        Ok(Json(GameState {
             message: format!("Both players passed. Game over!"),
             board: vec![],
             black_player_board: vec![],
@@ -274,7 +278,7 @@ async fn pass(match_string: Json<String>) -> Json<GameState> {
             white_captures: room.board.get_white_captures(),
             white_guess_stones: vec![],
             black_guess_stones: vec![],
-        })
+        }))
     }
 
         
