@@ -202,12 +202,16 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
 
 // Returns clicked group of stones during counting
 #[handler]
-async fn get_group(payload: Json<CellClick>) -> Json<Vec<Loc>> {
-    let mut rooms = GAME_ROOMS.lock().unwrap();
-    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut room = rooms
+        .get_mut(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
     let board = &mut room.board;
     let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
-    Json(group)
+    Ok(Json(group))
 }
 
 #[derive(Deserialize)]

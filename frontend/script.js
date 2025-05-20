@@ -309,6 +309,7 @@ function placeStone(cell, row, col) {
           frontend_board: "main",
           row: parseInt(row),
           col: parseInt(col),
+          match_string: matchString,
         }),
       })
         .then((response) => {
