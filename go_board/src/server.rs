@@ -217,21 +217,25 @@ async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
 #[derive(Deserialize)]
 struct GetScorePayload {
     match_string: String,
-    groups: Vec<Vec<Loc>>,
+    groups_to_remove: Vec<Vec<Loc>>,
 }
 
 #[handler]
-async fn get_score(payload: Json<GetScorePayload>) -> Json<String> {
+async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error> {
     let match_string = payload.match_string.clone();
-    let groups = payload.groups.clone();
-    let mut rooms = GAME_ROOMS.lock().unwrap();
-    let room = rooms.get_mut(&match_string).unwrap();
+    let groups = payload.groups_to_remove.clone();
+    let mut rooms = GAME_ROOMS
+    .lock()
+    .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let room = rooms
+        .get_mut(&match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
 
     remove_dead_groups(&mut room.board, Json(groups));
 
     let score = room.board.count_score().to_string();
 
-    Json(score)
+    Ok(Json(score))
 }
 
 fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {

@@ -543,7 +543,7 @@ elements.countScore.addEventListener("click", () => {
     },
     body: JSON.stringify({
       match_string: matchString,
-      groupsToRemove: Object.values(groupsToRemove),
+      groups_to_remove: Object.values(groupsToRemove),
     }),
   })
     .then((response) => {
