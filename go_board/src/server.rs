@@ -370,8 +370,10 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
 }
 
 #[handler]
-async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
-    let mut rooms = GAME_ROOMS.lock().unwrap();
+async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameResponse>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
     
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
@@ -391,10 +393,10 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Json<JoinGameResponse> {
     // Add match_string as query parameter
     let redirect_url = format!("{}?match={}", url, payload.match_string);
 
-    Json(JoinGameResponse {
+    Ok(Json(JoinGameResponse {
         color: color.to_string(),
         redirect_url
-    })
+    }))
 }
 
 #[handler]
