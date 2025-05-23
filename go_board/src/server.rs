@@ -143,9 +143,14 @@ fn get_board_state(board: &Board) -> Vec<Vec<String>> {
 // 3. Update game state
 // 4. Return updated game state to frontend
 #[handler]
-async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
-    let mut rooms = GAME_ROOMS.lock().unwrap();
-    let mut room = rooms.get_mut(&payload.match_string).unwrap();
+async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> {
+    let mut rooms = GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+
+    let mut room = rooms
+        .get_mut(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
     let board = &mut room.board;
 
     let current_player = board.get_current_player();
@@ -159,7 +164,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     };
 
     if correct_board != frontend_board && frontend_board != "main" {
-        return Json(GameState {
+        return Ok(Json(GameState {
             message: format!("It's not your turn!"),
             board: board_state.clone(),
             black_player_board: board_state.clone(),
@@ -169,7 +174,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
             white_captures: board.get_white_captures(),
             white_guess_stones: vec![],
             black_guess_stones: vec![],
-        });
+        }));
     }
     
     // Create move from payload
@@ -187,7 +192,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
     
     let board_state: Vec<Vec<String>> = get_board_state(&board);
     
-    Json(GameState {
+    Ok(Json(GameState {
         message: format!("Move attempted at ({}, {})", payload.row, payload.col),
         board: board_state.clone(),
         black_player_board: board_state.clone(),
@@ -197,7 +202,7 @@ async fn cell_click(payload: Json<CellClick>) -> Json<GameState> {
         white_captures: board.get_white_captures(),
         white_guess_stones: vec![],
         black_guess_stones: vec![],
-    })
+    }))
 }
 
 // Returns clicked group of stones during counting
