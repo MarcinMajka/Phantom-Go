@@ -73,9 +73,6 @@ impl GameRoom {
     }
 }
 
-/*
-    TODO: Bug fix: Not sure if this is the case, but I remember testing 2 separate games (2 differnt match_strings) and seeing it working. Maybe static mut is not the cause, but it should be avoided. - It was not the cause, but it's still a good practice to avoid static mut.
-*/
 lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
