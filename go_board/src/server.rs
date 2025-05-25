@@ -235,14 +235,14 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
 
-    remove_dead_groups(&mut room.board, Json(payload.groups_to_remove.clone()));
+    remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
 
     let score = room.board.count_score().to_string();
 
     Ok(Json(score))
 }
 
-fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
+fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
     for group in groups.iter() {
         let loc = group[0];
         board.remove_group(loc);
