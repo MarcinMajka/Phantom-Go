@@ -107,11 +107,15 @@ struct MatchStringPayload {
     match_string: String,
 }
 
+fn lock_rooms() -> Result<std::sync::MutexGuard<'static, HashMap<String, GameRoom>>, Error> {
+    GAME_ROOMS
+        .lock()
+        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))
+}
+
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     
     // Create room if it doesn't exist
     let room = rooms
@@ -141,9 +145,7 @@ fn get_board_state(board: &Board) -> Vec<Vec<String>> {
 // 4. Return updated game state to frontend
 #[handler]
 async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
 
     let mut room = rooms
         .get_mut(&payload.match_string)
@@ -205,9 +207,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 // Returns clicked group of stones during counting
 #[handler]
 async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     let mut room = rooms
         .get_mut(&payload.match_string)
         .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
@@ -249,9 +249,7 @@ fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
 
 #[handler]
 async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     let room = rooms
         .get_mut(&payload.match_string.to_string())
         .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
@@ -296,9 +294,7 @@ async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Erro
 
 #[handler]
 async fn undo(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     let room = rooms
         .get_mut(&payload.match_string.to_string())
         .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
@@ -331,9 +327,7 @@ async fn undo(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Erro
 
 #[handler]
 async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     
     // Create room if it doesn't exist
     let room = rooms
@@ -373,9 +367,7 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
 
 #[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameResponse>, Error> {
-    let mut rooms = GAME_ROOMS
-        .lock()
-        .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut rooms = lock_rooms()?;
     
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
