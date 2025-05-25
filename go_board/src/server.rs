@@ -113,6 +113,13 @@ fn lock_rooms() -> Result<std::sync::MutexGuard<'static, HashMap<String, GameRoo
         .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))
 }
 
+// Room will be mutable, so we can modify it if it exists
+fn get_room<'a>(rooms: &'a mut std::sync::MutexGuard<'static, HashMap<String, GameRoom>>, match_string: &str) -> Result<&'a mut GameRoom, Error> {
+    rooms
+        .get_mut(match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))
+}
+
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
     let mut rooms = lock_rooms()?;
@@ -146,10 +153,7 @@ fn get_board_state(board: &Board) -> Vec<Vec<String>> {
 #[handler]
 async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
-
-    let mut room = rooms
-        .get_mut(&payload.match_string)
-        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+    let mut room = get_room(&mut rooms, &payload.match_string)?;
     let board = &mut room.board;
 
     let current_player = board.get_current_player();
@@ -208,9 +212,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 #[handler]
 async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
     let mut rooms = lock_rooms()?;
-    let mut room = rooms
-        .get_mut(&payload.match_string)
-        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+    let mut room = get_room(&mut rooms, &payload.match_string)?;
     let board = &mut room.board;
     let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
     Ok(Json(group))
@@ -250,9 +252,7 @@ fn remove_dead_groups(board: &mut Board, groups: Json<Vec<Vec<Loc>>>) {
 #[handler]
 async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
-    let room = rooms
-        .get_mut(&payload.match_string.to_string())
-        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+    let room = get_room(&mut rooms, &payload.match_string)?;
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
     let player = room.board.get_current_player();
 
@@ -295,9 +295,7 @@ async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Erro
 #[handler]
 async fn undo(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
-    let room = rooms
-        .get_mut(&payload.match_string.to_string())
-        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+    let room = get_room(&mut rooms, &payload.match_string)?;
     room.board.undo();
     
     // Get the playable board dimensions
