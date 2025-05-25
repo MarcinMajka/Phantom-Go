@@ -232,16 +232,10 @@ struct GetScorePayload {
 
 #[handler]
 async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error> {
-    let match_string = payload.match_string.clone();
-    let groups = payload.groups_to_remove.clone();
-    let mut rooms = GAME_ROOMS
-    .lock()
-    .map_err(|_| json_error("Failed to lock rooms", StatusCode::INTERNAL_SERVER_ERROR))?;
-    let room = rooms
-        .get_mut(&match_string)
-        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+    let mut rooms = lock_rooms()?;
+    let room = get_room(&mut rooms, &payload.match_string)?;
 
-    remove_dead_groups(&mut room.board, Json(groups));
+    remove_dead_groups(&mut room.board, Json(payload.groups_to_remove.clone()));
 
     let score = room.board.count_score().to_string();
 
