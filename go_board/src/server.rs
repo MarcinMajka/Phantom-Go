@@ -120,6 +120,12 @@ fn get_room<'a>(rooms: &'a mut std::sync::MutexGuard<'static, HashMap<String, Ga
         .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))
 }
 
+fn lock_guess_stones() -> Result<std::sync::MutexGuard<'static, HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>>, Error> {
+    GUESS_STONES
+        .lock()
+        .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))
+}
+
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
     let mut rooms = lock_rooms()?;
@@ -332,9 +338,7 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
         
-    let mut guess_stones = GUESS_STONES
-        .lock()
-        .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut guess_stones = lock_guess_stones()?;
 
     let (rows, cols) = get_playable_dimensions(&room.board);
 
@@ -394,9 +398,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
 #[handler]
 async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String>, Error> {
     println!("Received payload: {:?}", payload);
-    let mut guess_stones = GUESS_STONES
-        .lock()
-        .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))?;
+    let mut guess_stones = lock_guess_stones()?;
     
     let (black_stones, white_stones) = guess_stones
         .entry(payload.match_string.clone())
