@@ -11,6 +11,8 @@ use crate::board::{Board, Move, Loc, Player, Color};
 use std::collections::HashMap;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
+use rand::random;
+
 
 #[derive(Serialize, Deserialize)]
 struct JoinGameRequest {
@@ -370,12 +372,28 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
 
     let (color, url) = match (&room.players.0, &room.players.1) {
         ((None, _), _) => {
-            room.players.0 = (Some(Player::Black), Some(payload.password.clone()));
-            ("black", "/frontend/black.html")
+            // Randomly decide if first player is black or white
+            let is_black = random::<bool>();
+            if is_black {
+                room.players.0 = (Some(Player::Black), Some(payload.password.clone()));
+                ("black", "/frontend/black.html")
+            } else {
+                room.players.0 = (Some(Player::White), Some(payload.password.clone()));
+                ("white", "/frontend/white.html")
+            }
         },
-        ((Some(_), _), (None, _)) => {
-            room.players.1 = (Some(Player::White), Some(payload.password.clone()));
-            ("white", "/frontend/white.html")
+        ((Some(first_player), _), (None, _)) => {
+            // Second player gets the opposite color
+            match first_player {
+                Player::Black => {
+                    room.players.1 = (Some(Player::White), Some(payload.password.clone()));
+                    ("white", "/frontend/white.html")
+                },
+                Player::White => {
+                    room.players.1 = (Some(Player::Black), Some(payload.password.clone()));
+                    ("black", "/frontend/black.html")
+                }
+            }
         },
         _ => ("spectator", "/frontend/main.html")
     };
