@@ -410,6 +410,16 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 }
             }
         },
+        // TODO: If both players have the same password, there's no differentiation between players - cover this case later
+        ((Some(_black), _, Some(pwd_1)), (Some(_white), _, Some(pwd_2))) => {
+            if pwd_1.0 == payload.password {
+                ("black", "/frontend/black.html")
+            } else if pwd_2.0 == payload.password {
+                ("white", "/frontend/white.html")
+            } else {
+                ("spectator", "/frontend/main.html")
+            }
+        },
         _ => ("spectator", "/frontend/main.html")
     };
 
