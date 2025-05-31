@@ -61,16 +61,31 @@ struct GuessStonesSync {
 }
 
 #[derive(Clone)]
+struct Password(String);
+
+#[derive(Clone)]
+struct PlayersState {
+    black: (Option<Player>, Option<String>, Option<Password>),
+    white: (Option<Player>, Option<String>, Option<Password>),
+}
+
+impl PlayersState {
+    fn new() -> Self {
+        Self { black: (None, None, None), white: (None, None, None) }
+    }
+}
+
+#[derive(Clone)]
 struct GameRoom {
     board: Board,
-    players: ((Option<Player>, Option<String>), (Option<Player>, Option<String>)),
+    players: PlayersState,
 }
 
 impl GameRoom {
     fn new() -> Self {
         GameRoom {
             board: Board::new(9, 9, 1.5),
-            players: ((None, None), (None, None)),
+            players: PlayersState::new(),
         }
     }
 }
@@ -370,27 +385,27 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
-    let (color, url) = match (&room.players.0, &room.players.1) {
-        ((None, _), _) => {
+    let (color, url) = match (&room.players.black, &room.players.white) {
+        ((None, _, _), _) => {
             // Randomly decide if first player is black or white
             let is_black = random::<bool>();
             if is_black {
-                room.players.0 = (Some(Player::Black), Some(payload.password.clone()));
+                room.players.black = (Some(Player::Black), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
                 ("black", "/frontend/black.html")
             } else {
-                room.players.0 = (Some(Player::White), Some(payload.password.clone()));
+                room.players.white = (Some(Player::White), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
                 ("white", "/frontend/white.html")
             }
         },
-        ((Some(first_player), _), (None, _)) => {
+        ((Some(first_player), _, _), (None, _, _)) => {
             // Second player gets the opposite color
             match first_player {
                 Player::Black => {
-                    room.players.1 = (Some(Player::White), Some(payload.password.clone()));
+                    room.players.white = (Some(Player::White), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
                     ("white", "/frontend/white.html")
                 },
                 Player::White => {
-                    room.players.1 = (Some(Player::Black), Some(payload.password.clone()));
+                    room.players.black = (Some(Player::Black), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
                     ("black", "/frontend/black.html")
                 }
             }
