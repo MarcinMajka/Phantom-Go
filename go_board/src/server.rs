@@ -18,6 +18,7 @@ use rand::random;
 struct JoinGameRequest {
     match_string: String,
     password: String,
+    is_spectator: bool
 }
 
 #[derive(Serialize)]
@@ -384,6 +385,13 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
+
+    if payload.is_spectator {
+        return Ok(Json(JoinGameResponse {
+            color: "spectator".to_string(),
+            redirect_url: format!("{}?match={}", "/frontend/main.html", payload.match_string)
+        }))
+    }
 
     let (color, url) = match (&room.players.black, &room.players.white) {
         ((None, _, _), _) => {

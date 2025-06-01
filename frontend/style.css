@@ -45,3 +45,7 @@ p {
     color: white;
     font-size: larger;
 }
+
+#spectator-label {
+    color: white;
+}
