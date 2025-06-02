@@ -62,6 +62,13 @@ impl Player {
             Player::White => Player::Black,
         }
     }
+
+    pub fn to_string(self) -> String {
+        match self {
+            Player::Black => "black".to_string(),
+            Player::White => "white".to_string(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
