@@ -267,8 +267,14 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
     }
 }
 
+#[derive(Deserialize)]
+struct PassAndUndoPayload {
+    match_string: String
+    // TODO: add and use player color to validate the turn from the request
+}
+
 #[handler]
-async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
@@ -311,7 +317,7 @@ async fn pass(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Erro
 }
 
 #[handler]
-async fn undo(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     room.board.undo();
