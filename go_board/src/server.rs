@@ -269,8 +269,9 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
 
 #[derive(Deserialize)]
 struct PassAndUndoPayload {
-    match_string: String
-    // TODO: add and use player color to validate the turn from the request
+    match_string: String,
+    player: String
+    // TODO: use player color to validate the turn from the request
 }
 
 #[handler]

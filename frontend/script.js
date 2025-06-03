@@ -454,7 +454,10 @@ elements.undo.addEventListener("click", () => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ match_string: matchString }),
+    body: JSON.stringify({
+      match_string: matchString,
+      player: playerColor,
+    }),
   })
     .then((response) => {
       if (!response.ok) {
@@ -480,7 +483,10 @@ elements.pass.addEventListener("click", () => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ match_string: matchString }),
+    body: JSON.stringify({
+      match_string: matchString,
+      player: playerColor,
+    }),
   })
     .then((response) => {
       if (!response.ok) {
