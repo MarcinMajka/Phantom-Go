@@ -106,13 +106,6 @@ fn color_to_string(color: Color) -> String {
     }
 }
 
-fn player_to_string(player: Player) -> String {
-    match player {
-        Player::Black => "black".to_string(),
-        Player::White => "white".to_string(),
-    }
-}
-
 fn get_playable_dimensions(board: &Board) -> (usize, usize) {
     let total_rows = board.fields.len();
     let total_cols = board.fields[0].len();
@@ -196,7 +189,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board: board_state.clone(),
             black_player_board: board_state.clone(),
             white_player_board: board_state,
-            current_player: player_to_string(board.get_current_player()),
+            current_player: board.get_current_player().to_string(),
             black_captures: board.get_black_captures(),
             white_captures: board.get_white_captures(),
             white_guess_stones: vec![],
@@ -224,7 +217,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         board: board_state.clone(),
         black_player_board: board_state.clone(),
         white_player_board: board_state,
-        current_player: player_to_string(board.get_current_player()),
+        current_player: board.get_current_player().to_string(),
         black_captures: board.get_black_captures(),
         white_captures: board.get_white_captures(),
         white_guess_stones: vec![],
@@ -294,7 +287,7 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
             board: vec![],
             black_player_board: vec![],
             white_player_board: vec![],
-            current_player: player_to_string(room.board.get_current_player()),
+            current_player: room.board.get_current_player().to_string(),
             black_captures: room.board.get_black_captures(),
             white_captures: room.board.get_white_captures(),
             white_guess_stones: vec![],
@@ -340,7 +333,7 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
         board: board_state.clone(),
         black_player_board: board_state.clone(),
         white_player_board: board_state,
-        current_player: player_to_string(room.board.get_current_player()),
+        current_player: room.board.get_current_player().to_string(),
         black_captures: room.board.get_black_captures(),
         white_captures: room.board.get_white_captures(),
         white_guess_stones: vec![],
@@ -378,7 +371,7 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
         board: board_state.clone(),
         black_player_board: board_state.clone(),
         white_player_board: board_state,
-        current_player: player_to_string(room.board.get_current_player()),
+        current_player: room.board.get_current_player().to_string(),
         black_captures: room.board.get_black_captures(),
         white_captures: room.board.get_white_captures(),
         black_guess_stones: black_stones.clone(),
