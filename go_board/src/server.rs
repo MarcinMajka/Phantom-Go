@@ -330,6 +330,23 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
+    let player = room.board.get_current_player();
+    let frontend_player = &payload.player;
+
+    if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
+        return Ok(Json(GameState {
+            message: "It's not your turn to pass!".to_string(),
+            board: vec![],
+            black_player_board: vec![],
+            white_player_board: vec![],
+            current_player: player.to_string(),
+            black_captures: room.board.get_black_captures(),
+            white_captures: room.board.get_white_captures(),
+            white_guess_stones: vec![],
+            black_guess_stones: vec![],
+        }));
+    }
+
     room.board.undo();
     
     // Get the playable board dimensions
