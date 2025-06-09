@@ -54,6 +54,28 @@ struct GameState {
     white_guess_stones: Vec<Vec<usize>>,
 }
 
+impl GameState {
+    fn new(message: String, board_state: Vec<Vec<String>>, board: &Board) -> Self {
+        Self {
+            message,
+            board: board_state.clone(),
+            black_player_board: board_state.clone(),
+            white_player_board: board_state,
+            current_player: board.get_current_player().to_string(),
+            black_captures: board.get_black_captures(),
+            white_captures: board.get_white_captures(),
+            black_guess_stones: vec![],
+            white_guess_stones: vec![],
+        }
+    }
+
+    fn with_guess_stones(mut self, black_stones: Vec<Vec<usize>>, white_stones: Vec<Vec<usize>>) -> Self {
+        self.black_guess_stones = black_stones;
+        self.white_guess_stones = white_stones;
+        self
+    }
+}
+
 #[derive(Deserialize, Debug)]
 struct GuessStonesSync {
     color: String,
@@ -184,17 +206,11 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     };
 
     if correct_board != frontend_board && frontend_board != "main" {
-        return Ok(Json(GameState {
-            message: format!("It's not your turn!"),
-            board: board_state.clone(),
-            black_player_board: board_state.clone(),
-            white_player_board: board_state,
-            current_player: board.get_current_player().to_string(),
-            black_captures: board.get_black_captures(),
-            white_captures: board.get_white_captures(),
-            white_guess_stones: vec![],
-            black_guess_stones: vec![],
-        }));
+        return Ok(Json(GameState::new(
+            format!("It's not your turn!"),
+            board_state,
+            board,
+        )));
     }
     
     // Create move from payload
@@ -212,17 +228,11 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     
     let board_state: Vec<Vec<String>> = get_board_state(&board);
     
-    Ok(Json(GameState {
-        message: format!("Move attempted at ({}, {})", payload.row, payload.col),
-        board: board_state.clone(),
-        black_player_board: board_state.clone(),
-        white_player_board: board_state,
-        current_player: board.get_current_player().to_string(),
-        black_captures: board.get_black_captures(),
-        white_captures: board.get_white_captures(),
-        white_guess_stones: vec![],
-        black_guess_stones: vec![],
-    }))
+    Ok(Json(GameState::new(
+        format!("Move attempted at ({}, {})", payload.row, payload.col),
+        board_state,
+        board,
+    )))
 }
 
 // Returns clicked group of stones during counting
@@ -277,17 +287,11 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     let frontend_player = &payload.player;
 
     if player.to_string() != frontend_player.to_string() && frontend_player != "spectator" {
-        return Ok(Json(GameState {
-            message: "It's not your turn to pass!".to_string(),
-            board: vec![],
-            black_player_board: vec![],
-            white_player_board: vec![],
-            current_player: player.to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            white_guess_stones: vec![],
-            black_guess_stones: vec![],
-        }));
+        return Ok(Json(GameState::new(
+            "It's not your turn to pass!".to_string(),
+            vec![],
+            &room.board,
+        )));
     }
 
     room.board.play(&Move {
@@ -298,29 +302,19 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     let game_is_over = room.board.last_two_moves_are_pass();
 
     if !game_is_over {
-        Ok(Json(GameState {
-            message: format!("Player {:?} passed", room.board.get_current_player().opponent()),
-            board: vec![],
-            black_player_board: vec![],
-            white_player_board: vec![],
-            current_player: room.board.get_current_player().to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            white_guess_stones: vec![],
-            black_guess_stones: vec![],
-        }))
+        Ok(Json(GameState::new(
+            format!("Player {:?} passed", room.board.get_current_player().opponent()),
+            vec![],
+            &room.board,
+        )))
     } else {
-        Ok(Json(GameState {
-            message: format!("Both players passed. Game over!"),
-            board: vec![],
-            black_player_board: vec![],
-            white_player_board: vec![],
-            current_player: "counting".to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            white_guess_stones: vec![],
-            black_guess_stones: vec![],
-        }))
+        let mut game_state = GameState::new(
+            format!("Both players passed. Game over!"),
+            vec![],
+            &room.board,
+        );
+        game_state.current_player = "counting".to_string();
+        Ok(Json(game_state))
     }
 
         
@@ -334,17 +328,11 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     let frontend_player = &payload.player;
 
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
-        return Ok(Json(GameState {
-            message: "It's not your turn to pass!".to_string(),
-            board: vec![],
-            black_player_board: vec![],
-            white_player_board: vec![],
-            current_player: player.to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            white_guess_stones: vec![],
-            black_guess_stones: vec![],
-        }));
+        return Ok(Json(GameState::new(
+            "It's not your turn to pass!".to_string(),
+            vec![],
+            &room.board,
+        )));
     }
 
     room.board.undo();
@@ -361,17 +349,11 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
         })
         .collect();
 
-    Ok(Json(GameState {
-        message: "Undo successful".to_string(),
-        board: board_state.clone(),
-        black_player_board: board_state.clone(),
-        white_player_board: board_state,
-        current_player: room.board.get_current_player().to_string(),
-        black_captures: room.board.get_black_captures(),
-        white_captures: room.board.get_white_captures(),
-        white_guess_stones: vec![],
-        black_guess_stones: vec![],
-    }))
+    Ok(Json(GameState::new(
+        "Undo successful".to_string(),
+        board_state,
+        &room.board,
+    )))
 }
 
 #[handler]
@@ -399,17 +381,11 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
         .entry(payload.match_string.clone())
         .or_insert((Vec::new(), Vec::new()));
 
-    Ok(Json(GameState {
-        message: "Current board state sent".to_string(),
-        board: board_state.clone(),
-        black_player_board: board_state.clone(),
-        white_player_board: board_state,
-        current_player: room.board.get_current_player().to_string(),
-        black_captures: room.board.get_black_captures(),
-        white_captures: room.board.get_white_captures(),
-        black_guess_stones: black_stones.clone(),
-        white_guess_stones: white_stones.clone(),
-    }))
+    Ok(Json(GameState::new(
+        "Current board state sent".to_string(),
+        board_state,
+        &room.board,
+    ).with_guess_stones(black_stones.clone(), white_stones.clone())))
 }
 
 #[handler]
