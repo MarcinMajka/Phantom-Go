@@ -329,7 +329,7 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
         return Ok(Json(GameState::new(
-            "It's not your turn to pass!".to_string(),
+            "It's not your turn to undo!".to_string(),
             vec![],
             &room.board,
         )));
