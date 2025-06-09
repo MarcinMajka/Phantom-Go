@@ -499,6 +499,9 @@ elements.pass.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Pass response:", data.message);
+      if (data.message === "It's not your turn to pass!") {
+        return;
+      }
       updateTurn(data.current_player);
     })
     .catch((error) => {
