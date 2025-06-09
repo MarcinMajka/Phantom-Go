@@ -467,6 +467,9 @@ elements.undo.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Server response:", data.message);
+      if (data.message === "It's not your turn to undo!") {
+        return;
+      }
       boardState = data.board;
       updateBoard(boardState);
       updateCaptures(data.black_captures, data.white_captures);
