@@ -1,5 +1,3 @@
-export let countingPhase = false;
-
 export const elements = {
   turn: document.getElementById("player-turn"),
   captures: {
@@ -22,7 +20,6 @@ elements.countScore.style.visibility = "hidden";
 export function updateTurn(currentPlayer) {
   if (currentPlayer === "counting") {
     elements.turn.innerText = "Counting points";
-    countingPhase = true;
     elements.countScore.style.visibility = "visible";
   } else {
     elements.turn.innerText = "Turn: " + currentPlayer;

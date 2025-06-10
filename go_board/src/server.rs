@@ -52,6 +52,7 @@ struct GameState {
     white_captures: isize,
     black_guess_stones: Vec<Vec<usize>>,
     white_guess_stones: Vec<Vec<usize>>,
+    counting: bool,
 }
 
 impl GameState {
@@ -66,6 +67,7 @@ impl GameState {
             white_captures: board.get_white_captures(),
             black_guess_stones: vec![],
             white_guess_stones: vec![],
+            counting: board.last_two_moves_are_pass(),
         }
     }
 
@@ -314,6 +316,7 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
             &room.board,
         );
         game_state.current_player = "counting".to_string();
+        game_state.counting = true;
         Ok(Json(game_state))
     }
 

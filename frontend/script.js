@@ -1,5 +1,4 @@
 import {
-  countingPhase,
   elements,
   updateTurn,
   updateCaptures,
@@ -29,6 +28,7 @@ let boardState;
 let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
+let countingPhase = false;
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
 const groupsToRemove = {};
@@ -410,6 +410,11 @@ function syncBoards() {
         updateBoard(data.board);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
+
+        if (data.counting) {
+          countingPhase = true;
+          elements.countScore.style.visibility = "visible";
+        }
       })
       .catch((error) => {
         failedAttempts++;
