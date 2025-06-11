@@ -86,6 +86,13 @@ struct GuessStonesSync {
 }
 
 #[derive(Clone)]
+struct PlayerSession {
+    player: Player,
+    password: String,
+    match_string: String,
+}
+
+#[derive(Clone)]
 struct Password(String);
 
 #[derive(Clone)]
