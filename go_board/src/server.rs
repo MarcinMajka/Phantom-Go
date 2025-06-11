@@ -276,10 +276,8 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
 struct PassAndUndoPayload {
     match_string: String,
     player: String
-    // TODO: use player color to validate the turn from the request
 }
 
-// TODO: both players passing on their pages doesn't effect counting points state on spectators page
 #[handler]
 async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
