@@ -94,9 +94,6 @@ struct PlayerSession {
 }
 
 #[derive(Clone)]
-struct Password(String);
-
-#[derive(Clone)]
 struct PlayersState {
     black: Option<PlayerSession>,
     white: Option<PlayerSession>,
@@ -433,7 +430,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 ("white", "/frontend/white.html", new_token)
             }
         },
-        (Some(black), None) => {
+        (Some(_black), None) => {
             // Second player - gets opposite color
             let new_token = uuid::Uuid::new_v4().to_string();
             room.players.white = Some(PlayerSession {
