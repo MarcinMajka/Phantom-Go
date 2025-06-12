@@ -88,9 +88,9 @@ struct GuessStonesSync {
 
 #[derive(Clone)]
 struct PlayerSession {
+    // Keep color for move validation
     color: Player,
     session_token: String,
-    match_string: String,
 }
 
 #[derive(Clone)]
@@ -418,14 +418,12 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 room.players.black = Some(PlayerSession {
                     color: Player::Black,
                     session_token: new_token.clone(),
-                    match_string: payload.match_string.clone()
                 });
                 ("black", "/frontend/black.html", new_token)
             } else {
                 room.players.white = Some(PlayerSession {
                     color: Player::White,
                     session_token: new_token.clone(),
-                    match_string: payload.match_string.clone()
                 });
                 ("white", "/frontend/white.html", new_token)
             }
@@ -436,7 +434,6 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             room.players.white = Some(PlayerSession {
                 color: Player::White,
                 session_token: new_token.clone(),
-                match_string: payload.match_string.clone()
             });
             ("white", "/frontend/white.html", new_token)
         },
