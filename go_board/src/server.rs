@@ -17,14 +17,15 @@ use rand::random;
 #[derive(Serialize, Deserialize)]
 struct JoinGameRequest {
     match_string: String,
-    password: String,
+    session_token: Option<String>,
     is_spectator: bool
 }
 
 #[derive(Serialize)]
 struct JoinGameResponse {
     color: String,
-    redirect_url: String
+    redirect_url: String,
+    session_token: String
 }
 
 #[derive(Serialize)]
@@ -87,8 +88,8 @@ struct GuessStonesSync {
 
 #[derive(Clone)]
 struct PlayerSession {
-    player: Player,
-    password: String,
+    color: Player,
+    session_token: String,
     match_string: String,
 }
 
@@ -97,13 +98,13 @@ struct Password(String);
 
 #[derive(Clone)]
 struct PlayersState {
-    black: (Option<Player>, Option<String>, Option<Password>),
-    white: (Option<Player>, Option<String>, Option<Password>),
+    black: Option<PlayerSession>,
+    white: Option<PlayerSession>,
 }
 
 impl PlayersState {
     fn new() -> Self {
-        Self { black: (None, None, None), white: (None, None, None) }
+        Self { black: None, white: None }
     }
 }
 
@@ -403,57 +404,66 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
-    if payload.is_spectator {
-        return Ok(Json(JoinGameResponse {
-            color: "spectator".to_string(),
-            redirect_url: format!("{}?match={}", "/frontend/main.html", payload.match_string)
-        }))
-    }
+    // if payload.is_spectator {
+    //     return Ok(Json(JoinGameResponse {
+    //         color: "spectator".to_string(),
+    //         redirect_url: format!("{}?match={}", "/frontend/main.html", payload.match_string)
+    //     }))
+    // }
 
-    let (color, url) = match (&room.players.black, &room.players.white) {
-        ((None, _, _), _) => {
-            // Randomly decide if first player is black or white
+    let (color, url, session_token) = match (&room.players.black, &room.players.white) {
+        (None, _) => {
+            // First player - random color
             let is_black = random::<bool>();
+            let new_token = uuid::Uuid::new_v4().to_string();
+            
             if is_black {
-                room.players.black = (Some(Player::Black), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
-                ("black", "/frontend/black.html")
+                room.players.black = Some(PlayerSession {
+                    color: Player::Black,
+                    session_token: new_token.clone(),
+                    match_string: payload.match_string.clone()
+                });
+                ("black", "/frontend/black.html", new_token)
             } else {
-                room.players.white = (Some(Player::White), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
-                ("white", "/frontend/white.html")
+                room.players.white = Some(PlayerSession {
+                    color: Player::White,
+                    session_token: new_token.clone(),
+                    match_string: payload.match_string.clone()
+                });
+                ("white", "/frontend/white.html", new_token)
             }
         },
-        ((Some(first_player), _, _), (None, _, _)) => {
-            // Second player gets the opposite color
-            match first_player {
-                Player::Black => {
-                    room.players.white = (Some(Player::White), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
-                    ("white", "/frontend/white.html")
-                },
-                Player::White => {
-                    room.players.black = (Some(Player::Black), Some(payload.match_string.clone()), Some(Password(payload.password.clone())));
-                    ("black", "/frontend/black.html")
+        (Some(black), None) => {
+            // Second player - gets opposite color
+            let new_token = uuid::Uuid::new_v4().to_string();
+            room.players.white = Some(PlayerSession {
+                color: Player::White,
+                session_token: new_token.clone(),
+                match_string: payload.match_string.clone()
+            });
+            ("white", "/frontend/white.html", new_token)
+        },
+        (Some(black), Some(white)) => {
+            // Both players exist - check session token
+            if let Some(token) = &payload.session_token {
+                if token == &black.session_token {
+                    ("black", "/frontend/black.html", black.session_token.clone())
+                } else if token == &white.session_token {
+                    ("white", "/frontend/white.html", white.session_token.clone())
+                } else {
+                    ("spectator", "/frontend/main.html", String::new())
                 }
-            }
-        },
-        // TODO: If both players have the same password, there's no differentiation between players - cover this case later
-        ((Some(_black), _, Some(pwd_1)), (Some(_white), _, Some(pwd_2))) => {
-            if pwd_1.0 == payload.password {
-                ("black", "/frontend/black.html")
-            } else if pwd_2.0 == payload.password {
-                ("white", "/frontend/white.html")
             } else {
-                ("spectator", "/frontend/main.html")
+                ("spectator", "/frontend/main.html", String::new())
             }
-        },
-        _ => ("spectator", "/frontend/main.html")
+        }
     };
-
-    // Add match_string as query parameter
-    let redirect_url = format!("{}?match={}", url, payload.match_string);
-
+    
+    // Return the response with session token
     Ok(Json(JoinGameResponse {
         color: color.to_string(),
-        redirect_url
+        redirect_url: format!("{}?match={}&token={}", url, payload.match_string, session_token),
+        session_token
     }))
 }
 
