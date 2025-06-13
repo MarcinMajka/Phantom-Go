@@ -13,14 +13,12 @@
             Spectator
         </label>
         <input type="text" id="match-string" placeholder="Enter match string">
-        <input type="password" id="player-password" placeholder="Enter your password">
         <button id="join-button">Join Game</button>
         
     </div>
     <script>
         document.getElementById('join-button').addEventListener('click', async () => {
             const matchString = document.getElementById('match-string').value;
-            const password = document.getElementById('player-password').value;
             const isSpectator = document.getElementById('spectator-checkbox').checked;
 
             try {
@@ -31,13 +29,13 @@
                     },
                     body: JSON.stringify({ 
                         match_string: matchString,
-                        password: password,
+                        sessionToken: '',
                         is_spectator: isSpectator
                     })
                 });
                 
                 const data = await response.json();
-                window.location.href = `${data.redirect_url}?match=${matchString}&pwd=${password}`;
+                window.location.href = `${data.redirect_url}?match=${matchString}`;
             } catch (error) {
                 console.error('Error:', error);
             }
