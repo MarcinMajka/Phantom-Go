@@ -53,3 +53,15 @@ export function createDiv(id, className) {
   div.className = className;
   return div;
 }
+
+export function handleGameButtonsAfterGame() {
+  if (elements.addStone.black) {
+    elements.addStone.black.style.display = "none";
+  }
+  if (elements.addStone.white) {
+    elements.addStone.white.style.display = "none";
+  }
+  elements.removeStone.style.display = "none";
+  elements.pass.style.display = "none";
+  elements.undo.style.display = "none";
+}
