@@ -572,8 +572,7 @@ elements.countScore.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Result:", data);
-      const res = createDiv("result", "button");
-      res.innerText = "Result: " + data;
+      const res = createButton("result", `Result: ${data}`);
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
 
