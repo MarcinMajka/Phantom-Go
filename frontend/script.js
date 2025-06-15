@@ -4,7 +4,6 @@ import {
   updateCaptures,
   addHoverEffect,
   createButton,
-  createDiv,
   handleGameButtonsAfterGame,
 } from "./UI.js";
 import {
