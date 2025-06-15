@@ -414,7 +414,6 @@ function syncBoards() {
 
         if (data.counting) {
           countingPhase = true;
-          elements.countScore.style.visibility = "visible";
           handleGameButtonsAfterGame();
         }
       })

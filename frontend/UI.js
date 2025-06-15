@@ -64,4 +64,5 @@ export function handleGameButtonsAfterGame() {
   elements.removeStone.style.display = "none";
   elements.pass.style.display = "none";
   elements.undo.style.display = "none";
+  elements.countScore.style.visibility = "visible";
 }
