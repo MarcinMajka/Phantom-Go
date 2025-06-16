@@ -174,6 +174,7 @@ pub struct Board {
     snapshots: HashSet<Vec<Vec<Color>>>,
     repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
+    groups_in_atari: HashSet<Vec<Loc>>,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
@@ -190,6 +191,7 @@ impl Board {
             snapshots: HashSet::new(),
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
+            groups_in_atari: HashSet::new(),
             game_history: vec![],
             current_player: Player::Black,
             komi,
@@ -433,6 +435,24 @@ impl Board {
         }
     }
 
+    fn update_groups_in_atari(&mut self) {
+        let mut groups_in_atari: HashSet<Vec<Loc>> = HashSet::new();
+        // Only iterate over the playable area (skip sentinel border)
+        let rows = self.fields.len();
+        let cols = self.fields[0].len();
+        for row in 1..rows - 1 {
+            for col in 1..cols - 1 {
+                let loc = Loc { row, col };
+                if self.get(loc) != Color::Empty {
+                    if self.count_liberties(loc) == 1 {
+                        groups_in_atari.insert(self.group_stones(loc));
+                    }
+                }
+            }
+        }
+        self.groups_in_atari = groups_in_atari;
+    }
+
     fn check_illegal_ko_recapture(&self) -> bool {
         if self.snapshot_history.len() < 5 {
             return false;
@@ -470,6 +490,8 @@ impl Board {
     pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
             self.unsafe_play(mv);
+            self.update_groups_in_atari();
+            println!("Groups in atari: {:?}", self.groups_in_atari);
         }
     }
 
