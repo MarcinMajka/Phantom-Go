@@ -174,7 +174,7 @@ pub struct Board {
     snapshots: HashSet<Vec<Vec<Color>>>,
     repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
-    groups_in_atari: HashSet<Vec<Loc>>,
+    pub groups_in_atari: HashSet<Vec<Loc>>,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,

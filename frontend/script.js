@@ -163,6 +163,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               // 1. Stone placements
               // 2. Current player
               console.log("Server response:", data.message);
+              console.log("Groups in atari:", data.groups_in_atari);
 
               boardState = data.board;
 

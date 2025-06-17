@@ -8,7 +8,7 @@ use poem::{
 };
 use serde::{Serialize, Deserialize};
 use crate::board::{Board, Move, Loc, Player, Color};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 use rand::random;
@@ -53,6 +53,7 @@ struct GameState {
     white_captures: isize,
     black_guess_stones: Vec<Vec<usize>>,
     white_guess_stones: Vec<Vec<usize>>,
+    groups_in_atari: Vec<Vec<Loc>>,
     counting: bool,
 }
 
@@ -68,6 +69,7 @@ impl GameState {
             white_captures: board.get_white_captures(),
             black_guess_stones: vec![],
             white_guess_stones: vec![],
+            groups_in_atari: vec![],
             counting: board.last_two_moves_are_pass(),
         }
     }
@@ -75,6 +77,13 @@ impl GameState {
     fn with_guess_stones(mut self, black_stones: Vec<Vec<usize>>, white_stones: Vec<Vec<usize>>) -> Self {
         self.black_guess_stones = black_stones;
         self.white_guess_stones = white_stones;
+        self
+    }
+
+    fn with_groups_in_atari(mut self, groups: HashSet<Vec<Loc>>) -> Self {
+        self.groups_in_atari = groups.into_iter()
+        .map(|group| group.into_iter().collect())
+        .collect();
         self
     }
 }
@@ -239,7 +248,10 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         format!("Move attempted at ({}, {})", payload.row, payload.col),
         board_state,
         board,
-    )))
+        )
+        .with_groups_in_atari(board.groups_in_atari.clone())
+        )
+    )
 }
 
 // Returns clicked group of stones during counting
