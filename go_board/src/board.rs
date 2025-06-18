@@ -46,8 +46,8 @@ impl GameResult {
                 Player::White => format!("White +{}", result),
             },
             GameResult::Resignation(player) => match player {
-                Player::Black => format!("White won by resignation"),
-                Player::White => format!("Black won by resignation"),
+                Player::Black => format!("White + R"),
+                Player::White => format!("Black + R"),
             },
         }
     }
