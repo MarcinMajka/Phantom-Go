@@ -282,6 +282,28 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     Ok(Json(score))
 }
 
+#[derive(Deserialize)]
+struct ResignPayload {
+    match_string: String,
+    player: String,
+}
+
+#[handler]
+async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<String>, Error> {
+    let mut rooms = lock_rooms()?;
+    let room = get_room(&mut rooms, &payload.match_string)?;
+    let winner = match payload.player.as_str() {
+        "black" => Some("white".to_string()),
+        "white" => Some("black".to_string()),
+        _ => None,
+    };
+
+    Ok(Json(format!(
+        "Player {} resigned. {} wins!",
+        payload.player, winner.unwrap_or("No one".to_string())
+    )))
+}
+
 fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
     for group in groups.iter() {
         let loc = group[0];
