@@ -292,16 +292,13 @@ struct ResignPayload {
 async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<String>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
-    let winner = match payload.player.as_str() {
-        "black" => Some("white".to_string()),
-        "white" => Some("black".to_string()),
-        _ => None,
+    
+    let loser = match payload.player.as_str() {
+        "black" => Player::Black,
+        _ => Player::White,
     };
 
-    Ok(Json(format!(
-        "Player {} resigned. {} wins!",
-        payload.player, winner.unwrap_or("No one".to_string())
-    )))
+    Ok(Json(room.board.handle_resignation(loser).to_string()))
 }
 
 fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
@@ -544,6 +541,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
         .at("/sync-boards", poem::post(sync_boards))
+        .at("/resign", poem::post(handle_resignation))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
