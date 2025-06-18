@@ -32,7 +32,8 @@ pub enum Player {
 
 #[derive(Debug)]
 pub enum GameResult {
-    Player(Player, f32),
+    Points(Player, f32),
+    Resignation(Player),
     Draw,
 }
 
@@ -40,9 +41,13 @@ impl GameResult {
     pub fn to_string(&self) -> String {
         match self {
             GameResult::Draw => String::from("D R A W !"),
-            GameResult::Player(player, result) => match player {
+            GameResult::Points(player, result) => match player {
                 Player::Black => format!("Black +{}", result),
                 Player::White => format!("White +{}", result),
+            },
+            GameResult::Resignation(player) => match player {
+                Player::Black => format!("White won by resignation"),
+                Player::White => format!("Black won by resignation"),
             },
         }
     }
@@ -368,11 +373,17 @@ impl Board {
         let result: GameResult;
 
         if black_won {
-            result = GameResult::Player(Player::Black, black_total_points - white_total_points);
+            result = GameResult::Points(Player::Black, black_total_points - white_total_points);
         } else {
-            result = GameResult::Player(Player::White, white_total_points - black_total_points);
+            result = GameResult::Points(Player::White, white_total_points - black_total_points);
         }
 
+        result
+    }
+
+    pub fn handle_resignation(&mut self, player: Player) -> GameResult {
+        let result = GameResult::Resignation(player);
+        println!("{} resigned!", player.to_string());
         result
     }
 
