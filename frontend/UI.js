@@ -12,6 +12,7 @@ export const elements = {
   countScore: document.getElementById("count-score-button"),
   undo: document.getElementById("undo-button"),
   pass: document.getElementById("pass-button"),
+  resign: document.getElementById("resign-button"),
   infoContainer: document.getElementById("info-container"),
 };
 
