@@ -586,3 +586,31 @@ elements.countScore.addEventListener("click", () => {
       console.error("Error during count score:", error);
     });
 });
+
+elements.resign.addEventListener("click", () => {
+  fetch("http://localhost:8000/resign", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      match_string: matchString,
+      player: playerColor,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Resign response:", data);
+      const res = createButton("resign-result", data);
+      elements.infoContainer.innerHTML = "";
+      elements.infoContainer.appendChild(res);
+    })
+    .catch((error) => {
+      console.error("Error during resign:", error);
+    });
+});
