@@ -36,7 +36,7 @@
                 
                 const data = await response.json();
                 <!-- TODO: save sessionToken in localStorage for not interfering with subsequent games -->
-                window.location.href = `${data.redirect_url}?match=${matchString}`;
+                window.location.href = `${data.redirect_url}`;
             } catch (error) {
                 console.error('Error:', error);
             }
