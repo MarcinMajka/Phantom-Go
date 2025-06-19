@@ -414,7 +414,7 @@ function syncBoards() {
 
         if (data.counting) {
           countingPhase = true;
-          handleGameButtonsAfterGame();
+          handleGameButtonsAfterGame(matchString);
         }
       })
       .catch((error) => {

@@ -55,7 +55,7 @@ export function createDiv(id, className) {
   return div;
 }
 
-export function handleGameButtonsAfterGame() {
+export function handleGameButtonsAfterGame(matchString) {
   if (elements.addStone.black) {
     elements.addStone.black.style.display = "none";
   }
@@ -66,4 +66,13 @@ export function handleGameButtonsAfterGame() {
   elements.pass.style.display = "none";
   elements.undo.style.display = "none";
   elements.countScore.style.visibility = "visible";
+
+  const mainBoardButton = createLinkToMainBoard(matchString);
+  elements.infoContainer.appendChild(mainBoardButton);
+}
+
+function createLinkToMainBoard(matchString) {
+  return createButton("main-board-button", "Main Board", () => {
+    window.location.href = "/frontend/main.html?match=" + matchString;
+  });
 }
