@@ -55,7 +55,13 @@ export function createDiv(id, className) {
   return div;
 }
 
+let buttonsWereHandledAfterGame = false;
+
 export function handleGameButtonsAfterGame(matchString) {
+  if (buttonsWereHandledAfterGame) return;
+
+  buttonsWereHandledAfterGame = true;
+
   if (elements.addStone.black) {
     elements.addStone.black.style.display = "none";
   }
