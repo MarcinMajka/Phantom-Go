@@ -55,6 +55,7 @@ struct GameState {
     white_guess_stones: Vec<Vec<usize>>,
     groups_in_atari: Vec<Vec<Loc>>,
     counting: bool,
+    winner: Option<String>,
 }
 
 impl GameState {
@@ -71,6 +72,7 @@ impl GameState {
             white_guess_stones: vec![],
             groups_in_atari: vec![],
             counting: board.last_two_moves_are_pass(),
+            winner: None
         }
     }
 
@@ -84,6 +86,11 @@ impl GameState {
         self.groups_in_atari = groups.into_iter()
         .map(|group| group.into_iter().collect())
         .collect();
+        self
+    }
+
+    fn with_winner(mut self, winner: String) -> Self {
+        self.winner = Some(winner);
         self
     }
 }
@@ -418,11 +425,22 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
         .entry(payload.match_string.clone())
         .or_insert((Vec::new(), Vec::new()));
 
-    Ok(Json(GameState::new(
-        "Current board state sent".to_string(),
-        board_state,
-        &room.board,
-    ).with_guess_stones(black_stones.clone(), white_stones.clone())))
+    let game_state = match room.board.get_winner() {
+        Some(winner) => {
+            GameState::new(
+                format!("Game over! Winner: {}", winner.to_string()),
+                board_state.clone(),
+                &room.board,
+            ).with_winner(winner.to_string())
+        },
+        None => GameState::new(
+            "Current board state sent".to_string(),
+            board_state.clone(),
+            &room.board,
+        ).with_guess_stones(black_stones.clone(), white_stones.clone())
+    };
+
+    Ok(Json(game_state))
 }
 
 #[handler]

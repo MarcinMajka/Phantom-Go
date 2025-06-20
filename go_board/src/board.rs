@@ -185,6 +185,7 @@ pub struct Board {
     komi: f32,
     black_captures: isize,
     white_captures: isize,
+    winner: Option<Player>,
 }
 
 impl Board {
@@ -203,6 +204,7 @@ impl Board {
             black_captures: 0,
             white_captures: 0,
             // TODO: I think adding is_counting and winner here could solve frontend showing incorrect player turn in the UI from GameState in sync_boards()
+            winner: None,
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -227,6 +229,10 @@ impl Board {
 
     pub fn get_current_player(&self) -> Player {
         self.current_player
+    }
+
+    pub fn get_winner(&self) -> Option<Player> {
+        self.winner
     }
 
     pub fn set_current_player(&mut self, player: Player) {
