@@ -416,11 +416,6 @@ function syncBoards() {
           document.removeEventListener;
         }
 
-        if (isWinnerDecided) {
-          clearInterval(syncIntervalId);
-          console.log("Winner already decided, stopping sync.");
-          return;
-        }
         // TODO: how to show which stones were captured, so players can't make a mistake? Groups are removed on server by board.play()
 
         updateBoard(data.board);
@@ -430,6 +425,15 @@ function syncBoards() {
         if (data.counting) {
           countingPhase = true;
           handleGameButtonsAfterGame(matchString);
+        }
+
+        if (countingPhase) {
+          clearInterval(syncIntervalId);
+          console.log(data.current_player);
+          updateTurn(data.current_player);
+
+          console.log("Counting, stopping sync.");
+          return;
         }
       })
       .catch((error) => {
