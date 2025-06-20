@@ -235,6 +235,10 @@ impl Board {
         self.winner
     }
 
+    pub fn set_winner(&mut self, player: Player) {
+        self.winner = Some(player);
+    }
+
     pub fn set_current_player(&mut self, player: Player) {
         self.current_player = player;
     }

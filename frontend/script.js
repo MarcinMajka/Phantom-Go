@@ -29,6 +29,7 @@ let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
 let countingPhase = false;
+let isWinnerDecided = false;
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
 const groupsToRemove = {};
@@ -391,7 +392,7 @@ function syncBoards() {
   let failedAttempts = 0;
   const maxRetries = 3;
 
-  setInterval(() => {
+  const syncIntervalId = setInterval(() => {
     console.log("Refreshing board...");
     fetchWithErrorHandling("http://localhost:8000/sync-boards", {
       method: "POST",
@@ -405,7 +406,21 @@ function syncBoards() {
         failedAttempts = 0; // Reset counter on success
         blackStonesAdded = data.black_guess_stones;
         whiteStonesAdded = data.white_guess_stones;
+        console.log("winner:", data.winner);
+        if (data.winner) {
+          isWinnerDecided = true;
+          const res = createButton("resign-result", data.winner + " + R");
+          elements.infoContainer.innerHTML = "";
+          elements.infoContainer.appendChild(res);
+          handleGameButtonsAfterGame(matchString);
+          document.removeEventListener;
+        }
 
+        if (isWinnerDecided) {
+          clearInterval(syncIntervalId);
+          console.log("Winner already decided, stopping sync.");
+          return;
+        }
         // TODO: how to show which stones were captured, so players can't make a mistake? Groups are removed on server by board.play()
 
         updateBoard(data.board);
@@ -606,7 +621,7 @@ elements.resign.addEventListener("click", () => {
     })
     .then((data) => {
       console.log("Resign response:", data);
-      const res = createButton("resign-result", data);
+      const res = createButton("resign-result", data.winner + " + R");
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
     })

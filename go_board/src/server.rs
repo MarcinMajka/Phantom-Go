@@ -296,7 +296,7 @@ struct ResignPayload {
 }
 
 #[handler]
-async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<String>, Error> {
+async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     
@@ -305,7 +305,13 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<String>
         _ => Player::White,
     };
 
-    Ok(Json(room.board.handle_resignation(loser).to_string()))
+    room.board.set_winner(loser.opponent());
+
+    Ok(Json(GameState::new(
+        format!("Player {:?} resigned. Game over!", loser),
+        get_board_state(&room.board),
+        &room.board,
+    ).with_winner(loser.opponent().to_string())))
 }
 
 fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
