@@ -75,10 +75,9 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
   if (elements.resign) {
     elements.resign.style.display = "none";
   }
-  elements.countScore.style.visibility = "visible";
 
-  if (isGameOver) {
-    elements.countScore.style.visibility = "hidden";
+  if (!isGameOver) {
+    elements.countScore.style.visibility = "visible";
   }
 
   const mainBoardButton = createLinkToMainBoard(matchString);
