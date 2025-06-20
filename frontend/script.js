@@ -412,7 +412,7 @@ function syncBoards() {
           const res = createButton("resign-result", data.winner + " + R");
           elements.infoContainer.innerHTML = "";
           elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(matchString);
+          handleGameButtonsAfterGame(matchString, isWinnerDecided);
           document.removeEventListener;
         }
 
@@ -424,15 +424,15 @@ function syncBoards() {
 
         if (data.counting) {
           countingPhase = true;
-          handleGameButtonsAfterGame(matchString);
+          handleGameButtonsAfterGame(matchString, isWinnerDecided);
         }
 
-        if (countingPhase) {
+        if (countingPhase || isWinnerDecided) {
           clearInterval(syncIntervalId);
           console.log(data.current_player);
           updateTurn(data.current_player);
 
-          console.log("Counting, stopping sync.");
+          console.log("Counting or game finished, stopping sync.");
           return;
         }
       })
@@ -606,30 +606,32 @@ elements.countScore.addEventListener("click", () => {
     });
 });
 
-elements.resign.addEventListener("click", () => {
-  fetch("http://localhost:8000/resign", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: matchString,
-      player: playerColor,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
+if (elements.resign) {
+  elements.resign.addEventListener("click", () => {
+    fetch("http://localhost:8000/resign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        match_string: matchString,
+        player: playerColor,
+      }),
     })
-    .then((data) => {
-      console.log("Resign response:", data);
-      const res = createButton("resign-result", data.winner + " + R");
-      elements.infoContainer.innerHTML = "";
-      elements.infoContainer.appendChild(res);
-    })
-    .catch((error) => {
-      console.error("Error during resign:", error);
-    });
-});
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Resign response:", data);
+        const res = createButton("resign-result", data.winner + " + R");
+        elements.infoContainer.innerHTML = "";
+        elements.infoContainer.appendChild(res);
+      })
+      .catch((error) => {
+        console.error("Error during resign:", error);
+      });
+  });
+}

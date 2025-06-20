@@ -57,7 +57,7 @@ export function createDiv(id, className) {
 
 let buttonsWereHandledAfterGame = false;
 
-export function handleGameButtonsAfterGame(matchString) {
+export function handleGameButtonsAfterGame(matchString, isGameOver) {
   if (buttonsWereHandledAfterGame) return;
 
   buttonsWereHandledAfterGame = true;
@@ -68,10 +68,18 @@ export function handleGameButtonsAfterGame(matchString) {
   if (elements.addStone.white) {
     elements.addStone.white.style.display = "none";
   }
+
   elements.removeStone.style.display = "none";
   elements.pass.style.display = "none";
   elements.undo.style.display = "none";
+  if (elements.resign) {
+    elements.resign.style.display = "none";
+  }
   elements.countScore.style.visibility = "visible";
+
+  if (isGameOver) {
+    elements.countScore.style.visibility = "hidden";
+  }
 
   const mainBoardButton = createLinkToMainBoard(matchString);
   elements.infoContainer.appendChild(mainBoardButton);
