@@ -53,7 +53,7 @@ struct GameState {
     white_captures: isize,
     black_guess_stones: Vec<Vec<usize>>,
     white_guess_stones: Vec<Vec<usize>>,
-    groups_in_atari: Vec<Vec<Loc>>,
+    groups_in_atari: GroupsInAtari,
     counting: bool,
     winner: Option<String>,
 }
@@ -70,7 +70,7 @@ impl GameState {
             white_captures: board.get_white_captures(),
             black_guess_stones: vec![],
             white_guess_stones: vec![],
-            groups_in_atari: vec![],
+            groups_in_atari: GroupsInAtari::new(),
             counting: board.last_two_moves_are_pass(),
             winner: None
         };
@@ -89,9 +89,7 @@ impl GameState {
     }
 
     fn with_groups_in_atari(mut self, groups: GroupsInAtari) -> Self {
-        self.groups_in_atari = groups.all.into_iter()
-        .map(|group| group.into_iter().collect())
-        .collect();
+        self.groups_in_atari = groups;
         self
     }
 
