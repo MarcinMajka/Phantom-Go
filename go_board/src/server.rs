@@ -7,7 +7,7 @@ use poem::{
     http::StatusCode, Response
 };
 use serde::{Serialize, Deserialize};
-use crate::board::{Board, Move, Loc, Player, Color};
+use crate::board::{Board, Move, Loc, Player, Color, GroupsInAtari};
 use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
@@ -88,8 +88,8 @@ impl GameState {
         self
     }
 
-    fn with_groups_in_atari(mut self, groups: HashSet<Vec<Loc>>) -> Self {
-        self.groups_in_atari = groups.into_iter()
+    fn with_groups_in_atari(mut self, groups: GroupsInAtari) -> Self {
+        self.groups_in_atari = groups.all.into_iter()
         .map(|group| group.into_iter().collect())
         .collect();
         self

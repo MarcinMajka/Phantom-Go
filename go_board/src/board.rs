@@ -169,6 +169,13 @@ struct BoardSize {
     cols: usize,
 }
 
+#[derive(Clone, PartialEq, Debug)]
+pub struct GroupsInAtari {
+    pub all: HashSet<Vec<Loc>>,
+    pub black: HashSet<Vec<Loc>>,
+    pub white: HashSet<Vec<Loc>>,
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
@@ -179,7 +186,7 @@ pub struct Board {
     snapshots: HashSet<Vec<Vec<Color>>>,
     repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
-    pub groups_in_atari: HashSet<Vec<Loc>>,
+    pub groups_in_atari: GroupsInAtari,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
@@ -197,7 +204,7 @@ impl Board {
             snapshots: HashSet::new(),
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
-            groups_in_atari: HashSet::new(),
+            groups_in_atari: GroupsInAtari { all: HashSet::new(), black: HashSet::new(), white: HashSet::new() },
             game_history: vec![],
             current_player: Player::Black,
             komi,
@@ -471,7 +478,19 @@ impl Board {
                 }
             }
         }
-        self.groups_in_atari = groups_in_atari;
+        self.groups_in_atari = GroupsInAtari {
+            all: groups_in_atari.clone(),
+            black: groups_in_atari
+                .iter()
+                .filter(|group| self.get(group[0]) == Color::Black)
+                .cloned()
+                .collect(),
+            white: groups_in_atari
+                .iter()
+                .filter(|group| self.get(group[0]) == Color::White)
+                .cloned()
+                .collect(),
+        };
     }
 
     fn check_illegal_ko_recapture(&self) -> bool {
