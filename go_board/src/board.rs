@@ -203,7 +203,6 @@ impl Board {
             komi,
             black_captures: 0,
             white_captures: 0,
-            // TODO: I think adding is_counting and winner here could solve frontend showing incorrect player turn in the UI from GameState in sync_boards()
             winner: None,
         };
         // Setting up sentinels in rows
