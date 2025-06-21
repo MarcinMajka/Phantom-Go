@@ -60,7 +60,7 @@ struct GameState {
 
 impl GameState {
     fn new(message: String, board_state: Vec<Vec<String>>, board: &Board) -> Self {
-        Self {
+        let mut game_state = Self {
             message,
             board: board_state.clone(),
             black_player_board: board_state.clone(),
@@ -73,7 +73,13 @@ impl GameState {
             groups_in_atari: vec![],
             counting: board.last_two_moves_are_pass(),
             winner: None
+        };
+
+        if game_state.counting {
+            game_state.current_player = "counting".to_string();
         }
+
+        game_state
     }
 
     fn with_guess_stones(mut self, black_stones: Vec<Vec<usize>>, white_stones: Vec<Vec<usize>>) -> Self {
