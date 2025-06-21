@@ -169,9 +169,8 @@ struct BoardSize {
     cols: usize,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize)]
 pub struct GroupsInAtari {
-    pub all: HashSet<Vec<Loc>>,
     pub black: HashSet<Vec<Loc>>,
     pub white: HashSet<Vec<Loc>>,
 }
@@ -179,7 +178,6 @@ pub struct GroupsInAtari {
 impl GroupsInAtari {
     pub fn new() -> Self {
         GroupsInAtari {
-            all: HashSet::new(),
             black: HashSet::new(),
             white: HashSet::new(),
         }
@@ -490,7 +488,6 @@ impl Board {
             }
         }
         self.groups_in_atari = GroupsInAtari {
-            all: groups_in_atari.clone(),
             black: groups_in_atari
                 .iter()
                 .filter(|group| self.get(group[0]) == Color::Black)
