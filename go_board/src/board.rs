@@ -176,6 +176,17 @@ pub struct GroupsInAtari {
     pub white: HashSet<Vec<Loc>>,
 }
 
+impl GroupsInAtari {
+    pub fn new() -> Self {
+        GroupsInAtari {
+            all: HashSet::new(),
+            black: HashSet::new(),
+            white: HashSet::new(),
+        }
+    }
+    
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
@@ -204,7 +215,7 @@ impl Board {
             snapshots: HashSet::new(),
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
-            groups_in_atari: GroupsInAtari { all: HashSet::new(), black: HashSet::new(), white: HashSet::new() },
+            groups_in_atari: GroupsInAtari::new(),
             game_history: vec![],
             current_player: Player::Black,
             komi,
