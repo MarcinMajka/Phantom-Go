@@ -8,7 +8,7 @@ use poem::{
 };
 use serde::{Serialize, Deserialize};
 use crate::board::{Board, Move, Loc, Player, Color, GroupsInAtari};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 use rand::random;
