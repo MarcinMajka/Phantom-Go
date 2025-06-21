@@ -80,8 +80,10 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
     elements.countScore.style.visibility = "visible";
   }
 
-  const mainBoardButton = createLinkToMainBoard(matchString);
-  elements.infoContainer.appendChild(mainBoardButton);
+  if (!window.location.pathname.includes("main.html")) {
+    const mainBoardButton = createLinkToMainBoard(matchString);
+    elements.infoContainer.appendChild(mainBoardButton);
+  }
 }
 
 function createLinkToMainBoard(matchString) {
