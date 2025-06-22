@@ -7,7 +7,7 @@ use poem::{
     http::StatusCode, Response
 };
 use serde::{Serialize, Deserialize};
-use crate::board::{Board, Move, Loc, Player, Color, GroupsInAtari};
+use crate::board::{Board, Move, Loc, Player, Color, GroupsInAtari, StonesInAtari};
 use std::collections::{HashMap};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
@@ -54,6 +54,7 @@ struct GameState {
     black_guess_stones: Vec<Vec<usize>>,
     white_guess_stones: Vec<Vec<usize>>,
     groups_in_atari: GroupsInAtari,
+    stones_in_atari: StonesInAtari,
     counting: bool,
     winner: Option<String>,
 }
@@ -71,6 +72,7 @@ impl GameState {
             black_guess_stones: vec![],
             white_guess_stones: vec![],
             groups_in_atari: GroupsInAtari::new(),
+            stones_in_atari: StonesInAtari::new(),
             counting: board.last_two_moves_are_pass(),
             winner: None
         };
@@ -90,6 +92,11 @@ impl GameState {
 
     fn with_groups_in_atari(mut self, groups: GroupsInAtari) -> Self {
         self.groups_in_atari = groups;
+        self
+    }
+
+    fn with_stones_in_atari(mut self, number_of_stones: StonesInAtari) -> Self {
+        self.stones_in_atari = number_of_stones;
         self
     }
 
@@ -268,6 +275,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         }
     };
 
+    board.stones_in_atari.black = new_groups_in_atari.black.len() as usize;
+    board.stones_in_atari.white = new_groups_in_atari.white.len() as usize;
+
     let board_state: Vec<Vec<String>> = get_board_state(&board);
     
     Ok(Json(GameState::new(
@@ -276,6 +286,10 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         board,
         )
         .with_groups_in_atari(new_groups_in_atari)
+        .with_stones_in_atari(StonesInAtari { 
+            black: board.stones_in_atari.black,
+            white: board.stones_in_atari.white,
+        })
         )
     )
 }

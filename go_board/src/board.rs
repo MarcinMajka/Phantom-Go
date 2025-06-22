@@ -187,8 +187,8 @@ impl GroupsInAtari {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StonesInAtari {
-    black: usize,
-    white: usize, 
+    pub black: usize,
+    pub white: usize, 
 }
 
 impl StonesInAtari {
