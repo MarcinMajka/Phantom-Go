@@ -186,9 +186,19 @@ impl GroupsInAtari {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
-struct StonesInAtari {
+pub struct StonesInAtari {
     black: usize,
     white: usize, 
+}
+
+impl StonesInAtari {
+    pub fn new() -> Self {
+        StonesInAtari {
+            black: 0,
+            white: 0,
+        }
+    }
+    
 }
 
 #[derive(Clone, PartialEq)]
@@ -221,10 +231,7 @@ impl Board {
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
             groups_in_atari: GroupsInAtari::new(),
-            stones_in_atari: StonesInAtari {
-                black: 0,
-                white: 0,
-            },
+            stones_in_atari: StonesInAtari::new(),
             game_history: vec![],
             current_player: Player::Black,
             komi,
