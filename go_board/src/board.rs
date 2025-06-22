@@ -185,6 +185,12 @@ impl GroupsInAtari {
     
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+struct StonesInAtari {
+    black: usize,
+    white: usize, 
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
@@ -196,6 +202,7 @@ pub struct Board {
     repeated_snapshots: HashSet<Vec<Vec<Color>>>,
     snapshot_history: Vec<Vec<Vec<Color>>>,
     pub groups_in_atari: GroupsInAtari,
+    pub stones_in_atari: StonesInAtari,
     game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
@@ -214,6 +221,10 @@ impl Board {
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
             groups_in_atari: GroupsInAtari::new(),
+            stones_in_atari: StonesInAtari {
+                black: 0,
+                white: 0,
+            },
             game_history: vec![],
             current_player: Player::Black,
             komi,
@@ -487,17 +498,24 @@ impl Board {
                 }
             }
         }
+
+        let black: HashSet<Vec<Loc>> = groups_in_atari
+            .iter()
+            .filter(|group| self.get(group[0]) == Color::Black)
+            .cloned()
+            .collect();
+        let white: HashSet<Vec<Loc>> = groups_in_atari
+            .iter()
+            .filter(|group| self.get(group[0]) == Color::White)
+            .cloned()
+            .collect();
+        self.stones_in_atari.black = black.len() as usize;
+        self.stones_in_atari.white = black.len() as usize;
+
+
         self.groups_in_atari = GroupsInAtari {
-            black: groups_in_atari
-                .iter()
-                .filter(|group| self.get(group[0]) == Color::Black)
-                .cloned()
-                .collect(),
-            white: groups_in_atari
-                .iter()
-                .filter(|group| self.get(group[0]) == Color::White)
-                .cloned()
-                .collect(),
+            black,
+            white,
         };
     }
 
