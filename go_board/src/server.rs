@@ -239,6 +239,8 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board,
         )));
     }
+
+    let groups_in_atari = board.groups_in_atari.clone();
     
     // Create move from payload
     let move_attempt = Move {
@@ -253,6 +255,19 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     // Try to play the move - play() handles validation internally
     board.play(&move_attempt);
     
+    let new_groups_in_atari = {
+        let mut current_groups_in_atari = board.groups_in_atari.clone();
+        if groups_in_atari != current_groups_in_atari {
+            GroupsInAtari {
+                black: current_groups_in_atari.black.difference(&groups_in_atari.black).cloned().collect(),
+                white: current_groups_in_atari.white.difference(&groups_in_atari.white).cloned().collect(),
+            }
+        // Not sure what to do with this, because I'm only interested in new groups in atari
+        } else {
+            GroupsInAtari::new()
+        }
+    };
+
     let board_state: Vec<Vec<String>> = get_board_state(&board);
     
     Ok(Json(GameState::new(
@@ -260,7 +275,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         board_state,
         board,
         )
-        .with_groups_in_atari(board.groups_in_atari.clone())
+        .with_groups_in_atari(new_groups_in_atari)
         )
     )
 }
