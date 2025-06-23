@@ -114,8 +114,21 @@ impl GameState {
         self
     }
 
-    fn with_groups_in_atari(mut self, groups: PlayerGroupsInAtari) -> Self {
-        self.groups_in_atari = groups;
+    fn with_groups_in_atari(mut self, groups: GroupsInAtari, current_player: Player) -> Self {
+        let player_groups_in_atari: PlayerGroupsInAtari = match current_player {
+            Player::Black => {
+                PlayerGroupsInAtari {
+                    groups: groups.black,
+                }
+            }
+            _ => {
+                PlayerGroupsInAtari {
+                    groups: groups.white,
+                }
+            }
+        };
+
+        self.groups_in_atari = player_groups_in_atari;
         self
     }
 
@@ -305,28 +318,19 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
-    
+
     Ok(Json(GameState::new(
         format!("Move attempted at ({}, {})", payload.row, payload.col),
         board_state,
         board,
         )
-        .with_groups_in_atari(if current_player == Player::Black {
-            PlayerGroupsInAtari {
-                groups: new_groups_in_atari.black,
-            }
-        } else {
-            PlayerGroupsInAtari {
-                groups: new_groups_in_atari.white,
-            }
-        })
+        .with_groups_in_atari(new_groups_in_atari, current_player)
         .with_stones_in_atari(if  current_player == Player::Black {
             OpponentStonesInAtari { sum: board.stones_in_atari.white }
         } else {
             OpponentStonesInAtari { sum: board.stones_in_atari.black }
             
-        }))
-    )
+        })))
 }
 
 // Returns clicked group of stones during counting
