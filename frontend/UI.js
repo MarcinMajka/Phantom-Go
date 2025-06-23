@@ -91,3 +91,29 @@ function createLinkToMainBoard(matchString) {
     window.location.href = "/frontend/main.html?match=" + matchString;
   });
 }
+
+export function highlightStonesInAtari(stones) {
+  console.log("Raw stones input:", stones);
+  if (!stones) return;
+  // Fully flatten the array in case of deep nesting
+  const flatStones = Array.isArray(stones) ? stones.flat(Infinity) : [];
+  console.log("After flattening:", flatStones);
+  const validStones = flatStones.filter(
+    (loc) =>
+      loc &&
+      ((typeof loc === "object" && "row" in loc && "col" in loc) ||
+        (Array.isArray(loc) && loc.length === 2))
+  );
+  console.log("Valid stones to highlight:", validStones);
+  validStones.forEach((loc) => {
+    const row = loc.row !== undefined ? loc.row : loc[0];
+    const col = loc.col !== undefined ? loc.col : loc[1];
+    // Adjust for backend sentinel offset (assume offset is 1)
+    const selector = `.stone[data-row="${row - 1}"][data-col="${col - 1}"]`;
+    const stone = document.querySelector(selector);
+    if (stone) {
+      stone.setAttribute("stroke", "red");
+      stone.setAttribute("stroke-width", "5");
+    }
+  });
+}

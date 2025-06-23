@@ -5,6 +5,7 @@ import {
   addHoverEffect,
   createButton,
   handleGameButtonsAfterGame,
+  highlightStonesInAtari,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -171,7 +172,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               boardState = data.board;
 
               // Update UI board based on server's game state
-              updateBoard(boardState);
+              updateBoard(boardState, data.groups_in_atari.groups);
               updateCaptures(data.black_captures, data.white_captures);
               updateTurn(data.current_player);
             })
@@ -351,7 +352,7 @@ function placeStone(cell, row, col) {
   }
 }
 
-function updateBoard(boardState) {
+function updateBoard(boardState, atariStones = []) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
   stones.forEach((stone) => stone.remove());
@@ -371,6 +372,8 @@ function updateBoard(boardState) {
   for (const stone of whiteStonesAdded) {
     addGuessStone("white", ...stone);
   }
+
+  highlightStonesInAtari(atariStones);
 }
 
 function fetchWithErrorHandling(url, options) {
@@ -420,7 +423,7 @@ function syncBoards() {
 
         // TODO: how to show which stones were captured, so players can't make a mistake? Groups are removed on server by board.play()
 
-        updateBoard(data.board);
+        updateBoard(data.board, data.groups_in_atari.groups);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
 
