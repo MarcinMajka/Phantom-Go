@@ -275,8 +275,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         }
     };
 
-    board.stones_in_atari.black = new_groups_in_atari.black.len() as usize;
-    board.stones_in_atari.white = new_groups_in_atari.white.len() as usize;
+    // Sum the number of stones in all new groups in atari for each color
+    board.stones_in_atari.black = new_groups_in_atari.black.iter().map(|group| group.len()).sum();
+    board.stones_in_atari.white = new_groups_in_atari.white.iter().map(|group| group.len()).sum();
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
     
