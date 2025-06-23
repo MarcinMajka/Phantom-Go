@@ -78,7 +78,7 @@ struct GameState {
     black_guess_stones: Vec<Vec<usize>>,
     white_guess_stones: Vec<Vec<usize>>,
     groups_in_atari: PlayerGroupsInAtari,
-    stones_in_atari: OpponentStonesInAtari,
+    stones_in_atari: StonesInAtari,
     counting: bool,
     winner: Option<String>,
 }
@@ -96,7 +96,7 @@ impl GameState {
             black_guess_stones: vec![],
             white_guess_stones: vec![],
             groups_in_atari: PlayerGroupsInAtari::new(),
-            stones_in_atari: OpponentStonesInAtari::new(),
+            stones_in_atari: StonesInAtari::new(),
             counting: board.last_two_moves_are_pass(),
             winner: None
         };
@@ -132,8 +132,8 @@ impl GameState {
         self
     }
 
-    fn with_stones_in_atari(mut self, number_of_stones: OpponentStonesInAtari) -> Self {
-        self.stones_in_atari = number_of_stones;
+    fn with_stones_in_atari(mut self, stones: StonesInAtari) -> Self {
+        self.stones_in_atari = stones;
         self
     }
 
@@ -325,12 +325,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         board,
         )
         .with_groups_in_atari(new_groups_in_atari, current_player)
-        .with_stones_in_atari(if  current_player == Player::Black {
-            OpponentStonesInAtari { sum: board.stones_in_atari.white }
-        } else {
-            OpponentStonesInAtari { sum: board.stones_in_atari.black }
-            
-        })))
+        .with_stones_in_atari(board.stones_in_atari.clone())))
 }
 
 // Returns clicked group of stones during counting
