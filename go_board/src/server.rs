@@ -475,8 +475,14 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     )))
 }
 
+#[derive(Deserialize)]
+struct SyncBoardsPayload {
+    match_string: String,
+    player: String
+}
+
 #[handler]
-async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState>, Error> {
+async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     
     // Create room if it doesn't exist
@@ -513,7 +519,7 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
             board_state.clone(),
             &room.board,
         ).with_guess_stones(black_stones.clone(), white_stones.clone())
-        .with_groups_in_atari(room.board.new_groups_in_atari.clone(), room.board.get_current_player())
+        .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
     };
 
     Ok(Json(game_state))

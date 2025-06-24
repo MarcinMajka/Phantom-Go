@@ -30,6 +30,17 @@ pub enum Player {
     Black,
 }
 
+impl Player {
+    pub fn from_string(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "black" => Player::Black,
+            // Not sure what happens for "spectator" yet, but player boards are a priority
+            _ => Player::White,
+        }
+    }
+    
+}
+
 #[derive(Debug)]
 pub enum GameResult {
     Points(Player, f32),

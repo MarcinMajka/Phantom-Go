@@ -404,7 +404,10 @@ function syncBoards() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ match_string: matchString }),
+      body: JSON.stringify({
+        match_string: matchString,
+        player: playerColor,
+      }),
     })
       .then((data) => {
         console.log("Server response:", data.message);
