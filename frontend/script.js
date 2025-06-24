@@ -424,8 +424,6 @@ function syncBoards() {
           document.removeEventListener;
         }
 
-        // TODO: how to show which stones were captured, so players can't make a mistake? Groups are removed on server by board.play()
-
         updateBoard(data.board, data.groups_in_atari.groups);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
