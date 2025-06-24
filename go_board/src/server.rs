@@ -312,6 +312,8 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         }
     };
 
+    board.new_groups_in_atari = new_groups_in_atari.clone();
+
     // Sum the number of stones in all new groups in atari for each color
     board.stones_in_atari.black = new_groups_in_atari.black.iter().map(|group| group.len()).sum();
     board.stones_in_atari.white = new_groups_in_atari.white.iter().map(|group| group.len()).sum();
@@ -511,6 +513,7 @@ async fn sync_boards(payload: Json<MatchStringPayload>) -> Result<Json<GameState
             board_state.clone(),
             &room.board,
         ).with_guess_stones(black_stones.clone(), white_stones.clone())
+        .with_groups_in_atari(room.board.new_groups_in_atari.clone(), room.board.get_current_player())
     };
 
     Ok(Json(game_state))
