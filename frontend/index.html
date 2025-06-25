@@ -1,47 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Join Phantom Go Game</title>
     <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <label id="spectator-label">
-            <input type="checkbox" id="spectator-checkbox" name="Spectator">
-            Spectator
-        </label>
-        <input type="text" id="match-string" placeholder="Enter match string">
-        <button id="join-button">Join Game</button>
-
+      <label id="spectator-label">
+        <input type="checkbox" id="spectator-checkbox" name="Spectator" />
+        Spectator
+      </label>
+      <input type="text" id="match-string" placeholder="Enter match string" />
+      <button id="join-button">Join Game</button>
     </div>
     <script>
-        document.getElementById('join-button').addEventListener('click', async () => {
-            const matchString = document.getElementById('match-string').value;
-            const isSpectator = document.getElementById('spectator-checkbox').checked;
+      document
+        .getElementById("join-button")
+        .addEventListener("click", async () => {
+          const matchString = document.getElementById("match-string").value;
+          const isSpectator =
+            document.getElementById("spectator-checkbox").checked;
 
-            try {
-                const API_URL = 'http://localhost:8000/'; // Adjust the URL as needed
-                const response = await fetch(`${API_URL}/join-game`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        match_string: matchString,
-                        sessionToken: '',
-                        is_spectator: isSpectator
-                    })
-                });
+          try {
+            // use localhost if on localhost, otherwise use the production URL
+            const API_URL =
+              window.location.hostname === "localhost" ||
+              window.location.hostname === "127.0.0.1"
+                ? "http://localhost:8000/"
+                : "https://phantom-go.kraftartz.space/api/";
+            window.API_URL = API_URL; // we can access this from now on
 
-                const data = await response.json();
-                <!-- TODO: save sessionToken in localStorage for not interfering with subsequent games -->
-                window.location.href = `${data.redirect_url}`;
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            const response = await fetch(`${API_URL}/join-game`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                match_string: matchString,
+                sessionToken: "",
+                is_spectator: isSpectator,
+              }),
+            });
+
+            const data = await response.json();
+            <!-- TODO: save sessionToken in localStorage for not interfering with subsequent games -->
+            window.location.href = `${data.redirect_url}`;
+          } catch (error) {
+            console.error("Error:", error);
+          }
         });
     </script>
-</body>
+  </body>
 </html>

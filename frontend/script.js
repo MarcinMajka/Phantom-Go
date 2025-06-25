@@ -35,7 +35,7 @@ let blackStonesAdded = [];
 let whiteStonesAdded = [];
 const groupsToRemove = {};
 
-const API_URL = 'http://localhost:8000'
+const API_URL = window.API_URL; // Should be already set in index.html
 
 const urlParams = new URLSearchParams(window.location.search);
 const matchString = urlParams.get("match");
