@@ -14,7 +14,7 @@
         </label>
         <input type="text" id="match-string" placeholder="Enter match string">
         <button id="join-button">Join Game</button>
-        
+
     </div>
     <script>
         document.getElementById('join-button').addEventListener('click', async () => {
@@ -22,18 +22,19 @@
             const isSpectator = document.getElementById('spectator-checkbox').checked;
 
             try {
-                const response = await fetch('http://localhost:8000/join-game', {
+                const API_URL = 'http://localhost:8000/'; // Adjust the URL as needed
+                const response = await fetch(`${API_URL}/join-game`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         match_string: matchString,
                         sessionToken: '',
                         is_spectator: isSpectator
                     })
                 });
-                
+
                 const data = await response.json();
                 <!-- TODO: save sessionToken in localStorage for not interfering with subsequent games -->
                 window.location.href = `${data.redirect_url}`;

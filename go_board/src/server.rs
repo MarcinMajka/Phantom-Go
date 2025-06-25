@@ -12,6 +12,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 use rand::random;
+use std::env;
 
 
 #[derive(Serialize, Deserialize)]
@@ -186,7 +187,7 @@ impl GameRoom {
 
 lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
-    static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> = 
+    static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> =
         Mutex::new(HashMap::new());
 }
 
@@ -230,15 +231,28 @@ fn lock_guess_stones() -> Result<std::sync::MutexGuard<'static, HashMap<String, 
         .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))
 }
 
+#[derive(Serialize)]
+struct RootResponse {
+    status: String,
+}
+
+#[handler]
+async fn root_endpoint() -> Result<Json<RootResponse>, Error> {
+    Ok(Json(RootResponse {
+        status: "ok".to_string(),
+    }))
+}
+
+
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
     let mut rooms = lock_rooms()?;
-    
+
     // Create room if it doesn't exist
     let room = rooms
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
-    
+
     let (rows, cols) = get_playable_dimensions(&room.board);
     Ok(Json(BoardDimensions { rows, cols }))
 }
@@ -285,11 +299,11 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     }
 
     let groups_in_atari = board.groups_in_atari.clone();
-    
+
     // Create move from payload
     let move_attempt = Move {
         player: current_player,
-        loc: Loc { 
+        loc: Loc {
             // Add 1 to skip sentinel border
             row: payload.row + 1,
             col: payload.col + 1,
@@ -298,7 +312,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
     // Try to play the move - play() handles validation internally
     board.play(&move_attempt);
-    
+
     let new_groups_in_atari = {
         let mut current_groups_in_atari = board.groups_in_atari.clone();
         if groups_in_atari != current_groups_in_atari {
@@ -368,7 +382,7 @@ struct ResignPayload {
 async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
-    
+
     let loser = match payload.player.as_str() {
         "black" => Player::Black,
         _ => Player::White,
@@ -436,7 +450,7 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
         Ok(Json(game_state))
     }
 
-        
+
 }
 
 #[handler]
@@ -455,10 +469,10 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     }
 
     room.board.undo();
-    
+
     // Get the playable board dimensions
     let (rows, cols) = get_playable_dimensions(&room.board);
-    
+
     // Convert board state to string format for frontend, excluding sentinel borders
     let board_state: Vec<Vec<String>> = room.board.fields[1..=rows].iter()
         .map(|row| {
@@ -484,12 +498,12 @@ struct SyncBoardsPayload {
 #[handler]
 async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
-    
+
     // Create room if it doesn't exist
     let room = rooms
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
-        
+
     let mut guess_stones = lock_guess_stones()?;
 
     let (rows, cols) = get_playable_dimensions(&room.board);
@@ -528,7 +542,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
 #[handler]
 async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameResponse>, Error> {
     let mut rooms = lock_rooms()?;
-    
+
     let room = rooms.entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
@@ -545,7 +559,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             // First player - random color
             let is_black = random::<bool>();
             let new_token = uuid::Uuid::new_v4().to_string();
-            
+
             if is_black {
                 room.players.black = Some(PlayerSession {
                     color: Player::Black,
@@ -584,7 +598,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             }
         }
     };
-    
+
     // Return the response with session token
     Ok(Json(JoinGameResponse {
         color: color.to_string(),
@@ -597,7 +611,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
 async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String>, Error> {
     println!("Received payload: {:?}", payload);
     let mut guess_stones = lock_guess_stones()?;
-    
+
     let (black_stones, white_stones) = guess_stones
         .entry(payload.match_string.clone())
         .or_insert((Vec::new(), Vec::new()));
@@ -626,12 +640,20 @@ fn json_error(msg: &str, status: StatusCode) -> Error {
 }
 
 pub async fn start_server() -> Result<(), std::io::Error> {
+    // Load .env file if it exists
+    let _ = dotenv::dotenv();
+
+    // Get frontend origin from environment variable, fallback to default
+    let frontend_origin = env::var("FRONTEND_ORIGIN")
+        .unwrap_or_else(|_| "http://127.0.0.1:5501".to_string());
+
     let cors = Cors::new()
-        .allow_origin("http://127.0.0.1:5501") // Allow the frontend origin
+        .allow_origin(frontend_origin.clone()) // Allow the frontend origin
         .allow_methods(vec!["POST", "GET"])
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
+    .at("/", poem::get(root_endpoint))
     .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::post(get_dimensions))
@@ -645,6 +667,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
+    println!("Allowed frontend origin: {}", frontend_origin);
     Server::new(TcpListener::bind("127.0.0.1:8000"))
         .run(app)
         .await
