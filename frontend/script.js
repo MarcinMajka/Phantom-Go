@@ -35,14 +35,6 @@ let blackStonesAdded = [];
 let whiteStonesAdded = [];
 const groupsToRemove = {};
 
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000"
-    : "https://phantom-go.kraftartz.space/api";
-
-window.API_URL = API_URL;
-
 const urlParams = new URLSearchParams(window.location.search);
 const matchString = urlParams.get("match");
 
@@ -147,7 +139,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
           const col = clickArea.dataset.col;
 
           // Send cell click to server via POST request
-          fetch(`${window.API_URL}/cell-click`, {
+          fetch(`https://phantom-go.kraftartz.space/api/cell-click`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -208,7 +200,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  fetch(`${window.API_URL}/sync-guess-stones`, {
+  fetch(`https://phantom-go.kraftartz.space/api/sync-guess-stones`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -313,7 +305,7 @@ function placeStone(cell, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      fetch(`${window.API_URL}/get-group`, {
+      fetch(`https://phantom-go.kraftartz.space/api/get-group`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -407,16 +399,19 @@ function syncBoards() {
 
   const syncIntervalId = setInterval(() => {
     console.log("Refreshing board...");
-    fetchWithErrorHandling(`${window.API_URL}/sync-boards`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        match_string: matchString,
-        player: playerColor,
-      }),
-    })
+    fetchWithErrorHandling(
+      `https://phantom-go.kraftartz.space/api/sync-boards`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          match_string: matchString,
+          player: playerColor,
+        }),
+      }
+    )
       .then((data) => {
         console.log("Server response:", data.message);
         failedAttempts = 0; // Reset counter on success
@@ -470,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // First fetch board dimensions
-  fetchWithErrorHandling(`${window.API_URL}/dimensions`, {
+  fetchWithErrorHandling(`https://phantom-go.kraftartz.space/api/dimensions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -488,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 elements.undo.addEventListener("click", () => {
-  fetch(`${window.API_URL}/undo`, {
+  fetch(`https://phantom-go.kraftartz.space/api/undo`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -520,7 +515,7 @@ elements.undo.addEventListener("click", () => {
 });
 
 elements.pass.addEventListener("click", () => {
-  fetch(`${window.API_URL}/pass`, {
+  fetch(`https://phantom-go.kraftartz.space/api/pass`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -587,7 +582,7 @@ elements.removeStone.addEventListener("click", () => {
 });
 
 elements.countScore.addEventListener("click", () => {
-  fetch(`${window.API_URL}/get-score`, {
+  fetch(`https://phantom-go.kraftartz.space/api/get-score`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -620,7 +615,7 @@ elements.countScore.addEventListener("click", () => {
 
 if (elements.resign) {
   elements.resign.addEventListener("click", () => {
-    fetch(`${window.API_URL}/resign`, {
+    fetch(`https://phantom-go.kraftartz.space/api/resign`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
