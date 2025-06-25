@@ -38,8 +38,10 @@ const groupsToRemove = {};
 const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000/"
-    : "https://phantom-go.kraftartz.space/api/";
+    ? "http://localhost:8000"
+    : "https://phantom-go.kraftartz.space/api";
+
+window.API_URL = API_URL;
 
 const urlParams = new URLSearchParams(window.location.search);
 const matchString = urlParams.get("match");
@@ -145,7 +147,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
           const col = clickArea.dataset.col;
 
           // Send cell click to server via POST request
-          fetch(`${API_URL}/cell-click`, {
+          fetch(`${window.API_URL}/cell-click`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -206,7 +208,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  fetch(`${API_URL}/sync-guess-stones`, {
+  fetch(`${window.API_URL}/sync-guess-stones`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -311,7 +313,7 @@ function placeStone(cell, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      fetch(`${API_URL}/get-group`, {
+      fetch(`${window.API_URL}/get-group`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -405,7 +407,7 @@ function syncBoards() {
 
   const syncIntervalId = setInterval(() => {
     console.log("Refreshing board...");
-    fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+    fetchWithErrorHandling(`${window.API_URL}/sync-boards`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -468,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // First fetch board dimensions
-  fetchWithErrorHandling(`${API_URL}/dimensions`, {
+  fetchWithErrorHandling(`${window.API_URL}/dimensions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -486,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 elements.undo.addEventListener("click", () => {
-  fetch(`${API_URL}/undo`, {
+  fetch(`${window.API_URL}/undo`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -518,7 +520,7 @@ elements.undo.addEventListener("click", () => {
 });
 
 elements.pass.addEventListener("click", () => {
-  fetch(`${API_URL}/pass`, {
+  fetch(`${window.API_URL}/pass`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -585,7 +587,7 @@ elements.removeStone.addEventListener("click", () => {
 });
 
 elements.countScore.addEventListener("click", () => {
-  fetch(`${API_URL}/get-score`, {
+  fetch(`${window.API_URL}/get-score`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -618,7 +620,7 @@ elements.countScore.addEventListener("click", () => {
 
 if (elements.resign) {
   elements.resign.addEventListener("click", () => {
-    fetch(`${API_URL}/resign`, {
+    fetch(`${window.API_URL}/resign`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -28,11 +28,11 @@
             const API_URL =
               window.location.hostname === "localhost" ||
               window.location.hostname === "127.0.0.1"
-                ? "http://localhost:8000/"
-                : "https://phantom-go.kraftartz.space/api/";
-            window.API_URL = API_URL; // we can access this from now on
+                ? "http://localhost:8000"
+                : "https://phantom-go.kraftartz.space/api";
+            window.API_URL = API_URL;
 
-            const response = await fetch(`${API_URL}/join-game`, {
+            const response = await fetch(`${window.API_URL}/join-game`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
