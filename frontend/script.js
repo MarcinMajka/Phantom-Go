@@ -35,7 +35,11 @@ let blackStonesAdded = [];
 let whiteStonesAdded = [];
 const groupsToRemove = {};
 
-const API_URL = window.API_URL; // Should be already set in index.html
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8000/"
+    : "https://phantom-go.kraftartz.space/api/";
 
 const urlParams = new URLSearchParams(window.location.search);
 const matchString = urlParams.get("match");
