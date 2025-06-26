@@ -16,7 +16,9 @@ export const elements = {
   infoContainer: document.getElementById("info-container"),
 };
 
-elements.countScore.style.visibility = "hidden";
+if (elements.countScore) {
+  elements.countScore.style.visibility = "hidden";
+}
 
 export function updateTurn(currentPlayer) {
   if (currentPlayer === "counting") {
