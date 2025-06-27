@@ -95,7 +95,7 @@ function createLinkToMainBoard(matchString) {
 }
 
 export function highlightStonesInAtari(stones) {
-  if (!stones) return;
+  if (!stones || window.location.pathname.includes("main.html")) return;
   const flatStones = stones.flat(Infinity);
   flatStones.forEach((loc) => {
     // The issue was with sentinels in the backend
