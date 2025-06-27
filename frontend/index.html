@@ -16,6 +16,13 @@
       <button id="join-button">Join Game</button>
     </div>
     <script>
+      // Detect if running locally and set API URL accordingly
+      const API_URL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+          ? "http://localhost:8000"
+          : "https://phantom-go.kraftartz.space/api";
+
       document
         .getElementById("join-button")
         .addEventListener("click", async () => {
@@ -24,20 +31,17 @@
             document.getElementById("spectator-checkbox").checked;
 
           try {
-            const response = await fetch(
-              "https://phantom-go.kraftartz.space/api/join-game",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  match_string: matchString,
-                  sessionToken: "",
-                  is_spectator: isSpectator,
-                }),
-              }
-            );
+            const response = await fetch(`${API_URL}/join-game`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                match_string: matchString,
+                sessionToken: "",
+                is_spectator: isSpectator,
+              }),
+            });
 
             const data = await response.json();
             <!-- TODO: save sessionToken in localStorage for not interfering with subsequent games -->
