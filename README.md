@@ -54,3 +54,7 @@ This is a web-based Phantom Go game with a Rust backend and a JavaScript fronten
 - The frontend communicates with the backend via HTTP requests.
 - For development, keep both the backend and frontend servers running.
 - Environment files (`.env`) are gitignored for security.
+
+## Deployment
+
+- Deployment is automatic - just push to `production` branch
