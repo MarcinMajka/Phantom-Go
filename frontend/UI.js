@@ -16,7 +16,9 @@ export const elements = {
   infoContainer: document.getElementById("info-container"),
 };
 
-elements.countScore.style.visibility = "hidden";
+if (elements.countScore) {
+  elements.countScore.style.visibility = "hidden";
+}
 
 export function updateTurn(currentPlayer) {
   if (currentPlayer === "counting") {
@@ -93,7 +95,7 @@ function createLinkToMainBoard(matchString) {
 }
 
 export function highlightStonesInAtari(stones) {
-  if (!stones) return;
+  if (!stones || window.location.pathname.includes("main.html")) return;
   const flatStones = stones.flat(Infinity);
   flatStones.forEach((loc) => {
     // The issue was with sentinels in the backend

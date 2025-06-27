@@ -639,6 +639,15 @@ fn json_error(msg: &str, status: StatusCode) -> Error {
     )
 }
 
+#[handler]
+async fn reset_memory() {
+    let mut rooms = GAME_ROOMS.lock().unwrap();
+    rooms.clear();
+    
+    let mut guess_stones = GUESS_STONES.lock().unwrap();
+    guess_stones.clear();
+}
+
 pub async fn start_server() -> Result<(), std::io::Error> {
     // Load .env file if it exists
     let _ = dotenv::dotenv();
@@ -664,6 +673,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
+        .at("/reset-memory", poem::post(reset_memory))
         .with(cors);
 
     println!("Server running at http://127.0.0.1:8000");
