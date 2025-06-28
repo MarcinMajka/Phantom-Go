@@ -13,6 +13,7 @@
             Spectator
         </label>
         <input type="text" id="match-string" placeholder="Enter match string">
+        <span id="match-string-error" style="color: red; display: none; font-size: 0.9em; margin-top: 4px;"></span>
         <button id="join-button">Join Game</button>
         
     </div>
@@ -20,6 +21,16 @@
         document.getElementById('join-button').addEventListener('click', async () => {
             const matchString = document.getElementById('match-string').value;
             const isSpectator = document.getElementById('spectator-checkbox').checked;
+            const matchStringInput = document.getElementById('match-string');
+            const errorSpan = document.getElementById('match-string-error');
+
+            // Validation
+            if (!matchString.trim()) {
+                matchStringInput.style.borderColor = 'red';
+                errorSpan.textContent = 'Please enter a valid match string.';
+                errorSpan.style.display = 'block';
+                return;
+            }
 
             try {
                 const response = await fetch('http://localhost:8000/join-game', {
