@@ -117,3 +117,47 @@ h1 {
         gap: 10px;
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #181a1b;
+        color: #f7f7f7;
+    }
+
+    h1 {
+        color: #f7f7f7;
+    }
+
+    #board-container {
+        background: #232526;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    #player-turn {
+        color: #e0e0e0;
+    }
+
+    #captures-container p {
+        background: #232526;
+        color: #e0e0e0;
+    }
+
+    .button {
+        background: #333;
+        color: #f7f7f7;
+    }
+
+    .button:hover,
+    .button:focus {
+        background: #444;
+    }
+
+    #resign-button {
+        background: #c0392b;
+    }
+
+    #resign-button:hover,
+    #resign-button:focus {
+        background: #a93226;
+    }
+}
