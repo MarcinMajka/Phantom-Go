@@ -93,6 +93,11 @@ h1 {
     outline: none;
 }
 
+.clicked {
+    background: #ffd166;
+    color: #222;
+}
+
 #resign-button {
     background: #e74c3c;
 }
@@ -150,6 +155,11 @@ h1 {
     .button:hover,
     .button:focus {
         background: #444;
+    }
+
+    .clicked {
+        background: #ffe066;
+        color: #222;
     }
 
     #resign-button {
