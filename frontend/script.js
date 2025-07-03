@@ -119,7 +119,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
 
   // Add the SVG to the page
   if (playerColor === "spectator") {
-    document.getElementById("board-container").appendChild(boards.main);
+    document.getElementById("main-board").appendChild(boards.main);
     document.getElementById("black-player-board").appendChild(boards.black);
     document.getElementById("white-player-board").appendChild(boards.white);
   } else if (playerColor === "black") {

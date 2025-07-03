@@ -33,7 +33,8 @@ h1 {
 }
 
 #black-player-board,
-#white-player-board {
+#white-player-board,
+#main-board {
   min-width: 320px;
   min-height: 320px;
 }
