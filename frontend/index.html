@@ -8,16 +8,29 @@
   </head>
   <body>
     <div class="login-container">
-      <label id="spectator-label">
-        <input type="checkbox" id="spectator-checkbox" name="Spectator" />
-        Spectator
-      </label>
-      <input type="text" id="match-string" placeholder="Enter match string" />
+      <h1 class="login-title">Join Phantom Go Game</h1>
+      <input
+        type="text"
+        id="match-string"
+        class="match-string-input drop-shadow"
+        placeholder="Enter match string"
+      />
       <span
         id="match-string-error"
         style="color: red; display: none; font-size: 0.9em; margin-top: 4px"
       ></span>
-      <button id="join-button">Join Game</button>
+      <div class="join-game-container">
+        <label id="spectator-label">
+          <input type="checkbox" id="spectator-checkbox" name="Spectator" />
+          Join as spectator
+        </label>
+        <button
+          id="join-button"
+          class="join-game-cta drop-shadow gradient-background"
+        >
+          Join Game
+        </button>
+      </div>
     </div>
     <script>
       document

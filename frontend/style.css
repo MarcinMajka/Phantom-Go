@@ -1,119 +1,199 @@
 body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    background: #f7f7f7;
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    color: #222;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #f7f7f7;
+  font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 h1 {
-    margin-top: 40px;
-    font-size: 2.2rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: #222;
+  margin-top: 40px;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #222;
 }
 
 #board-container {
-    margin: 32px 0 16px 0;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
-    padding: 24px 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  margin: 32px 0 16px 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  padding: 24px 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 16px;
 }
 
 #black-player-board,
 #white-player-board {
-    min-width: 320px;
-    min-height: 320px;
+  min-width: 320px;
+  min-height: 320px;
 }
 
 #info-container {
-    display: flex;
-    flex-direction: row;
-    gap: 32px;
-    margin-bottom: 24px;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  margin-bottom: 24px;
+  align-items: center;
+  justify-content: center;
 }
 
 #player-turn {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #444;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #444;
 }
 
 #captures-container {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
 }
 
 #captures-container p {
-    margin: 0 8px;
-    font-size: 1.1rem;
-    color: #666;
-    background: #f0f0f0;
-    border-radius: 8px;
-    padding: 4px 12px;
+  margin: 0 8px;
+  font-size: 1.1rem;
+  color: #666;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 4px 12px;
 }
 
 #button-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
-    margin-bottom: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
+  margin-bottom: 32px;
 }
 
 .button {
-    background: #222;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 28px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.18s, box-shadow 0.18s;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
 }
 
 .button:hover,
 .button:focus {
-    background: #444;
-    outline: none;
+  background: #444;
+  outline: none;
 }
 
 #resign-button {
-    background: #e74c3c;
+  background: #e74c3c;
 }
 
 #resign-button:hover,
 #resign-button:focus {
-    background: #c0392b;
+  background: #c0392b;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 50px;
+  max-width: 90vw;
+}
+
+.login-title {
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.match-string-input {
+  width: 100%;
+  max-width: 70vw;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 0 12px;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.join-game-container {
+  margin-top: 1rem;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.join-game-cta {
+  width: 100%;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+}
+
+.join-game-cta:hover,
+.join-game-cta:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  outline: none;
+}
+
+.join-game-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.main-description {
+  text-align: center;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* utility classes */
+.drop-shadow {
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+.gradient-background {
+  /* https://www.eggradients.com/gradient/fears-of-ancestors */
+  background-color: #772f1a;
+  background-image: linear-gradient(315deg, #772f1a 0%, #f2a65a 74%);
+  color: white;
 }
 
 @media (max-width: 600px) {
-    #board-container {
-        padding: 8px 2px;
-    }
+  #board-container {
+    padding: 8px 2px;
+  }
 
-    #info-container {
-        flex-direction: column;
-        gap: 12px;
-    }
+  #info-container {
+    flex-direction: column;
+    gap: 12px;
+  }
 
-    #button-container {
-        flex-direction: column;
-        gap: 10px;
-    }
+  #button-container {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

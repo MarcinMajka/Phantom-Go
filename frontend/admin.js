@@ -28,4 +28,4 @@ const resetButton = createButton("admin-button", "Reset backend memory", () => {
     });
 });
 
-document.body.appendChild(resetButton);
+document.getElementById("admin-panel").appendChild(resetButton);

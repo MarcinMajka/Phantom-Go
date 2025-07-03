@@ -52,6 +52,13 @@ const playerColor = currentPage.includes("black.html")
   ? "white"
   : "spectator";
 
+function createMatchIdElement() {
+  const matchIdElement = document.createElement("p");
+  matchIdElement.textContent = `Match ID: ${matchString}`;
+  matchIdElement.classList.add("match-id");
+  return matchIdElement;
+}
+
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
 
@@ -120,6 +127,11 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   } else if (playerColor === "white") {
     document.getElementById("white-player-board").appendChild(boards.white);
   }
+
+  // add match ID to the page
+  document
+    .getElementById("player-title")
+    .insertAdjacentElement("afterend", createMatchIdElement());
 }
 
 function addClickAreas(board, rows, cols, playerBoard) {
