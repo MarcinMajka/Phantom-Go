@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <title>Go Board - White Player</title>
-</head>
+  </head>
 
-<body>
-    <h1>White Player</h1>
+  <body>
+    <h1 id="player-title">White Player</h1>
     <div id="board-container">
-        <div id="white-player-board"></div>
+      <div id="white-player-board"></div>
     </div>
     <div id="info-container">
-        <div id="player-turn"></div>
-        <div id="captures-container">
-            <p id="black-captures">0</p>
-            <p id="white-captures">0</p>
-        </div>
+      <div id="player-turn"></div>
+      <div id="captures-container">
+        <p id="black-captures">0</p>
+        <p id="white-captures">0</p>
+      </div>
     </div>
     <div id="button-container">
-        <div class="button" id="undo-button">Undo</div>
-        <div class="button" id="pass-button">Pass</div>
-        <div class="button" id="black-stone-button">Add black stone</div>
-        <div class="button" id="remove-stone-button">Remove stone</div>
-        <div class="button" id="resign-button">Resign</div>
-        <div class="button" id="count-score-button">Count score</div>
-
+      <div class="button" id="undo-button">Undo</div>
+      <div class="button" id="pass-button">Pass</div>
+      <div class="button" id="black-stone-button">Add black stone</div>
+      <div class="button" id="remove-stone-button">Remove stone</div>
+      <div class="button" id="resign-button">Resign</div>
+      <div class="button" id="count-score-button">Count score</div>
     </div>
     <script src="UI.js" type="module"></script>
     <script src="utils.js" type="module"></script>
     <script src="script.js" type="module"></script>
-</body>
-
+  </body>
 </html>
