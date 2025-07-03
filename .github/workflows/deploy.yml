@@ -1,0 +1,126 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+    types: [closed]
+
+jobs:
+  deploy:
+    # Only run on push or when PR is merged (not just closed)
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup deployment payload
+        id: payload
+        run: |
+          # Create a JSON payload with commit information
+          PAYLOAD=$(cat <<EOF
+          {
+            "ref": "${{ github.ref }}",
+            "repository": {
+              "name": "${{ github.repository }}",
+              "full_name": "${{ github.repository }}",
+              "html_url": "${{ github.repositoryUrl }}"
+            },
+            "head_commit": {
+              "id": "${{ github.sha }}",
+              "message": $(echo '${{ github.event.head_commit.message }}' | jq -R .),
+              "timestamp": "${{ github.event.head_commit.timestamp }}",
+              "url": "${{ github.event.head_commit.url }}",
+              "author": {
+                "name": "${{ github.event.head_commit.author.name }}",
+                "email": "${{ github.event.head_commit.author.email }}"
+              }
+            },
+            "pusher": {
+              "name": "${{ github.actor }}",
+              "email": "${{ github.event.pusher.email }}"
+            },
+            "sender": {
+              "login": "${{ github.actor }}"
+            },
+            "action": "push",
+            "workflow": "${{ github.workflow }}",
+            "run_id": "${{ github.run_id }}"
+          }
+          EOF
+          )
+
+          # Remove any null values and compact the JSON
+          PAYLOAD=$(echo "$PAYLOAD" | jq -c 'walk(if type == "object" then with_entries(select(.value != null and .value != "")) else . end)')
+
+          echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
+          echo "Payload prepared for deployment"
+
+      - name: Generate webhook signature
+        id: signature
+        run: |
+          PAYLOAD='${{ steps.payload.outputs.payload }}'
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.WEBHOOK_SECRET }}" | awk '{print "sha256="$2}')
+          echo "signature=$SIGNATURE" >> $GITHUB_OUTPUT
+          echo "Signature generated"
+
+      - name: Deploy to server
+        id: deploy
+        run: |
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}" \
+            -X POST https://phantom-go.kraftartz.space/webhook/deploy \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: ${{ steps.signature.outputs.signature }}" \
+            -H "User-Agent: GitHub-Actions/${{ github.repository }}" \
+            -d '${{ steps.payload.outputs.payload }}' \
+            --max-time 300 \
+            --retry 3 \
+            --retry-delay 5)
+
+          # Extract HTTP status and response body
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+          TIME_TOTAL=$(echo "$RESPONSE" | grep "TIME_TOTAL:" | cut -d: -f2)
+          RESPONSE_BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS:/d' | sed '/TIME_TOTAL:/d')
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response Time: ${TIME_TOTAL}s"
+          echo "Response Body: $RESPONSE_BODY"
+
+          # Check if deployment was successful
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Deployment successful!"
+            echo "status=success" >> $GITHUB_OUTPUT
+          elif [ "$HTTP_STATUS" -eq 429 ]; then
+            echo "⚠️ Rate limited - too many deployments"
+            echo "status=rate_limited" >> $GITHUB_OUTPUT
+            exit 1
+          elif [ "$HTTP_STATUS" -eq 401 ]; then
+            echo "❌ Authentication failed - check webhook secret"
+            echo "status=auth_failed" >> $GITHUB_OUTPUT
+            exit 1
+          elif [ "$HTTP_STATUS" -eq 408 ]; then
+            echo "⏰ Deployment timeout"
+            echo "status=timeout" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "❌ Deployment failed with status $HTTP_STATUS"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+  # Optional: Manual deployment trigger
+  manual-deploy:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Manual deployment
+        run: |
+          echo "🚀 Manual deployment triggered by ${{ github.actor }}"
+          # Add manual deployment steps here if needed

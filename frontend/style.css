@@ -1,51 +1,119 @@
 body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: #f7f7f7;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    color: #222;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    background-color: black;
+    justify-content: flex-start;
 }
 
-div {
-    margin: 10px;
-    display: flex;
-    flex-direction: column-reverse;
+h1 {
+    margin-top: 40px;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #222;
 }
 
-.button {
+#board-container {
+    margin: 32px 0 16px 0;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+    padding: 24px 32px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    height: 50px;
-    width: 200px;
-    font-size: larger;
-    color: white;
-    background-color: burlywood;
+    align-items: center;
 }
 
-.clicked {
-    background-color: lightblue;
+#black-player-board,
+#white-player-board {
+    min-width: 320px;
+    min-height: 320px;
 }
 
 #info-container {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    height: 100vh;
+    flex-direction: row;
+    gap: 32px;
+    margin-bottom: 24px;
+    align-items: center;
+    justify-content: center;
 }
 
 #player-turn {
-    color: white;
-    font-size: larger;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #444;
 }
 
-p {
-    color: white;
-    font-size: larger;
+#captures-container {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
 }
 
-#spectator-label {
-    color: white;
+#captures-container p {
+    margin: 0 8px;
+    font-size: 1.1rem;
+    color: #666;
+    background: #f0f0f0;
+    border-radius: 8px;
+    padding: 4px 12px;
+}
+
+#button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.button {
+    background: #222;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+
+.button:hover,
+.button:focus {
+    background: #444;
+    outline: none;
+}
+
+#resign-button {
+    background: #e74c3c;
+}
+
+#resign-button:hover,
+#resign-button:focus {
+    background: #c0392b;
+}
+
+@media (max-width: 600px) {
+    #board-container {
+        padding: 8px 2px;
+    }
+
+    #info-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #button-container {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
