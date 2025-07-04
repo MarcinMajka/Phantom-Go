@@ -257,3 +257,8 @@ h1 {
   }
 }
 
+#stones-in-atari {
+    visibility: hidden;
+    color: white;
+    font-size: large;
+}

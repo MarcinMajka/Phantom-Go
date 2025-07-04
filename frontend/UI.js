@@ -14,6 +14,7 @@ export const elements = {
   pass: document.getElementById("pass-button"),
   resign: document.getElementById("resign-button"),
   infoContainer: document.getElementById("info-container"),
+  stonesInAtari: document.getElementById("stones-in-atari"),
 };
 
 if (elements.countScore) {
@@ -108,4 +109,15 @@ export function highlightStonesInAtari(stones) {
       stone.setAttribute("stroke-width", "5");
     }
   });
+}
+
+export function showStonesInAtari(stones) {
+  if (stones.black.length === 0 && stones.white.length === 0) {
+    elements.stonesInAtari.style.visibility = "hidden";
+    return;
+  } else {
+    elements.stonesInAtari.style.visibility = "visible";
+  }
+  
+  elements.stonesInAtari.innerText = `Black stones in atari: ${stones.black}\nWhite stones in atari: ${stones.white}`;
 }

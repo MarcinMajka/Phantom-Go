@@ -534,6 +534,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
             &room.board,
         ).with_guess_stones(black_stones.clone(), white_stones.clone())
         .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
+        .with_stones_in_atari(room.board.stones_in_atari.clone())
     };
 
     Ok(Json(game_state))
