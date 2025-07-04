@@ -289,8 +289,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         Player::Black => "black",
         Player::White => "white",
     };
-    let groups_in_atari = board.groups_in_atari.clone();
-
 
     if correct_board != frontend_board && frontend_board != "main" {
         return Ok(Json(GameState::new(
@@ -298,10 +296,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board_state,
             board,
         )
-        .with_groups_in_atari(groups_in_atari, current_player)
+        .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
         .with_stones_in_atari(board.stones_in_atari.clone())));
     }
-
 
     // Create move from payload
     let move_attempt = Move {
@@ -322,29 +319,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board_state,
             board,
             )
-            .with_groups_in_atari(groups_in_atari, current_player)
+            .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
             .with_stones_in_atari(board.stones_in_atari.clone())))
     }
-
-    let new_groups_in_atari = {
-        let mut current_groups_in_atari = board.groups_in_atari.clone();
-        if groups_in_atari != current_groups_in_atari {
-            GroupsInAtari {
-                black: current_groups_in_atari.black.difference(&groups_in_atari.black).cloned().collect(),
-                white: current_groups_in_atari.white.difference(&groups_in_atari.white).cloned().collect(),
-            }
-        // Not sure what to do with this, because I'm only interested in new groups in atari
-        } else {
-            GroupsInAtari::new()
-        }
-    };
-
-    board.new_groups_in_atari = new_groups_in_atari.clone();
-
-    // Sum the number of stones in all new groups in atari for each color
-    board.stones_in_atari.black = new_groups_in_atari.black.iter().map(|group| group.len()).sum();
-    board.stones_in_atari.white = new_groups_in_atari.white.iter().map(|group| group.len()).sum();
-
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
 
@@ -352,9 +329,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         format!("Move attempted at ({}, {})", payload.row, payload.col),
         board_state,
         board,
-        )
-        .with_groups_in_atari(new_groups_in_atari, current_player)
-        .with_stones_in_atari(board.stones_in_atari.clone())))
+    )
+    .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
+    .with_stones_in_atari(board.stones_in_atari.clone())))
 }
 
 // Returns clicked group of stones during counting
@@ -436,7 +413,8 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
             "It's not your turn to pass!".to_string(),
             vec![],
             &room.board,
-        )));
+        )
+        .with_stones_in_atari(StonesInAtari { black: 0, white: 0 })));
     }
 
     room.board.play(&Move {
@@ -541,13 +519,16 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 &room.board,
             ).with_winner(winner.to_string())
         },
-        None => GameState::new(
-            "Current board state sent".to_string(),
-            board_state.clone(),
-            &room.board,
-        ).with_guess_stones(black_stones.clone(), white_stones.clone())
-        .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
-        .with_stones_in_atari(room.board.stones_in_atari.clone())
+        None => {
+            println!("{:?}", room.board.stones_in_atari.clone());
+                GameState::new(
+                "Current board state sent".to_string(),
+                board_state.clone(),
+                &room.board,
+            ).with_guess_stones(black_stones.clone(), white_stones.clone())
+            .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
+            .with_stones_in_atari(room.board.stones_in_atari.clone())
+        }
     };
 
     Ok(Json(game_state))

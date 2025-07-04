@@ -553,6 +553,7 @@ elements.pass.addEventListener("click", () => {
       if (data.message === "It's not your turn to pass!") {
         return;
       }
+      showStonesInAtari({ black: 0, white: 0 });
       updateTurn(data.current_player);
     })
     .catch((error) => {
