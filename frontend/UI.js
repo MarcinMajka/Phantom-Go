@@ -112,12 +112,12 @@ export function highlightStonesInAtari(stones) {
 }
 
 export function showStonesInAtari(stones) {
-  if (stones.black.length === 0 && stones.white.length === 0) {
+  if (stones.black === 0 && stones.white === 0) {
     elements.stonesInAtari.style.visibility = "hidden";
     return;
   } else {
     elements.stonesInAtari.style.visibility = "visible";
   }
-  
+
   elements.stonesInAtari.innerText = `Black stones in atari: ${stones.black}\nWhite stones in atari: ${stones.white}`;
 }
