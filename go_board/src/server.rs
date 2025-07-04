@@ -295,10 +295,10 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             format!("It's not your turn!"),
             board_state,
             board,
-        )));
+        )
+        .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
+        .with_stones_in_atari(board.stones_in_atari.clone())));
     }
-
-    let groups_in_atari = board.groups_in_atari.clone();
 
     // Create move from payload
     let move_attempt = Move {
@@ -313,25 +313,15 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     // Try to play the move - play() handles validation internally
     board.play(&move_attempt);
 
-    let new_groups_in_atari = {
-        let mut current_groups_in_atari = board.groups_in_atari.clone();
-        if groups_in_atari != current_groups_in_atari {
-            GroupsInAtari {
-                black: current_groups_in_atari.black.difference(&groups_in_atari.black).cloned().collect(),
-                white: current_groups_in_atari.white.difference(&groups_in_atari.white).cloned().collect(),
-            }
-        // Not sure what to do with this, because I'm only interested in new groups in atari
-        } else {
-            GroupsInAtari::new()
-        }
-    };
-
-    board.new_groups_in_atari = new_groups_in_atari.clone();
-
-    // Sum the number of stones in all new groups in atari for each color
-    board.stones_in_atari.black = new_groups_in_atari.black.iter().map(|group| group.len()).sum();
-    board.stones_in_atari.white = new_groups_in_atari.white.iter().map(|group| group.len()).sum();
-
+    if board_state == get_board_state(&board) {
+        return Ok(Json(GameState::new(
+            format!("Move attempted at ({}, {})", payload.row, payload.col),
+            board_state,
+            board,
+            )
+            .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
+            .with_stones_in_atari(board.stones_in_atari.clone())))
+    }
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
 
@@ -339,9 +329,9 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         format!("Move attempted at ({}, {})", payload.row, payload.col),
         board_state,
         board,
-        )
-        .with_groups_in_atari(new_groups_in_atari, current_player)
-        .with_stones_in_atari(board.stones_in_atari.clone())))
+    )
+    .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
+    .with_stones_in_atari(board.stones_in_atari.clone())))
 }
 
 // Returns clicked group of stones during counting
@@ -423,7 +413,8 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
             "It's not your turn to pass!".to_string(),
             vec![],
             &room.board,
-        )));
+        )
+        .with_stones_in_atari(StonesInAtari { black: 0, white: 0 })));
     }
 
     room.board.play(&Move {
@@ -528,12 +519,16 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 &room.board,
             ).with_winner(winner.to_string())
         },
-        None => GameState::new(
-            "Current board state sent".to_string(),
-            board_state.clone(),
-            &room.board,
-        ).with_guess_stones(black_stones.clone(), white_stones.clone())
-        .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
+        None => {
+            println!("{:?}", room.board.stones_in_atari.clone());
+                GameState::new(
+                "Current board state sent".to_string(),
+                board_state.clone(),
+                &room.board,
+            ).with_guess_stones(black_stones.clone(), white_stones.clone())
+            .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
+            .with_stones_in_atari(room.board.stones_in_atari.clone())
+        }
     };
 
     Ok(Json(game_state))
@@ -555,7 +550,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     }
 
     let (color, url, session_token) = match (&room.players.black, &room.players.white) {
-        (None, _) => {
+        (None, None) => {
             // First player - random color
             let is_black = random::<bool>();
             let new_token = uuid::Uuid::new_v4().to_string();
@@ -582,6 +577,15 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 session_token: new_token.clone(),
             });
             ("white", "/frontend/white.html", new_token)
+        },
+        (None, Some(_white)) => {
+            // Second player - gets opposite color
+            let new_token = uuid::Uuid::new_v4().to_string();
+            room.players.white = Some(PlayerSession {
+                color: Player::Black,
+                session_token: new_token.clone(),
+            });
+            ("black", "/frontend/black.html", new_token)
         },
         (Some(black), Some(white)) => {
             // Both players exist - check session token

@@ -6,6 +6,7 @@ import {
   createButton,
   handleGameButtonsAfterGame,
   highlightStonesInAtari,
+  showStonesInAtari,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -191,7 +192,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               boardState = data.board;
 
               // Update UI board based on server's game state
-              updateBoard(boardState, data.groups_in_atari.groups);
+              updateBoard(boardState, data.stones_in_atari);
               updateCaptures(data.black_captures, data.white_captures);
               updateTurn(data.current_player);
             })
@@ -392,7 +393,7 @@ function updateBoard(boardState, atariStones = []) {
     addGuessStone("white", ...stone);
   }
 
-  highlightStonesInAtari(atariStones);
+  showStonesInAtari(atariStones);
 }
 
 function fetchWithErrorHandling(url, options) {
@@ -443,7 +444,7 @@ function syncBoards() {
           document.removeEventListener;
         }
 
-        updateBoard(data.board, data.groups_in_atari.groups);
+        updateBoard(data.board, data.stones_in_atari);
         updateCaptures(data.black_captures, data.white_captures);
         updateTurn(data.current_player);
 
@@ -552,6 +553,7 @@ elements.pass.addEventListener("click", () => {
       if (data.message === "It's not your turn to pass!") {
         return;
       }
+      showStonesInAtari({ black: 0, white: 0 });
       updateTurn(data.current_player);
     })
     .catch((error) => {

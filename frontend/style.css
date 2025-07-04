@@ -39,6 +39,10 @@ h1 {
   min-height: 320px;
 }
 
+#black-player-board {
+  padding: 0 10px;
+}
+
 #info-container {
   display: flex;
   flex-direction: row;
@@ -253,3 +257,8 @@ h1 {
   }
 }
 
+#stones-in-atari {
+    visibility: hidden;
+    color: white;
+    font-size: large;
+}

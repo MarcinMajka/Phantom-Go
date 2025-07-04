@@ -529,9 +529,6 @@ impl Board {
             .filter(|group| self.get(group[0]) == Color::White)
             .cloned()
             .collect();
-        self.stones_in_atari.black = black.len() as usize;
-        self.stones_in_atari.white = black.len() as usize;
-
 
         self.groups_in_atari = GroupsInAtari {
             black,
@@ -575,8 +572,18 @@ impl Board {
     #[allow(dead_code)]
     pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
+            let old_groups_in_atari = self.groups_in_atari.clone();
+
             self.unsafe_play(mv);
             self.update_groups_in_atari();
+
+            let new_groups_in_atari = &self.groups_in_atari;
+
+            let new_black: HashSet<_> = new_groups_in_atari.black.difference(&old_groups_in_atari.black).cloned().collect();
+            let new_white: HashSet<_> = new_groups_in_atari.white.difference(&old_groups_in_atari.white).cloned().collect();
+
+            self.stones_in_atari.black = new_black.iter().map(|group| group.len()).sum();
+            self.stones_in_atari.white = new_white.iter().map(|group| group.len()).sum();
             println!("Groups in atari: {:?}", self.groups_in_atari);
         }
     }
