@@ -555,7 +555,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     }
 
     let (color, url, session_token) = match (&room.players.black, &room.players.white) {
-        (None, _) => {
+        (None, None) => {
             // First player - random color
             let is_black = random::<bool>();
             let new_token = uuid::Uuid::new_v4().to_string();
@@ -582,6 +582,15 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 session_token: new_token.clone(),
             });
             ("white", "/frontend/white.html", new_token)
+        },
+        (None, Some(_white)) => {
+            // Second player - gets opposite color
+            let new_token = uuid::Uuid::new_v4().to_string();
+            room.players.white = Some(PlayerSession {
+                color: Player::Black,
+                session_token: new_token.clone(),
+            });
+            ("black", "/frontend/black.html", new_token)
         },
         (Some(black), Some(white)) => {
             // Both players exist - check session token
