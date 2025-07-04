@@ -289,16 +289,19 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         Player::Black => "black",
         Player::White => "white",
     };
+    let groups_in_atari = board.groups_in_atari.clone();
+
 
     if correct_board != frontend_board && frontend_board != "main" {
         return Ok(Json(GameState::new(
             format!("It's not your turn!"),
             board_state,
             board,
-        )));
+        )
+        .with_groups_in_atari(groups_in_atari, current_player)
+        .with_stones_in_atari(board.stones_in_atari.clone())));
     }
 
-    let groups_in_atari = board.groups_in_atari.clone();
 
     // Create move from payload
     let move_attempt = Move {
@@ -312,6 +315,16 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
     // Try to play the move - play() handles validation internally
     board.play(&move_attempt);
+
+    if board_state == get_board_state(&board) {
+        return Ok(Json(GameState::new(
+            format!("Move attempted at ({}, {})", payload.row, payload.col),
+            board_state,
+            board,
+            )
+            .with_groups_in_atari(groups_in_atari, current_player)
+            .with_stones_in_atari(board.stones_in_atari.clone())))
+    }
 
     let new_groups_in_atari = {
         let mut current_groups_in_atari = board.groups_in_atari.clone();
