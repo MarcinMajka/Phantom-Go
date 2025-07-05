@@ -179,7 +179,7 @@ struct GameRoom {
 impl GameRoom {
     fn new() -> Self {
         GameRoom {
-            board: Board::new(9, 9, 1.5),
+            board: Board::new(15, 15, 1.5),
             players: PlayersState::new(),
         }
     }
