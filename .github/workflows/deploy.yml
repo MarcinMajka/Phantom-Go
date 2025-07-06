@@ -4,16 +4,9 @@ on:
   push:
     branches:
       - production
-  pull_request:
-    branches:
-      - production
-    types: [closed]
 
 jobs:
   deploy:
-    # Only run on push or when PR is merged (not just closed)
-    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
-
     runs-on: ubuntu-latest
 
     steps:
@@ -23,41 +16,14 @@ jobs:
       - name: Setup deployment payload
         id: payload
         run: |
-          # Create a JSON payload with commit information
-          PAYLOAD=$(cat <<EOF
-          {
-            "ref": "${{ github.ref }}",
-            "repository": {
-              "name": "${{ github.repository }}",
-              "full_name": "${{ github.repository }}",
-              "html_url": "${{ github.repositoryUrl }}"
-            },
-            "head_commit": {
-              "id": "${{ github.sha }}",
-              "message": $(echo '${{ github.event.head_commit.message }}' | jq -R .),
-              "timestamp": "${{ github.event.head_commit.timestamp }}",
-              "url": "${{ github.event.head_commit.url }}",
-              "author": {
-                "name": "${{ github.event.head_commit.author.name }}",
-                "email": "${{ github.event.head_commit.author.email }}"
-              }
-            },
-            "pusher": {
-              "name": "${{ github.actor }}",
-              "email": "${{ github.event.pusher.email }}"
-            },
-            "sender": {
-              "login": "${{ github.actor }}"
-            },
-            "action": "push",
-            "workflow": "${{ github.workflow }}",
-            "run_id": "${{ github.run_id }}"
-          }
-          EOF
-          )
-
-          # Remove any null values and compact the JSON
-          PAYLOAD=$(echo "$PAYLOAD" | jq -c 'walk(if type == "object" then with_entries(select(.value != null and .value != "")) else . end)')
+          # Create a simple JSON payload with only commit number and timestamp
+          PAYLOAD=$(jq -nc \
+            --arg commit_number "${{ github.sha }}" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{
+              "commit_number": $commit_number,
+              "timestamp": $timestamp
+            }')
 
           echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
           echo "Payload prepared for deployment"
@@ -113,14 +79,3 @@ jobs:
             echo "status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
-
-  # Optional: Manual deployment trigger
-  manual-deploy:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Manual deployment
-        run: |
-          echo "🚀 Manual deployment triggered by ${{ github.actor }}"
-          # Add manual deployment steps here if needed
