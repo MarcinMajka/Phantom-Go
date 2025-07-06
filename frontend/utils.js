@@ -1,3 +1,4 @@
+// TODO: investigate the relation of viewPort to cellSize, so that the board size in the UI will be dynamic
 export const cellSize = 28; // Size of each cell in pixels
 export const padding = 20;
 
