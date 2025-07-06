@@ -4,16 +4,9 @@ on:
   push:
     branches:
       - production
-  pull_request:
-    branches:
-      - production
-    types: [closed]
 
 jobs:
   deploy:
-    # Only run on push or when PR is merged (not just closed)
-    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
-
     runs-on: ubuntu-latest
 
     steps:
