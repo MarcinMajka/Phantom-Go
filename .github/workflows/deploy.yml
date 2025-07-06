@@ -4,16 +4,9 @@ on:
   push:
     branches:
       - production
-  pull_request:
-    branches:
-      - production
-    types: [closed]
 
 jobs:
   deploy:
-    # Only run on push or when PR is merged (not just closed)
-    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
-
     runs-on: ubuntu-latest
 
     steps:
@@ -23,16 +16,12 @@ jobs:
       - name: Setup deployment payload
         id: payload
         run: |
-          # Create a simple JSON payload with only the required fields
-          PAYLOAD=$(jq -n \
-            --arg author "${{ github.event.head_commit.author.name || github.event.commits[0].author.name || github.actor }}" \
+          # Create a simple JSON payload with only commit number and timestamp
+          PAYLOAD=$(jq -nc \
             --arg commit_number "${{ github.sha }}" \
-            --arg commit_title "${{ github.event.head_commit.message || github.event.commits[0].message || 'No commit message' }}" \
             --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             '{
-              "author": $author,
               "commit_number": $commit_number,
-              "commit_title": $commit_title,
               "timestamp": $timestamp
             }')
 
