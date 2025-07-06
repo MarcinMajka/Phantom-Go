@@ -1,5 +1,5 @@
-export const cellSize = 40; // Size of each cell in pixels
-export const padding = 40;
+export const cellSize = 28; // Size of each cell in pixels
+export const padding = 20;
 
 // Creates SVG element for the go board
 export function getBoardSVG(height, width) {
