@@ -18,6 +18,7 @@ import {
   getStone,
   cellSize,
   padding,
+  SVG_SIZE,
 } from "./utils.js";
 
 const boards = {
@@ -61,12 +62,10 @@ function createMatchIdElement() {
 }
 
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
-  const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
-
-  boards.main = getBoardSVG(totalHeight, totalWidth);
+  boards.main = getBoardSVG();
 
   // Add wooden background
-  addBackground(boards.main, totalWidth, totalHeight);
+  addBackground(boards.main, SVG_SIZE, SVG_SIZE);
 
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
@@ -75,7 +74,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     line.setAttribute("x1", x);
     line.setAttribute("y1", padding);
     line.setAttribute("x2", x);
-    line.setAttribute("y2", totalHeight - padding);
+    line.setAttribute("y2", SVG_SIZE - padding);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);
     boards.main.appendChild(line);
@@ -87,7 +86,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     const [x, y] = toSvgCoords(0, i);
     line.setAttribute("x1", padding);
     line.setAttribute("y1", y);
-    line.setAttribute("x2", totalWidth - padding);
+    line.setAttribute("x2", SVG_SIZE - padding);
     line.setAttribute("y2", y);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);

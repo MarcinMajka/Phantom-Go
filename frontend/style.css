@@ -262,3 +262,12 @@ h1 {
     color: white;
     font-size: large;
 }
+
+svg {
+    width: 100vw;
+    height: 100vw;
+    max-width: 100vh;
+    max-height: 100vh;
+    display: block;
+    margin: auto;
+}

@@ -1,14 +1,16 @@
 // TODO: investigate the relation of viewPort to cellSize, so that the board size in the UI will be dynamic
-export const cellSize = 28; // Size of each cell in pixels
-export const padding = 20;
+export const SVG_SIZE = 800;
+export const padding = 40;
+export const cellSize = (SVG_SIZE - 2 * padding) / (13 - 1);
 
 // Creates SVG element for the go board
-export function getBoardSVG(height, width) {
+export function getBoardSVG() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", width);
-  svg.setAttribute("height", height);
+  svg.setAttribute("width", 800); // Hardcoded size
+  svg.setAttribute("height", 800); // Hardcoded size
   svg.style.margin = "auto";
   svg.style.display = "block";
+  svg.setAttribute("viewBox", "0 0 800 800"); // Add viewBox for scaling
 
   return svg;
 }
