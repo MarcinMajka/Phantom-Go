@@ -521,7 +521,7 @@ elements.undo.addEventListener("click", () => {
         return;
       }
       boardState = data.board;
-      updateBoard(boardState);
+      updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
       updateTurn(data.current_player);
     })
