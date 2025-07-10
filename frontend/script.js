@@ -451,6 +451,9 @@ function syncBoards() {
         if (data.counting) {
           countingPhase = true;
           handleGameButtonsAfterGame(matchString, isWinnerDecided);
+          if (playerColor === "spectator") {
+            showElement(document.getElementById(".main-board-buttons"));
+          }
         }
 
         if (countingPhase || isWinnerDecided) {
