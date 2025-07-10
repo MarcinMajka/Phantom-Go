@@ -271,3 +271,7 @@ svg {
     display: block;
     margin: auto;
 }
+
+.main-board-buttons {
+    visibility: hidden;
+}
