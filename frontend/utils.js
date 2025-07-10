@@ -1,4 +1,3 @@
-// TODO: investigate the relation of viewPort to cellSize, so that the board size in the UI will be dynamic
 export const SVG_SIZE = 800;
 export const padding = 40;
 export const cellSize = (SVG_SIZE - 2 * padding) / (13 - 1);
