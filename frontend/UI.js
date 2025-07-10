@@ -112,6 +112,7 @@ export function highlightStonesInAtari(stones) {
 }
 
 export function showStonesInAtari(stones) {
+  if (window.location.pathname.includes("main.html")) return;
   if (stones.black === 0 && stones.white === 0) {
     elements.stonesInAtari.style.visibility = "hidden";
     return;
