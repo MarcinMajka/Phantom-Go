@@ -7,6 +7,7 @@ import {
   handleGameButtonsAfterGame,
   highlightStonesInAtari,
   showStonesInAtari,
+  showElement,
 } from "./UI.js";
 import {
   getBoardSVG,

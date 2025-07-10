@@ -121,3 +121,9 @@ export function showStonesInAtari(stones) {
 
   elements.stonesInAtari.innerText = `Black stones in atari: ${stones.black}\nWhite stones in atari: ${stones.white}`;
 }
+
+export function showElement(element) {
+  if (element) {
+    element.style.visibility = "visible";
+  }
+}
