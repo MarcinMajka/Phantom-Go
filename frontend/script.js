@@ -36,6 +36,10 @@ let countingPhase = false;
 let isWinnerDecided = false;
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
+let stonesInAtari = {
+  black: 0,
+  white: 0,
+};
 const groupsToRemove = {};
 
 // Detect if running locally and set API URL accordingly
@@ -189,6 +193,10 @@ function addClickAreas(board, rows, cols, playerBoard) {
               console.log("Black stones in atari:", data.stones_in_atari.black);
               console.log("White stones in atari:", data.stones_in_atari.white);
 
+              stonesInAtari = data.stones_in_atari;
+
+              console.log("Stones in atari:", stonesInAtari);
+
               boardState = data.board;
 
               // Update UI board based on server's game state
@@ -291,7 +299,7 @@ function removeStone(row, col) {
     );
   }
 
-  updateBoard(boardState);
+  updateBoard(boardState, stonesInAtari);
 }
 
 function toggleGroupSelection(group) {
