@@ -269,6 +269,7 @@ function addGuessStone(color, row, col) {
   sendGuessStonesToBackend(color, stonesToSync);
 }
 
+// TODO: investigate why sometimes after removing one stone, all added stones are removed until syncBoards() happens
 function removeStone(row, col) {
   let colorRemoved = null;
 
