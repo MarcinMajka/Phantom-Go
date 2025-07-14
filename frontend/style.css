@@ -2,9 +2,9 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: #f7f7f7;
+  background: #181a1b;
   font-family: "Segoe UI", "Roboto", Arial, sans-serif;
-  color: #222;
+  color: #f7f7f7;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,14 +16,14 @@ h1 {
   font-size: 2.2rem;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #222;
+  color: #f7f7f7;
 }
 
 #board-container {
   margin: 32px 0 16px 0;
-  background: #fff;
+  background: #232526;
   border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
   padding: 24px 32px;
   display: flex;
   justify-content: center;
@@ -55,7 +55,7 @@ h1 {
 #player-turn {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #444;
+  color: #e0e0e0;
 }
 
 #captures-container {
@@ -67,8 +67,8 @@ h1 {
 #captures-container p {
   margin: 0 8px;
   font-size: 1.1rem;
-  color: #666;
-  background: #f0f0f0;
+  color: #e0e0e0;
+  background: #232526;
   border-radius: 8px;
   padding: 4px 12px;
 }
@@ -82,8 +82,8 @@ h1 {
 }
 
 .button {
-  background: #222;
-  color: #fff;
+  background: #333;
+  color: #f7f7f7;
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -101,17 +101,17 @@ h1 {
 }
 
 .clicked {
-    background: #ffd166;
+    background: #ffe066;
     color: #222;
 }
 
 #resign-button {
-  background: #e74c3c;
+  background: #c0392b;
 }
 
 #resign-button:hover,
 #resign-button:focus {
-  background: #c0392b;
+  background: #a93226;
 }
 
 .login-container {
@@ -208,57 +208,21 @@ h1 {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-      background: #181a1b;
-      color: #f7f7f7;
-  }
-
-  h1 {
-      color: #f7f7f7;
-  }
-
-  #board-container {
-      background: #232526;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
-  }
-
-  #player-turn {
-      color: #e0e0e0;
-  }
-
-  #captures-container p {
-      background: #232526;
-      color: #e0e0e0;
-  }
-
-  .button {
-      background: #333;
-      color: #f7f7f7;
-  }
-
-  .button:hover,
-  .button:focus {
-      background: #444;
-  }
-
-  .clicked {
-      background: #ffe066;
-      color: #222;
-  }
-
-  #resign-button {
-      background: #c0392b;
-  }
-
-  #resign-button:hover,
-  #resign-button:focus {
-      background: #a93226;
-  }
-}
-
 #stones-in-atari {
     visibility: hidden;
     color: white;
     font-size: large;
+}
+
+svg {
+    width: 100vw;
+    height: 100vw;
+    max-width: 100vh;
+    max-height: 100vh;
+    display: block;
+    margin: auto;
+}
+
+.main-board-buttons {
+    visibility: hidden;
 }

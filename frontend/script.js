@@ -7,6 +7,7 @@ import {
   handleGameButtonsAfterGame,
   highlightStonesInAtari,
   showStonesInAtari,
+  showElement,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -18,6 +19,7 @@ import {
   getStone,
   cellSize,
   padding,
+  SVG_SIZE,
 } from "./utils.js";
 
 const boards = {
@@ -34,6 +36,10 @@ let countingPhase = false;
 let isWinnerDecided = false;
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
+let stonesInAtari = {
+  black: 0,
+  white: 0,
+};
 const groupsToRemove = {};
 
 // Detect if running locally and set API URL accordingly
@@ -61,12 +67,10 @@ function createMatchIdElement() {
 }
 
 function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
-  const { totalWidth, totalHeight } = calculateBoardGeometry(rows, cols);
-
-  boards.main = getBoardSVG(totalHeight, totalWidth);
+  boards.main = getBoardSVG();
 
   // Add wooden background
-  addBackground(boards.main, totalWidth, totalHeight);
+  addBackground(boards.main, SVG_SIZE, SVG_SIZE);
 
   // Draw vertical lines
   for (let i = 0; i < cols; i++) {
@@ -75,7 +79,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     line.setAttribute("x1", x);
     line.setAttribute("y1", padding);
     line.setAttribute("x2", x);
-    line.setAttribute("y2", totalHeight - padding);
+    line.setAttribute("y2", SVG_SIZE - padding);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);
     boards.main.appendChild(line);
@@ -87,7 +91,7 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     const [x, y] = toSvgCoords(0, i);
     line.setAttribute("x1", padding);
     line.setAttribute("y1", y);
-    line.setAttribute("x2", totalWidth - padding);
+    line.setAttribute("x2", SVG_SIZE - padding);
     line.setAttribute("y2", y);
     line.setAttribute("stroke", "black");
     line.setAttribute("stroke-width", lineWidth);
@@ -189,6 +193,10 @@ function addClickAreas(board, rows, cols, playerBoard) {
               console.log("Black stones in atari:", data.stones_in_atari.black);
               console.log("White stones in atari:", data.stones_in_atari.white);
 
+              stonesInAtari = data.stones_in_atari;
+
+              console.log("Stones in atari:", stonesInAtari);
+
               boardState = data.board;
 
               // Update UI board based on server's game state
@@ -261,6 +269,7 @@ function addGuessStone(color, row, col) {
   sendGuessStonesToBackend(color, stonesToSync);
 }
 
+// TODO: investigate why sometimes after removing one stone, all added stones are removed until syncBoards() happens
 function removeStone(row, col) {
   let colorRemoved = null;
 
@@ -291,7 +300,7 @@ function removeStone(row, col) {
     );
   }
 
-  updateBoard(boardState);
+  updateBoard(boardState, stonesInAtari);
 }
 
 function toggleGroupSelection(group) {
@@ -413,7 +422,7 @@ function fetchWithErrorHandling(url, options) {
 
 // Add retry logic for sync boards
 function syncBoards() {
-  const retryInterval = 5000; // 5 seconds
+  const retryInterval = 1000; // 1 second
   let failedAttempts = 0;
   const maxRetries = 3;
 
@@ -451,6 +460,9 @@ function syncBoards() {
         if (data.counting) {
           countingPhase = true;
           handleGameButtonsAfterGame(matchString, isWinnerDecided);
+          if (playerColor === "spectator") {
+            showElement(document.getElementById(".main-board-buttons"));
+          }
         }
 
         if (countingPhase || isWinnerDecided) {
@@ -522,7 +534,7 @@ elements.undo.addEventListener("click", () => {
         return;
       }
       boardState = data.board;
-      updateBoard(boardState);
+      updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
       updateTurn(data.current_player);
     })

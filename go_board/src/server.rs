@@ -477,7 +477,7 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
         "Undo successful".to_string(),
         board_state,
         &room.board,
-    )))
+    ).with_stones_in_atari(room.board.stones_in_atari.clone())))
 }
 
 #[derive(Deserialize)]
