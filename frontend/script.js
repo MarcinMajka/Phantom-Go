@@ -422,7 +422,7 @@ function fetchWithErrorHandling(url, options) {
 
 // Add retry logic for sync boards
 function syncBoards() {
-  const retryInterval = 5000; // 5 seconds
+  const retryInterval = 1000; // 1 second
   let failedAttempts = 0;
   const maxRetries = 3;
 
