@@ -213,12 +213,22 @@ function addClickAreas(board, rows, cols, playerBoard) {
           blackStonesAdded.push([row, col]);
 
           addGuessStone("black", row, col);
+
+          sendGuessStonesToBackend(
+            "black",
+            blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
+          );
         } else if (addingWhiteStone) {
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
           whiteStonesAdded.push([row, col]);
 
           addGuessStone("white", row, col);
+
+          sendGuessStonesToBackend(
+            "white",
+            whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
+          );
         }
       });
 
@@ -262,11 +272,6 @@ function addGuessStone(color, row, col) {
   if (color === "white") {
     boards.black.appendChild(stone);
   }
-
-  let stonesToSync = color === "black" ? blackStonesAdded : whiteStonesAdded;
-  // Making sure types are consistent
-  stonesToSync = stonesToSync.map(([r, c]) => [Number(r), Number(c)]);
-  sendGuessStonesToBackend(color, stonesToSync);
 }
 
 // TODO: investigate why sometimes after removing one stone, all added stones are removed until syncBoards() happens
