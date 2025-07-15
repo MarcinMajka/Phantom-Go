@@ -426,7 +426,9 @@ function syncBoards() {
   let failedAttempts = 0;
   const maxRetries = 3;
 
-  const syncIntervalId = setInterval(() => {
+  const syncIntervalId = setTimeout(sync, retryInterval);
+
+  function sync() {
     console.log("Refreshing board...");
     fetchWithErrorHandling(`${API_URL}/sync-boards`, {
       method: "POST",
@@ -438,7 +440,19 @@ function syncBoards() {
         player: playerColor,
       }),
     })
+      .catch((error) => {
+        setTimeout(sync, retryInterval);
+        failedAttempts++;
+        console.error(
+          `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
+          error
+        );
+        if (failedAttempts >= maxRetries) {
+          console.error("Max retry attempts reached. Please refresh the page.");
+        }
+      })
       .then((data) => {
+        setTimeout(sync, retryInterval); // Schedule next sync
         console.log("Server response:", data.message);
         failedAttempts = 0; // Reset counter on success
         blackStonesAdded = data.black_guess_stones;
@@ -473,18 +487,8 @@ function syncBoards() {
           console.log("Counting or game finished, stopping sync.");
           return;
         }
-      })
-      .catch((error) => {
-        failedAttempts++;
-        console.error(
-          `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
-          error
-        );
-        if (failedAttempts >= maxRetries) {
-          console.error("Max retry attempts reached. Please refresh the page.");
-        }
       });
-  }, retryInterval);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
