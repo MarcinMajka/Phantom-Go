@@ -459,6 +459,11 @@ function syncBoards() {
       })
       .then((data) => {
         setTimeout(sync, retryInterval); // Schedule next sync
+
+        console.log(
+          "Board interaction number: " + data.board_interaction_number
+        );
+
         console.log("Server response:", data.message);
         failedAttempts = 0; // Reset counter on success
         blackStonesAdded = data.black_guess_stones;
