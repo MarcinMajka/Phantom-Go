@@ -296,7 +296,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board_state,
             board,
         )
-        .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
         .with_stones_in_atari(board.stones_in_atari.clone())));
     }
 
@@ -319,7 +318,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             board_state,
             board,
             )
-            .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
             .with_stones_in_atari(board.stones_in_atari.clone())))
     }
 
@@ -330,7 +328,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         board_state,
         board,
     )
-    .with_groups_in_atari(board.groups_in_atari.clone(), current_player)
     .with_stones_in_atari(board.stones_in_atari.clone())))
 }
 
@@ -526,7 +523,6 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 board_state.clone(),
                 &room.board,
             ).with_guess_stones(black_stones.clone(), white_stones.clone())
-            .with_groups_in_atari(room.board.new_groups_in_atari.clone(), Player::from_string(&payload.player))
             .with_stones_in_atari(room.board.stones_in_atari.clone())
         }
     };
