@@ -29,11 +29,13 @@ const boards = {
 };
 
 let boardState;
+let boardInteractionNumber = 0;
 let addingBlackStone = false;
 let addingWhiteStone = false;
 let removingStones = false;
 let countingPhase = false;
 let isWinnerDecided = false;
+let shouldSync = true;
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
 let stonesInAtari = {
@@ -238,6 +240,8 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
+  shouldSync = false; // Disable syncing while sending guess stones
+  boardInteractionNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
     headers: {
@@ -250,12 +254,18 @@ function sendGuessStonesToBackend(color, stones) {
     }),
   })
     .then((response) => {
+      shouldSync = true; // Re-enable syncing after sending guess stones
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
-    .catch((error) => console.error("Error syncing guess stones:", error));
+    .catch((error) => {
+      shouldSync = true; // Re-enable syncing after sending guess stones
+
+      console.error("Error syncing guess stones:", error);
+    });
 }
 
 function addGuessStone(color, row, col) {
@@ -435,7 +445,6 @@ function syncBoards() {
   const syncIntervalId = setTimeout(sync, retryInterval);
 
   function sync() {
-    console.log("Refreshing board...");
     fetchWithErrorHandling(`${API_URL}/sync-boards`, {
       method: "POST",
       headers: {
@@ -458,46 +467,65 @@ function syncBoards() {
         }
       })
       .then((data) => {
-        setTimeout(sync, retryInterval); // Schedule next sync
+        console.log("Guess stones added:");
+        console.log(data.black_guess_stones);
+        console.log(data.white_guess_stones);
+        if (shouldSync) {
+          console.log(
+            "Board interaction number: " + data.board_interaction_number
+          );
 
-        console.log(
-          "Board interaction number: " + data.board_interaction_number
-        );
+          console.log("Server response:", data.message);
+          failedAttempts = 0; // Reset counter on success
 
-        console.log("Server response:", data.message);
-        failedAttempts = 0; // Reset counter on success
-        blackStonesAdded = data.black_guess_stones;
-        whiteStonesAdded = data.white_guess_stones;
-        console.log("winner:", data.winner);
-        if (data.winner) {
-          isWinnerDecided = true;
-          const res = createButton("resign-result", data.winner + " + R");
-          elements.infoContainer.innerHTML = "";
-          elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(matchString, isWinnerDecided);
-          document.removeEventListener;
-        }
-
-        updateBoard(data.board, data.stones_in_atari);
-        updateCaptures(data.black_captures, data.white_captures);
-        updateTurn(data.current_player);
-
-        if (data.counting) {
-          countingPhase = true;
-          handleGameButtonsAfterGame(matchString, isWinnerDecided);
-          if (playerColor === "spectator") {
-            showElement(document.getElementById(".main-board-buttons"));
+          console.log("winner:", data.winner);
+          if (data.winner) {
+            isWinnerDecided = true;
+            const res = createButton("resign-result", data.winner + " + R");
+            elements.infoContainer.innerHTML = "";
+            elements.infoContainer.appendChild(res);
+            handleGameButtonsAfterGame(matchString, isWinnerDecided);
+            document.removeEventListener;
           }
-        }
 
-        if (countingPhase || isWinnerDecided) {
-          clearInterval(syncIntervalId);
-          console.log(data.current_player);
+          if (data.board_interaction_number > boardInteractionNumber) {
+            console.log("Refreshing board...");
+
+            blackStonesAdded = data.black_guess_stones;
+            whiteStonesAdded = data.white_guess_stones;
+
+            updateBoard(data.board, data.stones_in_atari);
+            boardInteractionNumber = data.board_interaction_number;
+          } else {
+            console.log(
+              "Skipping board update, interaction number " +
+                data.board_interaction_number +
+                " is not newer than expected " +
+                boardInteractionNumber
+            );
+          }
+
+          updateCaptures(data.black_captures, data.white_captures);
           updateTurn(data.current_player);
 
-          console.log("Counting or game finished, stopping sync.");
-          return;
+          if (data.counting) {
+            countingPhase = true;
+            handleGameButtonsAfterGame(matchString, isWinnerDecided);
+            if (playerColor === "spectator") {
+              showElement(document.getElementById(".main-board-buttons"));
+            }
+          }
+
+          if (countingPhase || isWinnerDecided) {
+            clearInterval(syncIntervalId);
+            console.log(data.current_player);
+            updateTurn(data.current_player);
+
+            console.log("Counting or game finished, stopping sync.");
+            return;
+          }
         }
+        setTimeout(sync, retryInterval); // Schedule next sync
       });
   }
 }
