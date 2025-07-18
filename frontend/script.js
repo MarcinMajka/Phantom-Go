@@ -210,27 +210,21 @@ function addClickAreas(board, rows, cols, playerBoard) {
               console.error("Error:", error);
             });
         } else if (addingBlackStone) {
-          const row = clickArea.dataset.row;
-          const col = clickArea.dataset.col;
+          const row = Number(clickArea.dataset.row);
+          const col = Number(clickArea.dataset.col);
           blackStonesAdded.push([row, col]);
 
           addGuessStone("black", row, col);
 
-          sendGuessStonesToBackend(
-            "black",
-            blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-          );
+          sendGuessStonesToBackend("black", blackStonesAdded);
         } else if (addingWhiteStone) {
-          const row = clickArea.dataset.row;
-          const col = clickArea.dataset.col;
+          const row = Number(clickArea.dataset.row);
+          const col = Number(clickArea.dataset.col);
           whiteStonesAdded.push([row, col]);
 
           addGuessStone("white", row, col);
 
-          sendGuessStonesToBackend(
-            "white",
-            whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-          );
+          sendGuessStonesToBackend("white", whiteStonesAdded);
         }
       });
 
@@ -305,15 +299,9 @@ function removeStone(row, col) {
   }
 
   if (colorRemoved === "black") {
-    sendGuessStonesToBackend(
-      "black",
-      blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-    );
+    sendGuessStonesToBackend("black", blackStonesAdded);
   } else if (colorRemoved === "white") {
-    sendGuessStonesToBackend(
-      "white",
-      whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-    );
+    sendGuessStonesToBackend("white", whiteStonesAdded);
   }
 
   updateBoard(boardState, stonesInAtari);
