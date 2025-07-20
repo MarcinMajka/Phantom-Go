@@ -28,7 +28,6 @@ const boards = {
   white: null,
 };
 
-let boardState;
 let boardInteractionNumber = 0;
 let addingBlackStone = false;
 let addingWhiteStone = false;
@@ -36,6 +35,7 @@ let removingStones = false;
 let countingPhase = false;
 let isWinnerDecided = false;
 let shouldSync = true;
+let boardState = [];
 let blackStonesAdded = [];
 let whiteStonesAdded = [];
 let stonesInAtari = {
