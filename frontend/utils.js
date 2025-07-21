@@ -102,20 +102,45 @@ export function getStarPoints(rows, cols) {
 }
 
 export function getStone(color, row, col) {
-  const [x, y] = toSvgCoords(col, row);
-  const stone = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle"
+  const stone = createCircleSVG(
+    row,
+    col,
+    cellSize * 0.4,
+    color,
+    "black",
+    "1",
+    "stone"
   );
-  stone.setAttribute("cx", x);
-  stone.setAttribute("cy", y);
-  stone.setAttribute("r", cellSize * 0.4); // Stone radius
-  stone.setAttribute("fill", color);
-  stone.setAttribute("stroke", "black");
-  stone.setAttribute("stroke-width", "1");
-  stone.classList.add("stone");
   stone.dataset.row = row;
   stone.dataset.col = col;
   stone.setAttribute("data-color", color);
   return stone;
+}
+
+export function createCircleSVG(
+  row,
+  col,
+  radius,
+  fillColor,
+  strokeColor = "black",
+  strokeWidth = "1",
+  className
+) {
+  const [x, y] = toSvgCoords(col, row);
+  const circle = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  circle.setAttribute("cx", x);
+  circle.setAttribute("cy", y);
+  circle.setAttribute("r", radius);
+  circle.setAttribute("fill", fillColor);
+  circle.setAttribute("stroke", strokeColor);
+  circle.setAttribute("stroke-width", strokeWidth);
+  if (className) {
+    circle.classList.add(className);
+  }
+  circle.dataset.row = row;
+  circle.dataset.col = col;
+  return circle;
 }
