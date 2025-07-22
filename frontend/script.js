@@ -9,6 +9,7 @@ import {
   showStonesInAtari,
   showElement,
   drawGridLines,
+  drawStarPoints,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -70,7 +71,7 @@ function createMatchIdElement() {
   return matchIdElement;
 }
 
-function createBoard(rows, cols, starPointRadius = 3) {
+function createBoard(rows, cols) {
   boards.main = getBoardSVG();
 
   // Add wooden background
@@ -79,17 +80,7 @@ function createBoard(rows, cols, starPointRadius = 3) {
   drawGridLines(boards.main, rows, cols);
 
   // Add star points (hoshi)
-  const starPoints = getStarPoints(rows, cols);
-
-  starPoints.forEach((point) => {
-    const starPoint = createCircleSVG(
-      point.x,
-      point.y,
-      starPointRadius,
-      "black"
-    );
-    boards.main.appendChild(starPoint);
-  });
+  drawStarPoints(boards.main, rows, cols);
 
   addClickAreas(boards.main, rows, cols, "main");
 

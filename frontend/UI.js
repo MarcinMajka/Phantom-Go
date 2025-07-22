@@ -1,4 +1,4 @@
-import { createLineSVG } from "./utils.js";
+import { createLineSVG, createCircleSVG, getStarPoints } from "./utils.js";
 
 export const elements = {
   turn: document.getElementById("player-turn"),
@@ -144,4 +144,18 @@ export function drawGridLines(board, rows, cols, lineWidth = "1") {
 
     board.appendChild(line);
   }
+}
+
+export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
+  const starPoints = getStarPoints(rows, cols);
+
+  starPoints.forEach((point) => {
+    const starPoint = createCircleSVG(
+      point.x,
+      point.y,
+      starPointRadius,
+      "black"
+    );
+    board.appendChild(starPoint);
+  });
 }
