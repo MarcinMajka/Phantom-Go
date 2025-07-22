@@ -82,13 +82,8 @@ function createBoard(rows, cols) {
   // Add star points (hoshi)
   drawStarPoints(boards.main, rows, cols);
 
-  addClickAreas(boards.main, rows, cols, "main");
-
   boards.black = boards.main.cloneNode(true);
-  addClickAreas(boards.black, rows, cols, "black");
-
   boards.white = boards.main.cloneNode(true);
-  addClickAreas(boards.white, rows, cols, "white");
 
   // Add the SVG to the page
   if (playerColor === "spectator") {
@@ -96,8 +91,10 @@ function createBoard(rows, cols) {
     document.getElementById("black-player-board").appendChild(boards.black);
     document.getElementById("white-player-board").appendChild(boards.white);
   } else if (playerColor === "black") {
+    addClickAreas(boards.black, rows, cols, "black");
     document.getElementById("black-player-board").appendChild(boards.black);
   } else if (playerColor === "white") {
+    addClickAreas(boards.white, rows, cols, "white");
     document.getElementById("white-player-board").appendChild(boards.white);
   }
 
