@@ -1,12 +1,9 @@
 import { createButton } from "./UI.js";
+import { getAPIUrl } from "./utils.js";
 
 console.log("You opened the Admin Panel!");
 // Detect if running locally and set API URL accordingly
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000"
-    : "https://phantom-go.kraftartz.space/api";
+const API_URL = getAPIUrl();
 
 const resetButton = createButton("admin-button", "Reset backend memory", () => {
   fetch(`${API_URL}/reset-memory`, {

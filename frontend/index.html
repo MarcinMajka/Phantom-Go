@@ -33,6 +33,8 @@
       </div>
     </div>
     <script>
+      import { getAPIUrl } from "./utils.js";
+
       document
         .getElementById("join-button")
         .addEventListener("click", async () => {
@@ -50,11 +52,7 @@
             return;
           }
 
-          const API_URL =
-            window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1"
-              ? "http://localhost:8000"
-              : "https://phantom-go.kraftartz.space/api";
+          const API_URL = getAPIUrl();
 
           try {
             const response = await fetch(`${API_URL}/join-game`, {

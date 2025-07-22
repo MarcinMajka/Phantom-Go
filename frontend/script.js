@@ -24,6 +24,7 @@ import {
   SVG_SIZE,
   createCircleSVG,
   getMatchString,
+  getAPIUrl,
 } from "./utils.js";
 
 const boards = {
@@ -48,12 +49,7 @@ let stonesInAtari = {
 };
 const groupsToRemove = {};
 
-// Detect if running locally and set API URL accordingly
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000"
-    : "https://phantom-go.kraftartz.space/api";
+const API_URL = getAPIUrl();
 
 const currentPage = window.location.pathname;
 const playerColor = currentPage.includes("black.html")
