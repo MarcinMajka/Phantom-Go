@@ -23,6 +23,7 @@ import {
   padding,
   SVG_SIZE,
   createCircleSVG,
+  getMatchString,
 } from "./utils.js";
 
 const boards = {
@@ -54,9 +55,6 @@ const API_URL =
     ? "http://localhost:8000"
     : "https://phantom-go.kraftartz.space/api";
 
-const urlParams = new URLSearchParams(window.location.search);
-const matchString = urlParams.get("match");
-
 const currentPage = window.location.pathname;
 const playerColor = currentPage.includes("black.html")
   ? "black"
@@ -66,7 +64,7 @@ const playerColor = currentPage.includes("black.html")
 
 function createMatchIdElement() {
   const matchIdElement = document.createElement("p");
-  matchIdElement.textContent = `Match ID: ${matchString}`;
+  matchIdElement.textContent = `Match ID: ${getMatchString()}`;
   matchIdElement.classList.add("match-id");
   return matchIdElement;
 }
@@ -136,7 +134,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               frontend_board: playerBoard,
               row: parseInt(row),
               col: parseInt(col),
-              match_string: matchString,
+              match_string: getMatchString(),
             }),
           })
             .then((response) => {
@@ -205,7 +203,7 @@ function sendGuessStonesToBackend(color, stones) {
     body: JSON.stringify({
       color: color,
       stones: stones,
-      match_string: matchString,
+      match_string: getMatchString(),
     }),
   })
     .then((response) => {
@@ -308,7 +306,7 @@ function placeStone(cell, row, col) {
           frontend_board: "main",
           row: parseInt(row),
           col: parseInt(col),
-          match_string: matchString,
+          match_string: getMatchString(),
         }),
       })
         .then((response) => {
@@ -400,7 +398,7 @@ function syncBoards() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        match_string: matchString,
+        match_string: getMatchString(),
         player: playerColor,
       }),
     })
@@ -433,7 +431,7 @@ function syncBoards() {
             const res = createButton("resign-result", data.winner + " + R");
             elements.infoContainer.innerHTML = "";
             elements.infoContainer.appendChild(res);
-            handleGameButtonsAfterGame(matchString, isWinnerDecided);
+            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
             document.removeEventListener;
           }
 
@@ -459,7 +457,7 @@ function syncBoards() {
 
           if (data.counting) {
             countingPhase = true;
-            handleGameButtonsAfterGame(matchString, isWinnerDecided);
+            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
             if (playerColor === "spectator") {
               showElement(document.getElementById(".main-board-buttons"));
             }
@@ -480,7 +478,7 @@ function syncBoards() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (!matchString) {
+  if (!getMatchString()) {
     console.error("No match string provided");
     return;
   }
@@ -491,7 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ match_string: matchString }),
+    body: JSON.stringify({ match_string: getMatchString() }),
   })
     .then((dimensions) => {
       createBoard(dimensions.rows, dimensions.cols);
@@ -510,7 +508,7 @@ elements.undo.addEventListener("click", () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      match_string: matchString,
+      match_string: getMatchString(),
       player: playerColor,
     }),
   })
@@ -542,7 +540,7 @@ elements.pass.addEventListener("click", () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      match_string: matchString,
+      match_string: getMatchString(),
       player: playerColor,
     }),
   })
@@ -610,7 +608,7 @@ elements.countScore.addEventListener("click", () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      match_string: matchString,
+      match_string: getMatchString(),
       groups_to_remove: Object.values(groupsToRemove),
     }),
   })
@@ -643,7 +641,7 @@ if (elements.resign) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        match_string: matchString,
+        match_string: getMatchString(),
         player: playerColor,
       }),
     })

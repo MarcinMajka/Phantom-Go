@@ -166,3 +166,8 @@ export function createLineSVG(isVertical, coord, strokeColor, strokeWidth) {
 
   return line;
 }
+
+export function getMatchString() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get("match");
+}
