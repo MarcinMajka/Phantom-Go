@@ -1,3 +1,5 @@
+import { createLineSVG } from "./utils.js";
+
 export const elements = {
   turn: document.getElementById("player-turn"),
   captures: {
@@ -126,5 +128,20 @@ export function showStonesInAtari(stones) {
 export function showElement(element) {
   if (element) {
     element.style.visibility = "visible";
+  }
+}
+
+export function drawGridLines(board, rows, cols, lineWidth = "1") {
+  // Draw vertical lines
+  for (let i = 0; i < cols; i++) {
+    const line = createLineSVG(true, i, "black", lineWidth);
+    board.appendChild(line);
+  }
+
+  // Draw horizontal lines
+  for (let i = 0; i < rows; i++) {
+    const line = createLineSVG(false, i, "black", lineWidth);
+
+    board.appendChild(line);
   }
 }

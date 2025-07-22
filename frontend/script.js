@@ -8,6 +8,7 @@ import {
   highlightStonesInAtari,
   showStonesInAtari,
   showElement,
+  drawGridLines,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -69,37 +70,13 @@ function createMatchIdElement() {
   return matchIdElement;
 }
 
-function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
+function createBoard(rows, cols, starPointRadius = 3) {
   boards.main = getBoardSVG();
 
   // Add wooden background
   addBackground(boards.main, SVG_SIZE, SVG_SIZE);
 
-  // Draw vertical lines
-  for (let i = 0; i < cols; i++) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const [x, y] = toSvgCoords(i, 0);
-    line.setAttribute("x1", x);
-    line.setAttribute("y1", padding);
-    line.setAttribute("x2", x);
-    line.setAttribute("y2", SVG_SIZE - padding);
-    line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", lineWidth);
-    boards.main.appendChild(line);
-  }
-
-  // Draw horizontal lines
-  for (let i = 0; i < rows; i++) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const [x, y] = toSvgCoords(0, i);
-    line.setAttribute("x1", padding);
-    line.setAttribute("y1", y);
-    line.setAttribute("x2", SVG_SIZE - padding);
-    line.setAttribute("y2", y);
-    line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", lineWidth);
-    boards.main.appendChild(line);
-  }
+  drawGridLines(boards.main, rows, cols);
 
   // Add star points (hoshi)
   const starPoints = getStarPoints(rows, cols);

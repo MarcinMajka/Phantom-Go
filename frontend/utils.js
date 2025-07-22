@@ -144,3 +144,25 @@ export function createCircleSVG(
   circle.dataset.col = col;
   return circle;
 }
+
+export function createLineSVG(isVertical, coord, strokeColor, strokeWidth) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("stroke", strokeColor);
+  line.setAttribute("stroke-width", strokeWidth);
+
+  if (isVertical) {
+    const [x, _] = toSvgCoords(coord, 0);
+    line.setAttribute("x1", x);
+    line.setAttribute("x2", x);
+    line.setAttribute("y1", padding);
+    line.setAttribute("y2", SVG_SIZE - padding);
+  } else {
+    const [_, y] = toSvgCoords(0, coord);
+    line.setAttribute("x1", padding);
+    line.setAttribute("x2", SVG_SIZE - padding);
+    line.setAttribute("y1", y);
+    line.setAttribute("y2", y);
+  }
+
+  return line;
+}
