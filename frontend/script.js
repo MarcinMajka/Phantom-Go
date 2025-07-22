@@ -20,6 +20,7 @@ import {
   cellSize,
   padding,
   SVG_SIZE,
+  createCircleSVG,
 } from "./utils.js";
 
 const boards = {
@@ -104,15 +105,12 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
   const starPoints = getStarPoints(rows, cols);
 
   starPoints.forEach((point) => {
-    const [x, y] = toSvgCoords(point.x, point.y);
-    const starPoint = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle"
+    const starPoint = createCircleSVG(
+      point.x,
+      point.y,
+      starPointRadius,
+      "black"
     );
-    starPoint.setAttribute("cx", x);
-    starPoint.setAttribute("cy", y);
-    starPoint.setAttribute("r", starPointRadius);
-    starPoint.setAttribute("fill", "black");
     boards.main.appendChild(starPoint);
   });
 
@@ -144,15 +142,13 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
 function addClickAreas(board, rows, cols, playerBoard) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const [x, y] = toSvgCoords(col, row);
-      const clickArea = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
+      const clickArea = createCircleSVG(
+        row,
+        col,
+        cellSize * 0.4,
+        "transparent",
+        "transparent"
       );
-      clickArea.setAttribute("cx", x);
-      clickArea.setAttribute("cy", y);
-      clickArea.setAttribute("r", cellSize * 0.4);
-      clickArea.setAttribute("fill", "transparent");
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
 
