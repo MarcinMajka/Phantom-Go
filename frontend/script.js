@@ -28,6 +28,7 @@ import {
   getAPIUrl,
   getPlayerColor,
 } from "./utils.js";
+import { resignButtonHandler } from "./handlers.js";
 
 const boards = {
   main: null,
@@ -601,32 +602,4 @@ elements.countScore.addEventListener("click", () => {
     });
 });
 
-if (elements.resign) {
-  elements.resign.addEventListener("click", () => {
-    fetch(`${API_URL}/resign`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        match_string: getMatchString(),
-        player: playerColor,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Resign response:", data);
-        const res = createButton("resign-result", data.winner + " + R");
-        elements.infoContainer.innerHTML = "";
-        elements.infoContainer.appendChild(res);
-      })
-      .catch((error) => {
-        console.error("Error during resign:", error);
-      });
-  });
-}
+resignButtonHandler();
