@@ -506,7 +506,6 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
             ).with_winner(winner.to_string())
         },
         None => {
-            println!("{:?}", room.board.stones_in_atari.clone());
                 GameState::new(
                 "Current board state sent".to_string(),
                 board_state.clone(),
@@ -599,7 +598,6 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
 
 #[handler]
 async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String>, Error> {
-    println!("Received payload: {:?}", payload);
     let mut guess_stones = lock_guess_stones()?;
 
     let mut rooms = lock_rooms()?;
