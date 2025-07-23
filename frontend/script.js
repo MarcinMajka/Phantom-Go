@@ -339,7 +339,7 @@ function updateBoard(boardState, atariStones = []) {
   showStonesInAtari(atariStones);
 }
 
-function fetchWithErrorHandling(url, options) {
+async function fetchWithErrorHandling(url, options) {
   return fetch(url, options)
     .then(async (response) => {
       const data = await response.json();
