@@ -179,3 +179,12 @@ export function getAPIUrl() {
     ? "http://localhost:8000"
     : "https://phantom-go.kraftartz.space/api";
 }
+
+export function getPlayerColor() {
+  const currentPage = window.location.pathname;
+  return currentPage.includes("black.html")
+    ? "black"
+    : currentPage.includes("white.html")
+    ? "white"
+    : "spectator";
+}

@@ -26,6 +26,7 @@ import {
   createCircleSVG,
   getMatchString,
   getAPIUrl,
+  getPlayerColor,
 } from "./utils.js";
 
 const boards = {
@@ -52,12 +53,7 @@ const groupsToRemove = {};
 
 const API_URL = getAPIUrl();
 
-const currentPage = window.location.pathname;
-const playerColor = currentPage.includes("black.html")
-  ? "black"
-  : currentPage.includes("white.html")
-  ? "white"
-  : "spectator";
+const playerColor = getPlayerColor();
 
 function createBoard(rows, cols) {
   boards.main = getBoardSVG();
