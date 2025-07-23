@@ -28,7 +28,7 @@ import {
   getAPIUrl,
   getPlayerColor,
 } from "./utils.js";
-import { resignButtonHandler } from "./handlers.js";
+import { resignButtonHandler, countScoreButtonHandler } from "./handlers.js";
 
 const boards = {
   main: null,
@@ -50,7 +50,7 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
-const groupsToRemove = {};
+export const groupsToRemove = {};
 
 const API_URL = getAPIUrl();
 
@@ -566,36 +566,6 @@ elements.removeStone.addEventListener("click", () => {
   }
 });
 
-elements.countScore.addEventListener("click", () => {
-  fetch(`${API_URL}/get-score`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: getMatchString(),
-      groups_to_remove: Object.values(groupsToRemove),
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Result:", data);
-      const res = createButton("result", `Result: ${data}`);
-      elements.infoContainer.innerHTML = "";
-      elements.infoContainer.appendChild(res);
 
-      // updateBoard(boardState);
-      // updateCaptures(data.black_captures, data.white_captures);
-      // updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error during count score:", error);
-    });
-});
-
+countScoreButtonHandler();
 resignButtonHandler();
