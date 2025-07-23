@@ -561,10 +561,6 @@ elements.removeStone.addEventListener("click", () => {
   elements.removeStone.classList.toggle("clicked");
   if (elements.removeStone.classList.contains("clicked")) {
     removingStones = true;
-    elements.addStone.black.classList.remove("clicked");
-    elements.addStone.white.classList.remove("clicked");
-    addingBlackStone = false;
-    addingWhiteStone = false;
   } else {
     removingStones = false;
   }
