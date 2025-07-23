@@ -706,34 +706,6 @@ pub fn take_player_input() -> String {
     player_input
 }
 
-pub fn handle_player_input(board: &mut Board, player_input: &str) {
-    match player_input {
-        "q" => {
-            println!("\nQuit game!\n");
-            std::process::exit(1); // Quits the game
-        }
-        "p" => board.play(&Move {
-            player: board.get_current_player(),
-            loc: Loc::pass(),
-        }),
-        "u" => {
-            board.undo();
-        }
-        _ => match Loc::from_string(player_input) {
-            None => {
-                println!("\nInvalid move :c\nT R Y  A G A I N !\n");
-            }
-            Some(valid_loc_string) => {
-                board.play(&Move {
-                    player: board.get_current_player(),
-                    loc: valid_loc_string,
-                });
-            }
-        },
-    }
-}
-
-
 #[cfg(test)]
 mod tests {
     use rand::Rng;

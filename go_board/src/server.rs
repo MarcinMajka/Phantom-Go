@@ -7,7 +7,7 @@ use poem::{
     http::StatusCode, Response
 };
 use serde::{Serialize, Deserialize};
-use crate::board::{Board, Move, Loc, Player, Color, GroupsInAtari, StonesInAtari};
+use crate::board::{Board, Move, Loc, Player, Color, StonesInAtari};
 use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
@@ -53,17 +53,6 @@ impl PlayerGroupsInAtari {
         Self {
             groups: HashSet::new(),
         }
-    }
-}
-
-#[derive(Serialize)]
-struct OpponentStonesInAtari {
-    sum: usize,
-}
-
-impl OpponentStonesInAtari {
-    fn new() -> Self {
-        Self { sum: 0 }
     }
 }
 
@@ -114,24 +103,6 @@ impl GameState {
     fn with_guess_stones(mut self, black_stones: Vec<Vec<usize>>, white_stones: Vec<Vec<usize>>) -> Self {
         self.black_guess_stones = black_stones;
         self.white_guess_stones = white_stones;
-        self
-    }
-
-    fn with_groups_in_atari(mut self, groups: GroupsInAtari, current_player: Player) -> Self {
-        let player_groups_in_atari: PlayerGroupsInAtari = match current_player {
-            Player::Black => {
-                PlayerGroupsInAtari {
-                    groups: groups.black,
-                }
-            }
-            _ => {
-                PlayerGroupsInAtari {
-                    groups: groups.white,
-                }
-            }
-        };
-
-        self.groups_in_atari = player_groups_in_atari;
         self
     }
 
@@ -498,7 +469,6 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 #[derive(Deserialize)]
 struct SyncBoardsPayload {
     match_string: String,
-    player: String
 }
 
 #[handler]
