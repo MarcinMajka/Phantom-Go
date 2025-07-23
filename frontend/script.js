@@ -130,18 +130,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               return response.json();
             })
             .then((data) => {
-              // Log server response
-              // This includes:
-              // 1. Stone placements
-              // 2. Current player
-              console.log("Server response:", data.message);
-              console.log("Player groups in atari:", data.groups_in_atari);
-              console.log("Black stones in atari:", data.stones_in_atari.black);
-              console.log("White stones in atari:", data.stones_in_atari.white);
-
               stonesInAtari = data.stones_in_atari;
-
-              console.log("Stones in atari:", stonesInAtari);
 
               boardState = data.board;
 
@@ -399,9 +388,6 @@ function syncBoards() {
         }
       })
       .then((data) => {
-        console.log("Guess stones added:");
-        console.log(data.black_guess_stones);
-        console.log(data.white_guess_stones);
         if (shouldSync) {
           console.log(
             "Board interaction number: " + data.board_interaction_number
