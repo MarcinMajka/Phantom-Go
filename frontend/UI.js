@@ -1,6 +1,12 @@
-import { createLineSVG, createCircleSVG, getStarPoints } from "./utils.js";
+import {
+  createLineSVG,
+  createCircleSVG,
+  getStarPoints,
+  getMatchString,
+} from "./utils.js";
 
 export const elements = {
+  matchID: document.getElementById("match-id"),
   turn: document.getElementById("player-turn"),
   captures: {
     black: document.getElementById("black-captures"),
@@ -21,6 +27,12 @@ export const elements = {
 
 if (elements.countScore) {
   elements.countScore.style.visibility = "hidden";
+}
+
+export function displayMatchIdElement() {
+  if (elements.matchID) {
+    elements.matchID.textContent = `Match ID: ${getMatchString()}`;
+  }
 }
 
 export function updateTurn(currentPlayer) {

@@ -10,6 +10,7 @@ import {
   showElement,
   drawGridLines,
   drawStarPoints,
+  displayMatchIdElement,
 } from "./UI.js";
 import {
   getBoardSVG,
@@ -58,13 +59,6 @@ const playerColor = currentPage.includes("black.html")
   ? "white"
   : "spectator";
 
-function createMatchIdElement() {
-  const matchIdElement = document.createElement("p");
-  matchIdElement.textContent = `Match ID: ${getMatchString()}`;
-  matchIdElement.classList.add("match-id");
-  return matchIdElement;
-}
-
 function createBoard(rows, cols) {
   boards.main = getBoardSVG();
 
@@ -91,11 +85,6 @@ function createBoard(rows, cols) {
     addClickAreas(boards.white, rows, cols, "white");
     document.getElementById("white-player-board").appendChild(boards.white);
   }
-
-  // add match ID to the page
-  document
-    .getElementById("player-title")
-    .insertAdjacentElement("afterend", createMatchIdElement());
 }
 
 function addClickAreas(board, rows, cols, playerBoard) {
@@ -495,6 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   syncBoards();
+  displayMatchIdElement();
 });
 
 elements.undo.addEventListener("click", () => {
