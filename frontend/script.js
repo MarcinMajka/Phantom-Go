@@ -28,7 +28,13 @@ import {
   getAPIUrl,
   getPlayerColor,
 } from "./utils.js";
-import { resignButtonHandler, countScoreButtonHandler } from "./handlers.js";
+import {
+  resignButtonHandler,
+  countScoreButtonHandler,
+  guessStonesButtonsHandler,
+  addingGuessStone,
+  removingGuessStone,
+} from "./handlers.js";
 
 const boards = {
   main: null,
@@ -37,8 +43,6 @@ const boards = {
 };
 
 let boardInteractionNumber = 0;
-let addingGuessStone = false;
-let removingStones = false;
 let countingPhase = false;
 let isWinnerDecided = false;
 let shouldSync = true;
@@ -194,7 +198,7 @@ function addGuessStone(color, row, col) {
   const stone = getStone(color, row, col);
 
   stone.addEventListener("click", () => {
-    if (!removingStones) return;
+    if (!removingGuessStone) return;
     removeStone(row, col);
   });
 
@@ -530,27 +534,6 @@ elements.pass.addEventListener("click", () => {
     });
 });
 
-if (elements.addStone) {
-  elements.addStone.addEventListener("click", () => {
-    console.log("Add stone button clicked");
-    elements.addStone.classList.toggle("clicked");
-    if (elements.addStone.classList.contains("clicked")) {
-      addingGuessStone = true;
-    } else {
-      addingGuessStone = false;
-    }
-  });
-}
-
-elements.removeStone.addEventListener("click", () => {
-  console.log("Remove stone button clicked");
-  elements.removeStone.classList.toggle("clicked");
-  if (elements.removeStone.classList.contains("clicked")) {
-    removingStones = true;
-  } else {
-    removingStones = false;
-  }
-});
-
+guessStonesButtonsHandler();
 countScoreButtonHandler();
 resignButtonHandler();

@@ -2,6 +2,9 @@ import { elements, createButton } from "./UI.js";
 import { getAPIUrl, getMatchString, getPlayerColor } from "./utils.js";
 import { groupsToRemove } from "./script.js";
 
+export let addingGuessStone = false;
+export let removingGuessStone = false;
+
 const API_URL = getAPIUrl();
 const playerColor = getPlayerColor();
 
@@ -73,4 +76,30 @@ function countScoreRequest() {
     .catch((error) => {
       console.error("Error during count score:", error);
     });
+}
+
+export function guessStonesButtonsHandler() {
+  if (elements.addStone) {
+    elements.addStone.addEventListener("click", () => {
+      console.log("Add stone button clicked");
+      elements.addStone.classList.toggle("clicked");
+      if (elements.addStone.classList.contains("clicked")) {
+        addingGuessStone = true;
+      } else {
+        addingGuessStone = false;
+      }
+    });
+  }
+
+  if (elements.removeStone) {
+    elements.removeStone.addEventListener("click", () => {
+      console.log("Remove stone button clicked");
+      elements.removeStone.classList.toggle("clicked");
+      if (elements.removeStone.classList.contains("clicked")) {
+        removingGuessStone = true;
+      } else {
+        removingGuessStone = false;
+      }
+    });
+  }
 }
