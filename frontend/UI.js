@@ -12,10 +12,7 @@ export const elements = {
     black: document.getElementById("black-captures"),
     white: document.getElementById("white-captures"),
   },
-  addStone: {
-    black: document.getElementById("black-stone-button"),
-    white: document.getElementById("white-stone-button"),
-  },
+  addStone: document.getElementById("guess-stone-button"),
   removeStone: document.getElementById("remove-stone-button"),
   countScore: document.getElementById("count-score-button"),
   undo: document.getElementById("undo-button"),
@@ -79,11 +76,8 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
 
   buttonsWereHandledAfterGame = true;
 
-  if (elements.addStone.black) {
-    elements.addStone.black.style.display = "none";
-  }
-  if (elements.addStone.white) {
-    elements.addStone.white.style.display = "none";
+  if (elements.addStone) {
+    elements.addStone.style.display = "none";
   }
 
   elements.removeStone.style.display = "none";

@@ -37,15 +37,16 @@ const boards = {
 };
 
 let boardInteractionNumber = 0;
-let addingBlackStone = false;
-let addingWhiteStone = false;
+let addingGuessStone = false;
 let removingStones = false;
 let countingPhase = false;
 let isWinnerDecided = false;
 let shouldSync = true;
 let boardState = [];
-let blackStonesAdded = [];
-let whiteStonesAdded = [];
+const guessStones = {
+  black: [],
+  white: [],
+};
 let stonesInAtari = {
   black: 0,
   white: 0,
@@ -101,7 +102,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
       // Add click handler
       clickArea.addEventListener("click", () => {
-        if (!countingPhase && !addingBlackStone && !addingWhiteStone) {
+        if (!countingPhase && !addingGuessStone) {
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
 
@@ -139,22 +140,19 @@ function addClickAreas(board, rows, cols, playerBoard) {
             .catch((error) => {
               console.error("Error:", error);
             });
-        } else if (addingBlackStone) {
+        } else if (addingGuessStone) {
           const row = Number(clickArea.dataset.row);
           const col = Number(clickArea.dataset.col);
-          blackStonesAdded.push([row, col]);
 
-          addGuessStone("black", row, col);
-
-          sendGuessStonesToBackend("black", blackStonesAdded);
-        } else if (addingWhiteStone) {
-          const row = Number(clickArea.dataset.row);
-          const col = Number(clickArea.dataset.col);
-          whiteStonesAdded.push([row, col]);
-
-          addGuessStone("white", row, col);
-
-          sendGuessStonesToBackend("white", whiteStonesAdded);
+          if (playerColor === "black") {
+            guessStones.white.push([row, col]);
+            addGuessStone("white", row, col);
+            sendGuessStonesToBackend("white", guessStones.white);
+          } else {
+            guessStones.black.push([row, col]);
+            addGuessStone("black", row, col);
+            sendGuessStonesToBackend("black", guessStones.black);
+          }
         }
       });
 
@@ -213,25 +211,25 @@ function addGuessStone(color, row, col) {
 function removeStone(row, col) {
   let colorRemoved = null;
 
-  for (let i = 0; i < blackStonesAdded.length; i++) {
-    if (blackStonesAdded[i][0] === row && blackStonesAdded[i][1] === col) {
-      blackStonesAdded.splice(i, 1);
+  for (let i = 0; i < guessStones.black.length; i++) {
+    if (guessStones.black[i][0] === row && guessStones.black[i][1] === col) {
+      guessStones.black.splice(i, 1);
       colorRemoved = "black";
       break;
     }
   }
-  for (let i = 0; i < whiteStonesAdded.length; i++) {
-    if (whiteStonesAdded[i][0] === row && whiteStonesAdded[i][1] === col) {
-      whiteStonesAdded.splice(i, 1);
+  for (let i = 0; i < guessStones.white.length; i++) {
+    if (guessStones.white[i][0] === row && guessStones.white[i][1] === col) {
+      guessStones.white.splice(i, 1);
       colorRemoved = "white";
       break;
     }
   }
 
   if (colorRemoved === "black") {
-    sendGuessStonesToBackend("black", blackStonesAdded);
+    sendGuessStonesToBackend("black", guessStones.black);
   } else if (colorRemoved === "white") {
-    sendGuessStonesToBackend("white", whiteStonesAdded);
+    sendGuessStonesToBackend("white", guessStones.white);
   }
 
   updateBoard(boardState, stonesInAtari);
@@ -306,7 +304,7 @@ function placeStone(cell, row, col) {
     }
   }
 
-  if (!addingBlackStone) {
+  if (!addingGuessStone) {
     if (cell === "black") {
       boards.black.appendChild(stone.cloneNode(true));
     } else {
@@ -329,10 +327,10 @@ function updateBoard(boardState, atariStones = []) {
     });
   });
 
-  for (const stone of blackStonesAdded) {
+  for (const stone of guessStones.black) {
     addGuessStone("black", ...stone);
   }
-  for (const stone of whiteStonesAdded) {
+  for (const stone of guessStones.white) {
     addGuessStone("white", ...stone);
   }
 
@@ -406,8 +404,8 @@ function syncBoards() {
           if (data.board_interaction_number > boardInteractionNumber) {
             console.log("Refreshing board...");
 
-            blackStonesAdded = data.black_guess_stones;
-            whiteStonesAdded = data.white_guess_stones;
+            guessStones.black = data.black_guess_stones;
+            guessStones.white = data.white_guess_stones;
 
             updateBoard(data.board, data.stones_in_atari);
             boardInteractionNumber = data.board_interaction_number;
@@ -532,26 +530,14 @@ elements.pass.addEventListener("click", () => {
     });
 });
 
-if (elements.addStone.black) {
-  elements.addStone.black.addEventListener("click", () => {
-    console.log("Black stone button clicked");
-    elements.addStone.black.classList.toggle("clicked");
-    if (elements.addStone.black.classList.contains("clicked")) {
-      addingBlackStone = true;
+if (elements.addStone) {
+  elements.addStone.addEventListener("click", () => {
+    console.log("Add stone button clicked");
+    elements.addStone.classList.toggle("clicked");
+    if (elements.addStone.classList.contains("clicked")) {
+      addingGuessStone = true;
     } else {
-      addingBlackStone = false;
-    }
-  });
-}
-
-if (elements.addStone.white) {
-  elements.addStone.white.addEventListener("click", () => {
-    console.log("White stone button clicked");
-    elements.addStone.white.classList.toggle("clicked");
-    if (elements.addStone.white.classList.contains("clicked")) {
-      addingWhiteStone = true;
-    } else {
-      addingWhiteStone = false;
+      addingGuessStone = false;
     }
   });
 }
@@ -565,7 +551,6 @@ elements.removeStone.addEventListener("click", () => {
     removingStones = false;
   }
 });
-
 
 countScoreButtonHandler();
 resignButtonHandler();
