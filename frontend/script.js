@@ -32,6 +32,7 @@ import {
   resignButtonHandler,
   countScoreButtonHandler,
   guessStonesButtonsHandler,
+  passButtonHandler,
   addingGuessStone,
   removingGuessStone,
 } from "./handlers.js";
@@ -504,36 +505,9 @@ elements.undo.addEventListener("click", () => {
     });
 });
 
-elements.pass.addEventListener("click", () => {
-  fetch(`${API_URL}/pass`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: getMatchString(),
-      player: playerColor,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Pass response:", data.message);
-      if (data.message === "It's not your turn to pass!") {
-        return;
-      }
-      showStonesInAtari({ black: 0, white: 0 });
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error during pass:", error);
-    });
-});
 
+
+passButtonHandler();
 guessStonesButtonsHandler();
 countScoreButtonHandler();
 resignButtonHandler();

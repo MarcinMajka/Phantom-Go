@@ -1,4 +1,4 @@
-import { elements, createButton } from "./UI.js";
+import { elements, createButton, updateTurn, showStonesInAtari } from "./UI.js";
 import { getAPIUrl, getMatchString, getPlayerColor } from "./utils.js";
 import { groupsToRemove } from "./script.js";
 
@@ -75,6 +75,40 @@ function countScoreRequest() {
     })
     .catch((error) => {
       console.error("Error during count score:", error);
+    });
+}
+
+export function passButtonHandler() {
+  elements.pass.addEventListener("click", passRequest);
+}
+
+function passRequest() {
+  fetch(`${API_URL}/pass`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      match_string: getMatchString(),
+      player: playerColor,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Pass response:", data.message);
+      if (data.message === "It's not your turn to pass!") {
+        return;
+      }
+      showStonesInAtari({ black: 0, white: 0 });
+      updateTurn(data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error during pass:", error);
     });
 }
 
