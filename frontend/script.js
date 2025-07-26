@@ -35,6 +35,7 @@ import {
   passButtonHandler,
   addingGuessStone,
   removingGuessStone,
+  undoButtonHandler,
 } from "./handlers.js";
 
 const boards = {
@@ -47,7 +48,7 @@ let boardInteractionNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
 let shouldSync = true;
-let boardState = [];
+export let boardState = [];
 const guessStones = {
   black: [],
   white: [],
@@ -318,7 +319,7 @@ function placeStone(cell, row, col) {
   }
 }
 
-function updateBoard(boardState, atariStones = []) {
+export function updateBoard(boardState, atariStones = []) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
   stones.forEach((stone) => stone.remove());
@@ -473,40 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
   displayMatchIdElement();
 });
 
-elements.undo.addEventListener("click", () => {
-  fetch(`${API_URL}/undo`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: getMatchString(),
-      player: playerColor,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Server response:", data.message);
-      if (data.message === "It's not your turn to undo!") {
-        return;
-      }
-      boardState = data.board;
-      updateBoard(boardState, data.stones_in_atari);
-      updateCaptures(data.black_captures, data.white_captures);
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-});
-
-
-
+undoButtonHandler();
 passButtonHandler();
 guessStonesButtonsHandler();
 countScoreButtonHandler();
