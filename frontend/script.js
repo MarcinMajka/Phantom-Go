@@ -13,6 +13,7 @@ import {
   displayMatchIdElement,
 } from "./UI.js";
 import {
+  fetchWithErrorHandling,
   getBoardSVG,
   addBackground,
   toSvgCoords,
@@ -341,21 +342,6 @@ export function updateBoard(boardState, atariStones = []) {
   }
 
   showStonesInAtari(atariStones);
-}
-
-async function fetchWithErrorHandling(url, options) {
-  return fetch(url, options)
-    .then(async (response) => {
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
-      }
-      return data;
-    })
-    .catch((error) => {
-      console.error(`Error fetching ${url}:`, error);
-      throw error;
-    });
 }
 
 // Add retry logic for sync boards

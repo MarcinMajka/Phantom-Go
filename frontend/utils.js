@@ -2,6 +2,21 @@ export const SVG_SIZE = 800;
 export const padding = 40;
 export const cellSize = (SVG_SIZE - 2 * padding) / (13 - 1);
 
+export async function fetchWithErrorHandling(url, options) {
+  return fetch(url, options)
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+      }
+      return data;
+    })
+    .catch((error) => {
+      console.error(`Error fetching ${url}:`, error);
+      throw error;
+    });
+}
+
 // Creates SVG element for the go board
 export function getBoardSVG() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

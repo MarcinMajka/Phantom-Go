@@ -5,7 +5,12 @@ import {
   updateCaptures,
   showStonesInAtari,
 } from "./UI.js";
-import { getAPIUrl, getMatchString, getPlayerColor } from "./utils.js";
+import {
+  fetchWithErrorHandling,
+  getAPIUrl,
+  getMatchString,
+  getPlayerColor,
+} from "./utils.js";
 import { groupsToRemove, updateBoard } from "./script.js";
 
 export let addingGuessStone = false;
