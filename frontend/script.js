@@ -266,9 +266,9 @@ function toggleGroupSelection(group) {
   }
 }
 
-function placeStone(cell, row, col) {
-  const stoneColor = cell === "black" ? "black" : "white";
+function placeStone(stoneColor, row, col) {
   const stone = getStone(stoneColor, row, col);
+  boards.main.appendChild(stone);
 
   stone.addEventListener("click", () => {
     if (countingPhase) {
@@ -301,22 +301,10 @@ function placeStone(cell, row, col) {
     }
   });
 
-  boards.main.appendChild(stone);
-
-  if (playerColor !== "spectator") {
-    if (playerColor === "black" && stoneColor === "black") {
-      boards.black.appendChild(stone.cloneNode(true));
-    } else if (playerColor === "white" && stoneColor === "white") {
-      boards.white.appendChild(stone.cloneNode(true));
-    }
-  }
-
-  if (!addingGuessStone) {
-    if (cell === "black") {
-      boards.black.appendChild(stone.cloneNode(true));
-    } else {
-      boards.white.appendChild(stone.cloneNode(true));
-    }
+  if (stoneColor === "black") {
+    boards.black.appendChild(stone.cloneNode(true));
+  } else {
+    boards.white.appendChild(stone.cloneNode(true));
   }
 }
 
