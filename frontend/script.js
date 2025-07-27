@@ -37,13 +37,9 @@ import {
   addingGuessStone,
   removingGuessStone,
   undoButtonHandler,
+  getGroupRequest,
 } from "./handlers.js";
-
-const boards = {
-  main: null,
-  black: null,
-  white: null,
-};
+import { boards } from "./elements.js";
 
 let boardInteractionNumber = 0;
 let countingPhase = false;
@@ -58,7 +54,6 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
-export const groupsToRemove = {};
 
 const API_URL = getAPIUrl();
 
@@ -242,30 +237,6 @@ function removeStone(row, col) {
   updateBoard(boardState, stonesInAtari);
 }
 
-function toggleGroupSelection(group) {
-  const groupKey = JSON.stringify(group);
-
-  for (const loc of group) {
-    const [row, col] = [loc.row - 1, loc.col - 1];
-    console.log(`Changing color of: ${row} - ${col} stone`);
-
-    const stoneToColor = boards.main.querySelector(
-      `.stone[data-row="${row}"][data-col="${col}"]`
-    );
-
-    const color = stoneToColor.getAttribute("data-color");
-    const currentFill = stoneToColor.getAttribute("fill");
-
-    if (currentFill === "transparent") {
-      delete groupsToRemove[groupKey];
-      stoneToColor.setAttribute("fill", color);
-    } else {
-      groupsToRemove[groupKey] = group;
-      stoneToColor.setAttribute("fill", "transparent");
-    }
-  }
-}
-
 function placeStone(stoneColor, row, col) {
   const stone = getStone(stoneColor, row, col);
   boards.main.appendChild(stone);
@@ -273,31 +244,7 @@ function placeStone(stoneColor, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      fetch(`${API_URL}/get-group`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          frontend_board: "main",
-          row: parseInt(row),
-          col: parseInt(col),
-          match_string: getMatchString(),
-        }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Server response:", data);
-          toggleGroupSelection(data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      getGroupRequest(row, col);
     }
   });
 

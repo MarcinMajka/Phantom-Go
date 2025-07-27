@@ -4,6 +4,7 @@ import {
   getStarPoints,
   getMatchString,
 } from "./utils.js";
+import { boards } from "./elements.js";
 
 export const elements = {
   matchID: document.getElementById("match-id"),
@@ -21,6 +22,8 @@ export const elements = {
   infoContainer: document.getElementById("info-container"),
   stonesInAtari: document.getElementById("stones-in-atari"),
 };
+
+export const groupsToRemove = {};
 
 if (elements.countScore) {
   elements.countScore.style.visibility = "hidden";
@@ -153,4 +156,28 @@ export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
     );
     board.appendChild(starPoint);
   });
+}
+
+export function toggleGroupSelection(group) {
+  const groupKey = JSON.stringify(group);
+
+  for (const loc of group) {
+    const [row, col] = [loc.row - 1, loc.col - 1];
+    console.log(`Changing color of: ${row} - ${col} stone`);
+
+    const stoneToColor = boards.main.querySelector(
+      `.stone[data-row="${row}"][data-col="${col}"]`
+    );
+
+    const color = stoneToColor.getAttribute("data-color");
+    const currentFill = stoneToColor.getAttribute("fill");
+
+    if (currentFill === "transparent") {
+      delete groupsToRemove[groupKey];
+      stoneToColor.setAttribute("fill", color);
+    } else {
+      groupsToRemove[groupKey] = group;
+      stoneToColor.setAttribute("fill", "transparent");
+    }
+  }
 }

@@ -4,6 +4,8 @@ import {
   updateTurn,
   updateCaptures,
   showStonesInAtari,
+  toggleGroupSelection,
+  groupsToRemove,
 } from "./UI.js";
 import {
   fetchWithErrorHandling,
@@ -11,7 +13,7 @@ import {
   getMatchString,
   getPlayerColor,
 } from "./utils.js";
-import { groupsToRemove, updateBoard } from "./script.js";
+import { updateBoard } from "./script.js";
 
 export let addingGuessStone = false;
 export let removingGuessStone = false;
@@ -185,6 +187,34 @@ function undoRequest(boardState) {
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
       updateTurn(data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+export function getGroupRequest(row, col) {
+  fetch(`${API_URL}/get-group`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      frontend_board: "main",
+      row: parseInt(row),
+      col: parseInt(col),
+      match_string: getMatchString(),
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Server response:", data);
+      toggleGroupSelection(data);
     })
     .catch((error) => {
       console.error("Error:", error);
