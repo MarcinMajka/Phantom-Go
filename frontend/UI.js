@@ -76,17 +76,6 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
 
   buttonsWereHandledAfterGame = true;
 
-  if (elements.addStone) {
-    elements.addStone.style.display = "none";
-  }
-
-  elements.removeStone.style.display = "none";
-  elements.pass.style.display = "none";
-  elements.undo.style.display = "none";
-  if (elements.resign) {
-    elements.resign.style.display = "none";
-  }
-
   if (!isGameOver) {
     elements.countScore.style.visibility = "visible";
   }

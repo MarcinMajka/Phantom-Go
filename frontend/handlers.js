@@ -90,7 +90,9 @@ function countScoreRequest() {
 }
 
 export function passButtonHandler() {
-  elements.pass.addEventListener("click", passRequest);
+  if (elements.pass) {
+    elements.pass.addEventListener("click", passRequest);
+  }
 }
 
 function passRequest() {
@@ -150,9 +152,11 @@ export function guessStonesButtonsHandler() {
 }
 
 export function undoButtonHandler(boardState) {
-  elements.undo.addEventListener("click", () => {
-    undoRequest(boardState);
-  });
+  if (elements.undo) {
+    elements.undo.addEventListener("click", () => {
+      undoRequest(boardState);
+    });
+  }
 }
 
 function undoRequest(boardState) {
