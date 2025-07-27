@@ -1,5 +1,4 @@
 import {
-  elements,
   updateTurn,
   updateCaptures,
   addHoverEffect,
@@ -39,7 +38,7 @@ import {
   undoButtonHandler,
   getGroupRequest,
 } from "./handlers.js";
-import { boards } from "./elements.js";
+import { boards, elements } from "./elements.js";
 
 let boardInteractionNumber = 0;
 let countingPhase = false;

@@ -1,5 +1,4 @@
 import {
-  elements,
   createButton,
   updateTurn,
   updateCaptures,
@@ -14,6 +13,7 @@ import {
   getPlayerColor,
 } from "./utils.js";
 import { updateBoard } from "./script.js";
+import { elements } from "./elements.js";
 
 export let addingGuessStone = false;
 export let removingGuessStone = false;
