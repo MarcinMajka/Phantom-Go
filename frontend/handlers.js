@@ -21,6 +21,8 @@ export let removingGuessStone = false;
 const API_URL = getAPIUrl();
 const playerColor = getPlayerColor();
 
+export let boardState = [];
+
 export function resignButtonHandler() {
   if (elements.resign) {
     elements.resign.addEventListener("click", resignRequest);
@@ -151,46 +153,6 @@ export function guessStonesButtonsHandler() {
       }
     });
   }
-}
-
-export function undoButtonHandler(boardState) {
-  if (elements.undo) {
-    elements.undo.addEventListener("click", () => {
-      undoRequest(boardState);
-    });
-  }
-}
-
-function undoRequest(boardState) {
-  fetch(`${API_URL}/undo`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: getMatchString(),
-      player: playerColor,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Server response:", data.message);
-      if (data.message === "It's not your turn to undo!") {
-        return;
-      }
-      boardState = data.board;
-      updateBoard(boardState, data.stones_in_atari);
-      updateCaptures(data.black_captures, data.white_captures);
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
 }
 
 export function getGroupRequest(row, col) {

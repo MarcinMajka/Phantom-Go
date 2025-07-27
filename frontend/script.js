@@ -35,7 +35,6 @@ import {
   passButtonHandler,
   addingGuessStone,
   removingGuessStone,
-  undoButtonHandler,
   getGroupRequest,
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
@@ -44,7 +43,7 @@ let boardInteractionNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
 let shouldSync = true;
-export let boardState = [];
+let boardState = [];
 const guessStones = {
   black: [],
   white: [],
@@ -393,6 +392,46 @@ document.addEventListener("DOMContentLoaded", () => {
   syncBoards();
   displayMatchIdElement();
 });
+
+function undoButtonHandler() {
+  if (elements.undo) {
+    elements.undo.addEventListener("click", () => {
+      undoRequest();
+    });
+  }
+}
+
+function undoRequest() {
+  fetch(`${API_URL}/undo`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      match_string: getMatchString(),
+      player: playerColor,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Server response:", data.message);
+      if (data.message === "It's not your turn to undo!") {
+        return;
+      }
+      boardState = data.board;
+      updateBoard(boardState, data.stones_in_atari);
+      updateCaptures(data.black_captures, data.white_captures);
+      updateTurn(data.current_player);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
 
 undoButtonHandler();
 passButtonHandler();
