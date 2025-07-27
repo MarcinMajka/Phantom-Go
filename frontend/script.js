@@ -206,8 +206,6 @@ function addGuessStone(color, row, col) {
   }
 }
 
-// TODO: investigate why sometimes after removing one stone, all added stones are removed until syncBoards() happens
-// It's because guess stones in the UI are rendered after click and there's a race condition, which sometimes results in added/removed stones not showing/disappearing, because board synced with previous guess stones state right after
 function removeStone(row, col) {
   let colorRemoved = null;
 
