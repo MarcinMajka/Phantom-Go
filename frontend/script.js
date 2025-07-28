@@ -230,7 +230,31 @@ function removeStone(row, col) {
     sendGuessStonesToBackend("white", guessStones.white);
   }
 
-  updateBoard(boardState, stonesInAtari);
+  /*
+    This fetch removes this bug:
+      1. Play a move
+      2. Undo it
+      3. Add a guess stone
+      4. Remove it
+    Expected result: original move is not displayed
+    Actual result: original move is displayed
+  */
+  fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      match_string: getMatchString(),
+      player: playerColor,
+    }),
+  }).then((data) => {
+    boardState = data.board;
+    stonesInAtari = data.stones_in_atari;
+    updateBoard(boardState, stonesInAtari);
+    updateCaptures(data.black_captures, data.white_captures);
+    updateTurn(data.current_player);
+  });
 }
 
 function placeStone(stoneColor, row, col) {
