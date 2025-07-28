@@ -1,24 +1,23 @@
-export const elements = {
-  turn: document.getElementById("player-turn"),
-  captures: {
-    black: document.getElementById("black-captures"),
-    white: document.getElementById("white-captures"),
-  },
-  addStone: {
-    black: document.getElementById("black-stone-button"),
-    white: document.getElementById("white-stone-button"),
-  },
-  removeStone: document.getElementById("remove-stone-button"),
-  countScore: document.getElementById("count-score-button"),
-  undo: document.getElementById("undo-button"),
-  pass: document.getElementById("pass-button"),
-  resign: document.getElementById("resign-button"),
-  infoContainer: document.getElementById("info-container"),
-  stonesInAtari: document.getElementById("stones-in-atari"),
-};
+import {
+  createLineSVG,
+  createCircleSVG,
+  getStarPoints,
+  getMatchString,
+} from "./utils.js";
+import { boards, elements } from "./elements.js";
+
+
+
+export const groupsToRemove = {};
 
 if (elements.countScore) {
   elements.countScore.style.visibility = "hidden";
+}
+
+export function displayMatchIdElement() {
+  if (elements.matchID) {
+    elements.matchID.textContent = `Match ID: ${getMatchString()}`;
+  }
 }
 
 export function updateTurn(currentPlayer) {
@@ -64,20 +63,6 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
   if (buttonsWereHandledAfterGame) return;
 
   buttonsWereHandledAfterGame = true;
-
-  if (elements.addStone.black) {
-    elements.addStone.black.style.display = "none";
-  }
-  if (elements.addStone.white) {
-    elements.addStone.white.style.display = "none";
-  }
-
-  elements.removeStone.style.display = "none";
-  elements.pass.style.display = "none";
-  elements.undo.style.display = "none";
-  if (elements.resign) {
-    elements.resign.style.display = "none";
-  }
 
   if (!isGameOver) {
     elements.countScore.style.visibility = "visible";
@@ -126,5 +111,58 @@ export function showStonesInAtari(stones) {
 export function showElement(element) {
   if (element) {
     element.style.visibility = "visible";
+  }
+}
+
+export function drawGridLines(board, rows, cols, lineWidth = "1") {
+  // Draw vertical lines
+  for (let i = 0; i < cols; i++) {
+    const line = createLineSVG(true, i, "black", lineWidth);
+    board.appendChild(line);
+  }
+
+  // Draw horizontal lines
+  for (let i = 0; i < rows; i++) {
+    const line = createLineSVG(false, i, "black", lineWidth);
+
+    board.appendChild(line);
+  }
+}
+
+export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
+  const starPoints = getStarPoints(rows, cols);
+
+  starPoints.forEach((point) => {
+    const starPoint = createCircleSVG(
+      point.x,
+      point.y,
+      starPointRadius,
+      "black"
+    );
+    board.appendChild(starPoint);
+  });
+}
+
+export function toggleGroupSelection(group) {
+  const groupKey = JSON.stringify(group);
+
+  for (const loc of group) {
+    const [row, col] = [loc.row - 1, loc.col - 1];
+    console.log(`Changing color of: ${row} - ${col} stone`);
+
+    const stoneToColor = boards.main.querySelector(
+      `.stone[data-row="${row}"][data-col="${col}"]`
+    );
+
+    const color = stoneToColor.getAttribute("data-color");
+    const currentFill = stoneToColor.getAttribute("fill");
+
+    if (currentFill === "transparent") {
+      delete groupsToRemove[groupKey];
+      stoneToColor.setAttribute("fill", color);
+    } else {
+      groupsToRemove[groupKey] = group;
+      stoneToColor.setAttribute("fill", "transparent");
+    }
   }
 }

@@ -1,5 +1,4 @@
 import {
-  elements,
   updateTurn,
   updateCaptures,
   addHoverEffect,
@@ -8,8 +7,12 @@ import {
   highlightStonesInAtari,
   showStonesInAtari,
   showElement,
+  drawGridLines,
+  drawStarPoints,
+  displayMatchIdElement,
 } from "./UI.js";
 import {
+  fetchWithErrorHandling,
   getBoardSVG,
   addBackground,
   toSvgCoords,
@@ -20,107 +23,53 @@ import {
   cellSize,
   padding,
   SVG_SIZE,
+  createCircleSVG,
+  getMatchString,
+  getAPIUrl,
+  getPlayerColor,
 } from "./utils.js";
+import {
+  resignButtonHandler,
+  countScoreButtonHandler,
+  guessStonesButtonsHandler,
+  passButtonHandler,
+  addingGuessStone,
+  removingGuessStone,
+  getGroupRequest,
+} from "./handlers.js";
+import { boards, elements } from "./elements.js";
 
-const boards = {
-  main: null,
-  black: null,
-  white: null,
-};
-
-let boardState;
-let addingBlackStone = false;
-let addingWhiteStone = false;
-let removingStones = false;
+let boardInteractionNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
-let blackStonesAdded = [];
-let whiteStonesAdded = [];
+let shouldSync = true;
+let boardState = [];
+const guessStones = {
+  black: [],
+  white: [],
+};
 let stonesInAtari = {
   black: 0,
   white: 0,
 };
-const groupsToRemove = {};
 
-// Detect if running locally and set API URL accordingly
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000"
-    : "https://phantom-go.kraftartz.space/api";
+const API_URL = getAPIUrl();
 
-const urlParams = new URLSearchParams(window.location.search);
-const matchString = urlParams.get("match");
+const playerColor = getPlayerColor();
 
-const currentPage = window.location.pathname;
-const playerColor = currentPage.includes("black.html")
-  ? "black"
-  : currentPage.includes("white.html")
-  ? "white"
-  : "spectator";
-
-function createMatchIdElement() {
-  const matchIdElement = document.createElement("p");
-  matchIdElement.textContent = `Match ID: ${matchString}`;
-  matchIdElement.classList.add("match-id");
-  return matchIdElement;
-}
-
-function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
+function createBoard(rows, cols) {
   boards.main = getBoardSVG();
 
   // Add wooden background
   addBackground(boards.main, SVG_SIZE, SVG_SIZE);
 
-  // Draw vertical lines
-  for (let i = 0; i < cols; i++) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const [x, y] = toSvgCoords(i, 0);
-    line.setAttribute("x1", x);
-    line.setAttribute("y1", padding);
-    line.setAttribute("x2", x);
-    line.setAttribute("y2", SVG_SIZE - padding);
-    line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", lineWidth);
-    boards.main.appendChild(line);
-  }
-
-  // Draw horizontal lines
-  for (let i = 0; i < rows; i++) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    const [x, y] = toSvgCoords(0, i);
-    line.setAttribute("x1", padding);
-    line.setAttribute("y1", y);
-    line.setAttribute("x2", SVG_SIZE - padding);
-    line.setAttribute("y2", y);
-    line.setAttribute("stroke", "black");
-    line.setAttribute("stroke-width", lineWidth);
-    boards.main.appendChild(line);
-  }
+  drawGridLines(boards.main, rows, cols);
 
   // Add star points (hoshi)
-  const starPoints = getStarPoints(rows, cols);
-
-  starPoints.forEach((point) => {
-    const [x, y] = toSvgCoords(point.x, point.y);
-    const starPoint = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle"
-    );
-    starPoint.setAttribute("cx", x);
-    starPoint.setAttribute("cy", y);
-    starPoint.setAttribute("r", starPointRadius);
-    starPoint.setAttribute("fill", "black");
-    boards.main.appendChild(starPoint);
-  });
-
-  addClickAreas(boards.main, rows, cols, "main");
+  drawStarPoints(boards.main, rows, cols);
 
   boards.black = boards.main.cloneNode(true);
-  addClickAreas(boards.black, rows, cols, "black");
-
   boards.white = boards.main.cloneNode(true);
-  addClickAreas(boards.white, rows, cols, "white");
 
   // Add the SVG to the page
   if (playerColor === "spectator") {
@@ -128,29 +77,24 @@ function createBoard(rows, cols, lineWidth = 1, starPointRadius = 3) {
     document.getElementById("black-player-board").appendChild(boards.black);
     document.getElementById("white-player-board").appendChild(boards.white);
   } else if (playerColor === "black") {
+    addClickAreas(boards.black, rows, cols, "black");
     document.getElementById("black-player-board").appendChild(boards.black);
   } else if (playerColor === "white") {
+    addClickAreas(boards.white, rows, cols, "white");
     document.getElementById("white-player-board").appendChild(boards.white);
   }
-
-  // add match ID to the page
-  document
-    .getElementById("player-title")
-    .insertAdjacentElement("afterend", createMatchIdElement());
 }
 
 function addClickAreas(board, rows, cols, playerBoard) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const [x, y] = toSvgCoords(col, row);
-      const clickArea = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
+      const clickArea = createCircleSVG(
+        row,
+        col,
+        cellSize * 0.4,
+        "transparent",
+        "transparent"
       );
-      clickArea.setAttribute("cx", x);
-      clickArea.setAttribute("cy", y);
-      clickArea.setAttribute("r", cellSize * 0.4);
-      clickArea.setAttribute("fill", "transparent");
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
 
@@ -158,7 +102,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 
       // Add click handler
       clickArea.addEventListener("click", () => {
-        if (!countingPhase && !addingBlackStone && !addingWhiteStone) {
+        if (!countingPhase && !addingGuessStone) {
           const row = clickArea.dataset.row;
           const col = clickArea.dataset.col;
 
@@ -173,7 +117,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               frontend_board: playerBoard,
               row: parseInt(row),
               col: parseInt(col),
-              match_string: matchString,
+              match_string: getMatchString(),
             }),
           })
             .then((response) => {
@@ -184,18 +128,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               return response.json();
             })
             .then((data) => {
-              // Log server response
-              // This includes:
-              // 1. Stone placements
-              // 2. Current player
-              console.log("Server response:", data.message);
-              console.log("Player groups in atari:", data.groups_in_atari);
-              console.log("Black stones in atari:", data.stones_in_atari.black);
-              console.log("White stones in atari:", data.stones_in_atari.white);
-
               stonesInAtari = data.stones_in_atari;
-
-              console.log("Stones in atari:", stonesInAtari);
 
               boardState = data.board;
 
@@ -207,18 +140,19 @@ function addClickAreas(board, rows, cols, playerBoard) {
             .catch((error) => {
               console.error("Error:", error);
             });
-        } else if (addingBlackStone) {
-          const row = clickArea.dataset.row;
-          const col = clickArea.dataset.col;
-          blackStonesAdded.push([row, col]);
+        } else if (addingGuessStone) {
+          const row = Number(clickArea.dataset.row);
+          const col = Number(clickArea.dataset.col);
 
-          addGuessStone("black", row, col);
-        } else if (addingWhiteStone) {
-          const row = clickArea.dataset.row;
-          const col = clickArea.dataset.col;
-          whiteStonesAdded.push([row, col]);
-
-          addGuessStone("white", row, col);
+          if (playerColor === "black") {
+            guessStones.white.push([row, col]);
+            addGuessStone("white", row, col);
+            sendGuessStonesToBackend("white", guessStones.white);
+          } else {
+            guessStones.black.push([row, col]);
+            addGuessStone("black", row, col);
+            sendGuessStonesToBackend("black", guessStones.black);
+          }
         }
       });
 
@@ -228,6 +162,8 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
+  shouldSync = false; // Disable syncing while sending guess stones
+  boardInteractionNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
     headers: {
@@ -236,23 +172,29 @@ function sendGuessStonesToBackend(color, stones) {
     body: JSON.stringify({
       color: color,
       stones: stones,
-      match_string: matchString,
+      match_string: getMatchString(),
     }),
   })
     .then((response) => {
+      shouldSync = true; // Re-enable syncing after sending guess stones
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
-    .catch((error) => console.error("Error syncing guess stones:", error));
+    .catch((error) => {
+      shouldSync = true; // Re-enable syncing after sending guess stones
+
+      console.error("Error syncing guess stones:", error);
+    });
 }
 
 function addGuessStone(color, row, col) {
   const stone = getStone(color, row, col);
 
   stone.addEventListener("click", () => {
-    if (!removingStones) return;
+    if (!removingGuessStone) return;
     removeStone(row, col);
   });
 
@@ -262,126 +204,78 @@ function addGuessStone(color, row, col) {
   if (color === "white") {
     boards.black.appendChild(stone);
   }
-
-  let stonesToSync = color === "black" ? blackStonesAdded : whiteStonesAdded;
-  // Making sure types are consistent
-  stonesToSync = stonesToSync.map(([r, c]) => [Number(r), Number(c)]);
-  sendGuessStonesToBackend(color, stonesToSync);
 }
 
-// TODO: investigate why sometimes after removing one stone, all added stones are removed until syncBoards() happens
 function removeStone(row, col) {
   let colorRemoved = null;
 
-  for (let i = 0; i < blackStonesAdded.length; i++) {
-    if (blackStonesAdded[i][0] === row && blackStonesAdded[i][1] === col) {
-      blackStonesAdded.splice(i, 1);
+  for (let i = 0; i < guessStones.black.length; i++) {
+    if (guessStones.black[i][0] === row && guessStones.black[i][1] === col) {
+      guessStones.black.splice(i, 1);
       colorRemoved = "black";
       break;
     }
   }
-  for (let i = 0; i < whiteStonesAdded.length; i++) {
-    if (whiteStonesAdded[i][0] === row && whiteStonesAdded[i][1] === col) {
-      whiteStonesAdded.splice(i, 1);
+  for (let i = 0; i < guessStones.white.length; i++) {
+    if (guessStones.white[i][0] === row && guessStones.white[i][1] === col) {
+      guessStones.white.splice(i, 1);
       colorRemoved = "white";
       break;
     }
   }
 
   if (colorRemoved === "black") {
-    sendGuessStonesToBackend(
-      "black",
-      blackStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-    );
+    sendGuessStonesToBackend("black", guessStones.black);
   } else if (colorRemoved === "white") {
-    sendGuessStonesToBackend(
-      "white",
-      whiteStonesAdded.map(([r, c]) => [Number(r), Number(c)])
-    );
+    sendGuessStonesToBackend("white", guessStones.white);
   }
 
-  updateBoard(boardState, stonesInAtari);
+  /*
+    This fetch removes this bug:
+      1. Play a move
+      2. Undo it
+      3. Add a guess stone
+      4. Remove it
+    Expected result: original move is not displayed
+    Actual result: original move is displayed
+  */
+  fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      match_string: getMatchString(),
+      player: playerColor,
+    }),
+  }).then((data) => {
+    boardState = data.board;
+    stonesInAtari = data.stones_in_atari;
+    updateBoard(boardState, stonesInAtari);
+    updateCaptures(data.black_captures, data.white_captures);
+    updateTurn(data.current_player);
+  });
 }
 
-function toggleGroupSelection(group) {
-  const groupKey = JSON.stringify(group);
-
-  for (const loc of group) {
-    const [row, col] = [loc.row - 1, loc.col - 1];
-    console.log(`Changing color of: ${row} - ${col} stone`);
-
-    const stoneToColor = boards.main.querySelector(
-      `.stone[data-row="${row}"][data-col="${col}"]`
-    );
-
-    const color = stoneToColor.getAttribute("data-color");
-    const currentFill = stoneToColor.getAttribute("fill");
-
-    if (currentFill === "transparent") {
-      delete groupsToRemove[groupKey];
-      stoneToColor.setAttribute("fill", color);
-    } else {
-      groupsToRemove[groupKey] = group;
-      stoneToColor.setAttribute("fill", "transparent");
-    }
-  }
-}
-
-function placeStone(cell, row, col) {
-  const stoneColor = cell === "black" ? "black" : "white";
+function placeStone(stoneColor, row, col) {
   const stone = getStone(stoneColor, row, col);
+  boards.main.appendChild(stone);
 
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      fetch(`${API_URL}/get-group`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          frontend_board: "main",
-          row: parseInt(row),
-          col: parseInt(col),
-          match_string: matchString,
-        }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Server response:", data);
-          toggleGroupSelection(data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      getGroupRequest(row, col);
     }
   });
 
-  boards.main.appendChild(stone);
-
-  if (playerColor !== "spectator") {
-    if (playerColor === "black" && stoneColor === "black") {
-      boards.black.appendChild(stone.cloneNode(true));
-    } else if (playerColor === "white" && stoneColor === "white") {
-      boards.white.appendChild(stone.cloneNode(true));
-    }
-  }
-
-  if (!addingBlackStone) {
-    if (cell === "black") {
-      boards.black.appendChild(stone.cloneNode(true));
-    } else {
-      boards.white.appendChild(stone.cloneNode(true));
-    }
+  if (stoneColor === "black") {
+    boards.black.appendChild(stone.cloneNode(true));
+  } else {
+    boards.white.appendChild(stone.cloneNode(true));
   }
 }
 
-function updateBoard(boardState, atariStones = []) {
+export function updateBoard(boardState, atariStones = []) {
   // Remove existing stones
   const stones = document.querySelectorAll(".stone");
   stones.forEach((stone) => stone.remove());
@@ -395,29 +289,14 @@ function updateBoard(boardState, atariStones = []) {
     });
   });
 
-  for (const stone of blackStonesAdded) {
+  for (const stone of guessStones.black) {
     addGuessStone("black", ...stone);
   }
-  for (const stone of whiteStonesAdded) {
+  for (const stone of guessStones.white) {
     addGuessStone("white", ...stone);
   }
 
   showStonesInAtari(atariStones);
-}
-
-function fetchWithErrorHandling(url, options) {
-  return fetch(url, options)
-    .then(async (response) => {
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
-      }
-      return data;
-    })
-    .catch((error) => {
-      console.error(`Error fetching ${url}:`, error);
-      throw error;
-    });
 }
 
 // Add retry logic for sync boards
@@ -426,55 +305,21 @@ function syncBoards() {
   let failedAttempts = 0;
   const maxRetries = 3;
 
-  const syncIntervalId = setInterval(() => {
-    console.log("Refreshing board...");
+  const syncIntervalId = setTimeout(sync, retryInterval);
+
+  function sync() {
     fetchWithErrorHandling(`${API_URL}/sync-boards`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        match_string: matchString,
+        match_string: getMatchString(),
         player: playerColor,
       }),
     })
-      .then((data) => {
-        console.log("Server response:", data.message);
-        failedAttempts = 0; // Reset counter on success
-        blackStonesAdded = data.black_guess_stones;
-        whiteStonesAdded = data.white_guess_stones;
-        console.log("winner:", data.winner);
-        if (data.winner) {
-          isWinnerDecided = true;
-          const res = createButton("resign-result", data.winner + " + R");
-          elements.infoContainer.innerHTML = "";
-          elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(matchString, isWinnerDecided);
-          document.removeEventListener;
-        }
-
-        updateBoard(data.board, data.stones_in_atari);
-        updateCaptures(data.black_captures, data.white_captures);
-        updateTurn(data.current_player);
-
-        if (data.counting) {
-          countingPhase = true;
-          handleGameButtonsAfterGame(matchString, isWinnerDecided);
-          if (playerColor === "spectator") {
-            showElement(document.getElementById(".main-board-buttons"));
-          }
-        }
-
-        if (countingPhase || isWinnerDecided) {
-          clearInterval(syncIntervalId);
-          console.log(data.current_player);
-          updateTurn(data.current_player);
-
-          console.log("Counting or game finished, stopping sync.");
-          return;
-        }
-      })
       .catch((error) => {
+        setTimeout(sync, retryInterval);
         failedAttempts++;
         console.error(
           `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
@@ -483,12 +328,70 @@ function syncBoards() {
         if (failedAttempts >= maxRetries) {
           console.error("Max retry attempts reached. Please refresh the page.");
         }
+      })
+      .then((data) => {
+        if (shouldSync) {
+          console.log(
+            "Board interaction number: " + data.board_interaction_number
+          );
+
+          console.log("Server response:", data.message);
+          failedAttempts = 0; // Reset counter on success
+
+          console.log("winner:", data.winner);
+          if (data.winner) {
+            isWinnerDecided = true;
+            const res = createButton("resign-result", data.winner + " + R");
+            elements.infoContainer.innerHTML = "";
+            elements.infoContainer.appendChild(res);
+            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+            document.removeEventListener;
+          }
+
+          if (data.board_interaction_number > boardInteractionNumber) {
+            console.log("Refreshing board...");
+
+            guessStones.black = data.black_guess_stones;
+            guessStones.white = data.white_guess_stones;
+
+            updateBoard(data.board, data.stones_in_atari);
+            boardInteractionNumber = data.board_interaction_number;
+          } else {
+            console.log(
+              "Skipping board update, interaction number " +
+                data.board_interaction_number +
+                " is not newer than expected " +
+                boardInteractionNumber
+            );
+          }
+
+          updateCaptures(data.black_captures, data.white_captures);
+          updateTurn(data.current_player);
+
+          if (data.counting) {
+            countingPhase = true;
+            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+            if (playerColor === "spectator") {
+              showElement(document.getElementById(".main-board-buttons"));
+            }
+          }
+
+          if (countingPhase || isWinnerDecided) {
+            clearInterval(syncIntervalId);
+            console.log(data.current_player);
+            updateTurn(data.current_player);
+
+            console.log("Counting or game finished, stopping sync.");
+            return;
+          }
+        }
+        setTimeout(sync, retryInterval); // Schedule next sync
       });
-  }, retryInterval);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (!matchString) {
+  if (!getMatchString()) {
     console.error("No match string provided");
     return;
   }
@@ -499,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ match_string: matchString }),
+    body: JSON.stringify({ match_string: getMatchString() }),
   })
     .then((dimensions) => {
       createBoard(dimensions.rows, dimensions.cols);
@@ -509,16 +412,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   syncBoards();
+  displayMatchIdElement();
 });
 
-elements.undo.addEventListener("click", () => {
+function undoButtonHandler() {
+  if (elements.undo) {
+    elements.undo.addEventListener("click", () => {
+      undoRequest();
+    });
+  }
+}
+
+function undoRequest() {
   fetch(`${API_URL}/undo`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      match_string: matchString,
+      match_string: getMatchString(),
       player: playerColor,
     }),
   })
@@ -541,134 +453,10 @@ elements.undo.addEventListener("click", () => {
     .catch((error) => {
       console.error("Error:", error);
     });
-});
-
-elements.pass.addEventListener("click", () => {
-  fetch(`${API_URL}/pass`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: matchString,
-      player: playerColor,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Pass response:", data.message);
-      if (data.message === "It's not your turn to pass!") {
-        return;
-      }
-      showStonesInAtari({ black: 0, white: 0 });
-      updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error during pass:", error);
-    });
-});
-
-if (elements.addStone.black) {
-  elements.addStone.black.addEventListener("click", () => {
-    console.log("Black stone button clicked");
-    elements.addStone.black.classList.toggle("clicked");
-    if (elements.addStone.black.classList.contains("clicked")) {
-      addingBlackStone = true;
-    } else {
-      addingBlackStone = false;
-    }
-  });
 }
 
-if (elements.addStone.white) {
-  elements.addStone.white.addEventListener("click", () => {
-    console.log("White stone button clicked");
-    elements.addStone.white.classList.toggle("clicked");
-    if (elements.addStone.white.classList.contains("clicked")) {
-      addingWhiteStone = true;
-    } else {
-      addingWhiteStone = false;
-    }
-  });
-}
-
-elements.removeStone.addEventListener("click", () => {
-  console.log("Remove stone button clicked");
-  elements.removeStone.classList.toggle("clicked");
-  if (elements.removeStone.classList.contains("clicked")) {
-    removingStones = true;
-    elements.addStone.black.classList.remove("clicked");
-    elements.addStone.white.classList.remove("clicked");
-    addingBlackStone = false;
-    addingWhiteStone = false;
-  } else {
-    removingStones = false;
-  }
-});
-
-elements.countScore.addEventListener("click", () => {
-  fetch(`${API_URL}/get-score`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: matchString,
-      groups_to_remove: Object.values(groupsToRemove),
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Result:", data);
-      const res = createButton("result", `Result: ${data}`);
-      elements.infoContainer.innerHTML = "";
-      elements.infoContainer.appendChild(res);
-
-      // updateBoard(boardState);
-      // updateCaptures(data.black_captures, data.white_captures);
-      // updateTurn(data.current_player);
-    })
-    .catch((error) => {
-      console.error("Error during count score:", error);
-    });
-});
-
-if (elements.resign) {
-  elements.resign.addEventListener("click", () => {
-    fetch(`${API_URL}/resign`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        match_string: matchString,
-        player: playerColor,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Resign response:", data);
-        const res = createButton("resign-result", data.winner + " + R");
-        elements.infoContainer.innerHTML = "";
-        elements.infoContainer.appendChild(res);
-      })
-      .catch((error) => {
-        console.error("Error during resign:", error);
-      });
-  });
-}
+undoButtonHandler();
+passButtonHandler();
+guessStonesButtonsHandler();
+countScoreButtonHandler();
+resignButtonHandler();

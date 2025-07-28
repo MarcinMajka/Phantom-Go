@@ -2,6 +2,21 @@ export const SVG_SIZE = 800;
 export const padding = 40;
 export const cellSize = (SVG_SIZE - 2 * padding) / (13 - 1);
 
+export async function fetchWithErrorHandling(url, options) {
+  return fetch(url, options)
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+      }
+      return data;
+    })
+    .catch((error) => {
+      console.error(`Error fetching ${url}:`, error);
+      throw error;
+    });
+}
+
 // Creates SVG element for the go board
 export function getBoardSVG() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -102,20 +117,89 @@ export function getStarPoints(rows, cols) {
 }
 
 export function getStone(color, row, col) {
-  const [x, y] = toSvgCoords(col, row);
-  const stone = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle"
+  const stone = createCircleSVG(
+    row,
+    col,
+    cellSize * 0.4,
+    color,
+    "black",
+    "1",
+    "stone"
   );
-  stone.setAttribute("cx", x);
-  stone.setAttribute("cy", y);
-  stone.setAttribute("r", cellSize * 0.4); // Stone radius
-  stone.setAttribute("fill", color);
-  stone.setAttribute("stroke", "black");
-  stone.setAttribute("stroke-width", "1");
-  stone.classList.add("stone");
   stone.dataset.row = row;
   stone.dataset.col = col;
   stone.setAttribute("data-color", color);
   return stone;
+}
+
+export function createCircleSVG(
+  row,
+  col,
+  radius,
+  fillColor,
+  strokeColor = "black",
+  strokeWidth = "1",
+  className
+) {
+  const [x, y] = toSvgCoords(col, row);
+  const circle = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  circle.setAttribute("cx", x);
+  circle.setAttribute("cy", y);
+  circle.setAttribute("r", radius);
+  circle.setAttribute("fill", fillColor);
+  circle.setAttribute("stroke", strokeColor);
+  circle.setAttribute("stroke-width", strokeWidth);
+  if (className) {
+    circle.classList.add(className);
+  }
+  circle.dataset.row = row;
+  circle.dataset.col = col;
+  return circle;
+}
+
+export function createLineSVG(isVertical, coord, strokeColor, strokeWidth) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("stroke", strokeColor);
+  line.setAttribute("stroke-width", strokeWidth);
+
+  if (isVertical) {
+    const [x, _] = toSvgCoords(coord, 0);
+    line.setAttribute("x1", x);
+    line.setAttribute("x2", x);
+    line.setAttribute("y1", padding);
+    line.setAttribute("y2", SVG_SIZE - padding);
+  } else {
+    const [_, y] = toSvgCoords(0, coord);
+    line.setAttribute("x1", padding);
+    line.setAttribute("x2", SVG_SIZE - padding);
+    line.setAttribute("y1", y);
+    line.setAttribute("y2", y);
+  }
+
+  return line;
+}
+
+export function getMatchString() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get("match");
+}
+
+// Detect if running locally and set API URL accordingly
+export function getAPIUrl() {
+  return window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8000"
+    : "https://phantom-go.kraftartz.space/api";
+}
+
+export function getPlayerColor() {
+  const currentPage = window.location.pathname;
+  return currentPage.includes("black.html")
+    ? "black"
+    : currentPage.includes("white.html")
+    ? "white"
+    : "spectator";
 }
