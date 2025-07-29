@@ -596,35 +596,35 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     }))
 }
 
+fn get_stones_mut<'a>(
+    guess_stones: &'a mut HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>,
+    match_string: &str,
+    color: &str,
+) -> &'a mut Vec<Vec<usize>> {
+    let (black_stones, white_stones) = guess_stones
+        .entry(match_string.to_string())
+        .or_insert((Vec::new(), Vec::new()));
+
+    match color {
+        "black" => black_stones,
+        _ => white_stones,
+    }
+}
+
 #[handler]
 async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String>, Error> {
     {
         let mut rooms = lock_rooms()?;
         let mut room = get_room(&mut rooms, &payload.match_string)?;
-
         room.board_interaction_number += 1;
     }
-    
-    
-    if payload.color == "black" {
+       
+    {
         let mut guess_stones = lock_guess_stones()?;
-
-        let (black_stones, _) = guess_stones
-        .entry(payload.match_string.clone())
-        .or_insert((Vec::new(), Vec::new()));
-        
-        *black_stones = payload.stones.clone();
-    } else {
-        let mut guess_stones = lock_guess_stones()?;
-        
-        let (_, white_stones) = guess_stones
-        .entry(payload.match_string.clone())
-        .or_insert((Vec::new(), Vec::new()));
-        
-        *white_stones = payload.stones.clone();
-    }        
+        let stones = get_stones_mut(&mut guess_stones, &payload.match_string, &payload.color);
+        *stones = payload.stones.clone();
+    }
     
-
     Ok(Json("Stones synced".to_string()))
 }
 
