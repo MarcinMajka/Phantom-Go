@@ -58,6 +58,7 @@ function resignRequest() {
 }
 
 export function countScoreButtonHandler() {
+  // TODO: add logic for checking if one of the players is requesting score counting
   elements.countScore.addEventListener("click", countScoreRequest);
 }
 

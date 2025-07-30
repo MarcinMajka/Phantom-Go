@@ -68,7 +68,10 @@
             });
 
             const data = await response.json();
-            // TODO: save sessionToken in localStorage for not interfering with subsequent games
+            
+            localStorage.setItem("sessionToken", data.sessionToken);
+            localStorage.setItem("playerToken", data.sessionToken);
+            
             window.location.href = `${data.redirect_url}`;
           } catch (error) {
             console.error("Error:", error);
