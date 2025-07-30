@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 test('Change in guess stones in quick succession', async ({ page }) => {
+  const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+  
   await page.goto('/frontend/index.html');
-  await page.locator('#match-string').fill(';hlmlykmnglhkmnglhlwkmsnglhk');
+  await page.locator('#match-string').fill(longRandomString);
   await page.locator('button').click();
   await page.locator('#guess-stone-button').click();
   await page.locator('#remove-stone-button').click();
