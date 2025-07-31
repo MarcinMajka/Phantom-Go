@@ -41,6 +41,7 @@ pub struct CellClick {
     pub row: usize,
     pub col: usize,
     match_string: String,
+    session_token: String,
 }
 
 #[derive(Serialize)]
@@ -317,6 +318,14 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
+
+    let session_tokens = [room.players.black.as_ref().unwrap().session_token.clone(),
+                        room.players.white.as_ref().unwrap().session_token.clone()];
+
+    if payload.session_token == "" || !session_tokens.contains(&payload.session_token) {
+        return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED))
+    }
+
     let board = &mut room.board;
     let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
     Ok(Json(group))

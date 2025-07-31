@@ -168,6 +168,7 @@ export function getGroupRequest(row, col) {
       row: parseInt(row),
       col: parseInt(col),
       match_string: getMatchString(),
+      session_token: localStorage.getItem("sessionToken") || "",
     }),
   })
     .then((response) => {
