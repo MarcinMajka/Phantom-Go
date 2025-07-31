@@ -325,6 +325,7 @@ async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
 #[derive(Deserialize)]
 struct GetScorePayload {
     match_string: String,
+    session_token: String,
     groups_to_remove: Vec<Vec<Loc>>,
 }
 
@@ -332,6 +333,13 @@ struct GetScorePayload {
 async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
+
+    let session_tokens = [room.players.black.as_ref().unwrap().session_token.clone(),
+                        room.players.white.as_ref().unwrap().session_token.clone()];
+
+    if payload.session_token == "" || !session_tokens.contains(&payload.session_token) {
+        return Err(json_error("Invalid session token", StatusCode::UNAUTHORIZED));
+    }
 
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
 

@@ -70,6 +70,7 @@ function countScoreRequest() {
     },
     body: JSON.stringify({
       match_string: getMatchString(),
+      session_token: localStorage.getItem("sessionToken") || "",
       groups_to_remove: Object.values(groupsToRemove),
     }),
   })

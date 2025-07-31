@@ -62,15 +62,14 @@
               },
               body: JSON.stringify({
                 match_string: matchString,
-                sessionToken: "",
+                session_token: localStorage.getItem("sessionToken") || "",
                 is_spectator: isSpectator,
               }),
             });
 
             const data = await response.json();
             
-            localStorage.setItem("sessionToken", data.sessionToken);
-            localStorage.setItem("playerToken", data.sessionToken);
+            localStorage.setItem("sessionToken", data.session_token);
             
             window.location.href = `${data.redirect_url}`;
           } catch (error) {
