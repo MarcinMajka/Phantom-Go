@@ -203,3 +203,7 @@ export function getPlayerColor() {
     ? "white"
     : "spectator";
 }
+
+export function getPlayerSessionToken() {
+  return localStorage.getItem("sessionToken") || "";
+}

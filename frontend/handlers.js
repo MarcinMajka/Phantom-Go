@@ -11,6 +11,7 @@ import {
   getAPIUrl,
   getMatchString,
   getPlayerColor,
+  getPlayerSessionToken,
 } from "./utils.js";
 import { updateBoard } from "./script.js";
 import { elements } from "./elements.js";
@@ -70,7 +71,7 @@ function countScoreRequest() {
     },
     body: JSON.stringify({
       match_string: getMatchString(),
-      session_token: localStorage.getItem("sessionToken") || "",
+      session_token: getPlayerSessionToken(),
       groups_to_remove: Object.values(groupsToRemove),
     }),
   })
@@ -168,7 +169,7 @@ export function getGroupRequest(row, col) {
       row: parseInt(row),
       col: parseInt(col),
       match_string: getMatchString(),
-      session_token: localStorage.getItem("sessionToken") || "",
+      session_token: getPlayerSessionToken(),
     }),
   })
     .then((response) => {

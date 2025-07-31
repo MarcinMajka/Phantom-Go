@@ -33,7 +33,7 @@
       </div>
     </div>
     <script type="module">
-      import { getAPIUrl } from "./utils.js";
+      import { getAPIUrl, getPlayerSessionToken, } from "./utils.js";
 
       document
         .getElementById("join-button")
@@ -62,7 +62,7 @@
               },
               body: JSON.stringify({
                 match_string: matchString,
-                session_token: localStorage.getItem("sessionToken") || "",
+                session_token: getPlayerSessionToken(),
                 is_spectator: isSpectator,
               }),
             });

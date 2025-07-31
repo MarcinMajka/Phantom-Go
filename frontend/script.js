@@ -27,6 +27,7 @@ import {
   getMatchString,
   getAPIUrl,
   getPlayerColor,
+  getPlayerSessionToken,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -118,7 +119,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               row: parseInt(row),
               col: parseInt(col),
               match_string: getMatchString(),
-              session_token: localStorage.getItem("sessionToken") || "",
+              session_token: getPlayerSessionToken(),
             }),
           })
             .then((response) => {
