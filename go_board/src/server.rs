@@ -338,7 +338,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
                         room.players.white.as_ref().unwrap().session_token.clone()];
 
     if payload.session_token == "" || !session_tokens.contains(&payload.session_token) {
-        return Err(json_error("Invalid session token", StatusCode::UNAUTHORIZED));
+        return Ok(Json(room.board.count_score().to_string()))
     }
 
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
