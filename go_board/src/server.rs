@@ -566,7 +566,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
         (None, Some(_white)) => {
             // Second player - gets opposite color
             let new_token = uuid::Uuid::new_v4().to_string();
-            room.players.white = Some(PlayerSession {
+            room.players.black = Some(PlayerSession {
                 color: Player::Black,
                 session_token: new_token.clone(),
             });
