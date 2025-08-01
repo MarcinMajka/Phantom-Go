@@ -20,7 +20,7 @@ test('Change in guess stones in quick succession', async ({ page }) => {
   }
 });
 
-test("Add guess stones in quick succession", async ({ page }) => {
+test("Add then remove all guess stones in quick succession", async ({ page }) => {
   const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
 
   await page.goto('/frontend/index.html');
@@ -33,8 +33,17 @@ test("Add guess stones in quick succession", async ({ page }) => {
   }
   
   const guessStones = page.locator('.stone');
-  
-  for (let i = 0; i < await guessStones.count(); i++) {
+  const count = await guessStones.count();
+
+  for (let i = 0; i < count; i++) {
     expect(guessStones.nth(i)).toBeVisible();
   }
+
+  await page.locator('#remove-stone-button').click();
+
+  for (let i = 0; i < count; i++) {
+    await guessStones.last().click();
+  }
+
+  expect(page.locator('.stone')).toHaveCount(0);
 });
