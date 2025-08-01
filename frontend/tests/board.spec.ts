@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test('Change in guess stones in quick succession', async ({ page }) => {
-  const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-
   await page.goto('/frontend/index.html');
-  await page.locator('#match-string').fill(longRandomString);
+  await page.locator('#match-string').fill(generateMatchID());
   await page.locator('button').click();
   await page.locator('#guess-stone-button').click();
   await page.locator('#remove-stone-button').click();
@@ -21,10 +19,8 @@ test('Change in guess stones in quick succession', async ({ page }) => {
 });
 
 test("Add then remove all guess stones in quick succession", async ({ page }) => {
-  const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-
   await page.goto('/frontend/index.html');
-  await page.locator('#match-string').fill(longRandomString);
+  await page.locator('#match-string').fill(generateMatchID());
   await page.locator('button').click();
   await page.locator('#guess-stone-button').click(); 
 
@@ -52,8 +48,6 @@ test("Throttled - 3G: Add then remove all guess stones in quick succession", asy
     // Setting a longer timeout for this test
     test.setTimeout(120000);
 
-    const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-
     // Initiate throttling with Chrome DevTools Protocol
     const cdpSession = await context.newCDPSession(page);
     await cdpSession.send('Network.emulateNetworkConditions', {
@@ -65,7 +59,7 @@ test("Throttled - 3G: Add then remove all guess stones in quick succession", asy
     });
 
   await page.goto('/frontend/index.html');
-  await page.locator('#match-string').fill(longRandomString);
+  await page.locator('#match-string').fill(generateMatchID());
   await page.locator('button').click();
 
   await page.waitForLoadState('networkidle');
@@ -91,3 +85,7 @@ test("Throttled - 3G: Add then remove all guess stones in quick succession", asy
     await expect(guessStones).toHaveCount(i - 1);
   }
 });
+
+function generateMatchID() {
+    return Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+}
