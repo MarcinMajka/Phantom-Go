@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Change in guess stones in quick succession', async ({ page }) => {
   const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-  
+
   await page.goto('/frontend/index.html');
   await page.locator('#match-string').fill(longRandomString);
   await page.locator('button').click();
@@ -17,5 +17,24 @@ test('Change in guess stones in quick succession', async ({ page }) => {
     expect(guessStone).toBeVisible();
     await guessStone.click();
     expect(emptyField).toBeVisible();
+  }
+});
+
+test("Add guess stones in quick succession", async ({ page }) => {
+  const longRandomString = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+
+  await page.goto('/frontend/index.html');
+  await page.locator('#match-string').fill(longRandomString);
+  await page.locator('button').click();
+  await page.locator('#guess-stone-button').click(); 
+
+  for (let i = 33; i <= 202; i++) {
+    await page.locator(`circle:nth-child(${i})`).click();
+  }
+  
+  const guessStones = page.locator('.stone');
+  
+  for (let i = 0; i < await guessStones.count(); i++) {
+    expect(guessStones.nth(i)).toBeVisible();
   }
 });
