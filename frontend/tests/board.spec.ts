@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { NETWORK_PRESETS } from './NETWORK_PRESETS';
+import { NETWORK_PRESETS } from '../test-data/NETWORK_PRESETS';
 
 test('Change in guess stones in quick succession', async ({ page }) => {
   await page.goto('/frontend/index.html');
