@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { NETWORK_PRESETS } from './NETWORK_PRESETS';
 
 test('Change in guess stones in quick succession', async ({ page }) => {
   await page.goto('/frontend/index.html');
@@ -49,13 +50,7 @@ test("Throttled - 3G: Add then remove all guess stones in quick succession", asy
 
     // Initiate throttling with Chrome DevTools Protocol
     const cdpSession = await context.newCDPSession(page);
-    await cdpSession.send('Network.emulateNetworkConditions', {
-        // Cellular 3G emulation
-        offline: false,
-        downloadThroughput: (750 * 1024) / 8,
-        uploadThroughput: (250 * 1024) / 8,
-        latency: 100,
-    });
+    await cdpSession.send('Network.emulateNetworkConditions', NETWORK_PRESETS.Regular3G);
 
   await page.goto('/frontend/index.html');
   await page.locator('#match-string').fill(generateMatchID());
