@@ -37,11 +37,10 @@ test("Add then remove all guess stones in quick succession", async ({ page }) =>
 
   await page.locator('#remove-stone-button').click();
 
-  for (let i = 0; i < count; i++) {
+  for (let i = count; i > 0; i--) {
     await guessStones.last().click();
+    await expect(guessStones).toHaveCount(i - 1);
   }
-
-  expect(page.locator('.stone')).toHaveCount(0);
 });
 
 test("Throttled - 3G: Add then remove all guess stones in quick succession", async ({ context, page }) => {
