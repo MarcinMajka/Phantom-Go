@@ -46,14 +46,7 @@ test("Add then remove all guess stones in quick succession", async ({ page }) =>
 });
 
 test.describe('Throttling', () => {
-    test("3G: Add then remove all guess stones in quick succession", async ({ context, page }) => {
-        // Setting a longer timeout for this test
-        test.setTimeout(120000);
-
-        // Initiate throttling with Chrome DevTools Protocol
-        const cdpSession = await context.newCDPSession(page);
-        await cdpSession.send('Network.emulateNetworkConditions', NETWORK_PRESETS.Regular3G);
-
+    test.beforeEach(async ({ page }) => {
         await page.goto('/frontend/index.html');
         await page.locator('#match-string').fill(generateMatchID());
         await page.locator('button').click();
@@ -61,6 +54,16 @@ test.describe('Throttling', () => {
         await page.waitForLoadState('networkidle');
 
         await page.locator('#guess-stone-button').click(); 
+        await page.locator('#remove-stone-button').click();    
+    });
+
+    test("3G: Add then remove all guess stones in quick succession", async ({ context, page }) => {
+        // Setting a longer timeout for this test
+        test.setTimeout(120000);
+
+        // Initiate throttling with Chrome DevTools Protocol
+        const cdpSession = await context.newCDPSession(page);
+        await cdpSession.send('Network.emulateNetworkConditions', NETWORK_PRESETS.Regular3G);
 
         for (let i = 33; i <= 202; i++) {
             await page.locator(`circle:nth-child(${i})`).click();
@@ -72,8 +75,6 @@ test.describe('Throttling', () => {
         for (let i = 0; i < count; i++) {
             expect(guessStones.nth(i)).toBeVisible();
         }
-
-        await page.locator('#remove-stone-button').click();
         
         // Change to decrementing for checking each change
         for (let i = count; i > 0; i--) {
