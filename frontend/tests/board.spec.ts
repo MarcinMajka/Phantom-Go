@@ -72,6 +72,7 @@ test.describe('Throttling', () => {
 
         expect(count).toBe(169);
         
+        // TODO: fix the issue with stopping clicking the stones after the response from the server comes back
         // Change to decrementing for checking each change
         for (let i = count; i > 0; i--) {
             await guessStones.last().click();
