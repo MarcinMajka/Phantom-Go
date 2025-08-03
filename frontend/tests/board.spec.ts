@@ -32,9 +32,7 @@ test("Add then remove all guess stones in quick succession", async ({ page }) =>
   const guessStones = page.locator('.stone');
   const count = await guessStones.count();
 
-  for (let i = 0; i < count; i++) {
-    expect(guessStones.nth(i)).toBeVisible();
-  }
+  expect(count).toBe(169);
 
   await page.locator('#remove-stone-button').click();
 
@@ -72,9 +70,7 @@ test.describe('Throttling', () => {
         const guessStones = page.locator('.stone');
         const count = await guessStones.count();
 
-        for (let i = 0; i < count; i++) {
-            expect(guessStones.nth(i)).toBeVisible();
-        }
+        expect(count).toBe(169);
         
         // Change to decrementing for checking each change
         for (let i = count; i > 0; i--) {
