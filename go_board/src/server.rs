@@ -693,10 +693,10 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String
 
         match payload.color.as_str() {
             "black" => {
-                room.players.white.as_mut().unwrap().board_interaction_number = payload.board_interaction_number + 1;
+                room.players.white.as_mut().unwrap().board_interaction_number = payload.board_interaction_number;
             }
             _ => {
-                room.players.black.as_mut().unwrap().board_interaction_number = payload.board_interaction_number + 1;
+                room.players.black.as_mut().unwrap().board_interaction_number = payload.board_interaction_number;
             }
         };
     }

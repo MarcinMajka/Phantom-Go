@@ -185,7 +185,6 @@ function sendGuessStonesToBackend(color, stones) {
   })
     .then((response) => {
       shouldSync = true; // Re-enable syncing after sending guess stones
-
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
