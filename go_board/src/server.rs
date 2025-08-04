@@ -419,7 +419,8 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
 #[derive(Deserialize)]
 struct PassAndUndoPayload {
     match_string: String,
-    player: String
+    player: String,
+    board_interaction_number: usize,
 }
 
 #[handler]
@@ -483,19 +484,14 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
 
-    let board_int_num = match frontend_player.as_str() {
-        "black" => room.players.black.as_ref().unwrap().board_interaction_number,
-        _ => room.players.white.as_ref().unwrap().board_interaction_number
-    };
-
-    println!("UNDO BEFORE VALIDATION!! Player: {}, board_interaction_number: {}", frontend_player, board_int_num);
+    println!("UNDO BEFORE VALIDATION!! Player: {}, board_interaction_number: {}", frontend_player, payload.board_interaction_number);
 
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
         return Ok(Json(GameState::new(
             "It's not your turn to undo!".to_string(),
             vec![],
             &room.board,
-            board_int_num
+            payload.board_interaction_number
         )));
     }
 
@@ -503,11 +499,11 @@ async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 
     let board_int_num = match frontend_player.as_str() {
         "black" => {
-            room.players.black.as_mut().unwrap().board_interaction_number = board_int_num + 1;
+            room.players.black.as_mut().unwrap().board_interaction_number += 1;
             room.players.black.as_ref().unwrap().board_interaction_number
         }
         _ => {
-            room.players.white.as_mut().unwrap().board_interaction_number = board_int_num + 1;
+            room.players.white.as_mut().unwrap().board_interaction_number += 1;
             room.players.white.as_ref().unwrap().board_interaction_number
         }
     };

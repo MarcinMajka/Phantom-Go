@@ -424,6 +424,7 @@ function undoRequest() {
         return;
       }
       console.log("Board interaction number: ", data.board_interaction_number);
+      boardInteractionNumber = data.board_interaction_number;
       boardState = data.board;
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
