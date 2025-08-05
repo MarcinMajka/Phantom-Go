@@ -1,10 +1,11 @@
 use poem::{
-    middleware::Cors,
+    async_trait,
     handler,
+    http::{header, Method, StatusCode},
     listener::TcpListener,
-    web::Json,
-    EndpointExt, Route, Server, Result, Error,
-    http::StatusCode, Response
+    middleware::Cors,
+    web::{Json, Redirect},
+    Endpoint, EndpointExt, Error, Request, Response, Result, Route, Server,
 };
 use serde::{Serialize, Deserialize};
 use crate::board::{Board, Move, Loc, Player, Color, StonesInAtari};
@@ -207,18 +208,10 @@ fn lock_guess_stones() -> Result<std::sync::MutexGuard<'static, HashMap<String, 
         .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))
 }
 
-#[derive(Serialize)]
-struct RootResponse {
-    status: String,
-}
-
 #[handler]
-async fn root_endpoint() -> Result<Json<RootResponse>, Error> {
-    Ok(Json(RootResponse {
-        status: "ok".to_string(),
-    }))
+async fn index() -> Redirect {
+    Redirect::moved_permanent("/frontend/index.html")
 }
-
 
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
@@ -671,21 +664,64 @@ async fn reset_memory() {
     guess_stones.clear();
 }
 
+#[derive(rust_embed::Embed)]
+#[folder = "../frontend"]
+struct Asset;
+pub(crate) struct StaticEmbed;
+
+#[async_trait]
+impl Endpoint for StaticEmbed {
+    type Output = Response;
+
+    async fn call(&self, req: Request) -> Result<Self::Output> {
+      if req.method() != Method::GET {
+          return Ok(StatusCode::METHOD_NOT_ALLOWED.into());
+      }
+      let path = req.uri().path().trim_start_matches('/').trim_end_matches('/').to_string();
+      println!("Path: {}", path);
+      match Asset::get(path.as_ref()) {
+          Some(content) => {
+              let hash = hex::encode(content.metadata.sha256_hash());
+              if req
+                  .headers()
+                  .get(header::IF_NONE_MATCH)
+                  .map(|etag| etag.to_str().unwrap_or("DEADBEEF").eq(&hash))
+                  .unwrap_or(false) {
+                      return Ok(StatusCode::NOT_MODIFIED.into());
+              }
+
+              let body: Vec<u8> = content.data.into();
+              let mime = mime_guess::from_path(path).first_or_octet_stream();
+              Ok(
+                  Response::builder()
+                  .header(header::CONTENT_TYPE, mime.as_ref())
+                  .header(header::ETAG, hash)
+                  .body(body),
+              )
+          }
+          None => Ok(Response::builder().status(StatusCode::NOT_FOUND).finish()),
+      }
+  }
+}
+
 pub async fn start_server() -> Result<(), std::io::Error> {
     // Load .env file if it exists
     let _ = dotenv::dotenv();
+
+    let bind_addr = "127.0.0.1:8000".to_string();
 
     // Get frontend origin from environment variable, fallback to default
     let frontend_origin = env::var("FRONTEND_ORIGIN")
         .unwrap_or_else(|_| "http://127.0.0.1:5501".to_string());
 
     let cors = Cors::new()
-        .allow_origin(frontend_origin.clone()) // Allow the frontend origin
+        .allow_origins(vec![format!("http://{bind_addr}"), frontend_origin.clone()]) // Allow the frontend origin
         .allow_methods(vec!["POST", "GET"])
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
-    .at("/", poem::get(root_endpoint))
+    .at("/", poem::get(index))
+    .nest("/frontend", StaticEmbed)
     .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::post(get_dimensions))
@@ -701,7 +737,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
 
     println!("Server running at http://127.0.0.1:8000");
     println!("Allowed frontend origin: {}", frontend_origin);
-    Server::new(TcpListener::bind("127.0.0.1:8000"))
+    Server::new(TcpListener::bind(bind_addr))
         .run(app)
         .await
 }
