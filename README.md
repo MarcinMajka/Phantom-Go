@@ -17,13 +17,13 @@ This is a web-based Phantom Go game with a Rust backend and a JavaScript fronten
      ```sh
      cp env.template .env
      ```
-   - Edit `.env` to customize settings like the frontend origin for CORS:
+   - Edit `.env` to customize settings like the server bind address:
      ```
-     FRONTEND_ORIGIN=http://127.0.0.1:5501
+     BIND_ADDR=127.0.0.1:8000
      ```
    - If no `.env` file is provided, the server will use default values.
 
-3. **Start the backend server:**
+3. **Start the server:**
 
    - Open a terminal in the `go_board` directory:
      ```sh
@@ -32,7 +32,9 @@ This is a web-based Phantom Go game with a Rust backend and a JavaScript fronten
      ```
    - This will start the Rust backend server on `http://localhost:8000`.
 
-4. **Start the frontend:**
+4. (optional) **Start the frontend:**
+
+   This is only needed if you want to change the frontend code without rebuilding the backend binary.
 
    - Using VS Code:
        - Open the `frontend/index.html` file in VS Code.

@@ -729,7 +729,8 @@ async fn reset_memory() {
 #[derive(rust_embed::Embed)]
 #[folder = "../frontend"]
 struct Asset;
-pub(crate) struct StaticEmbed;
+
+struct StaticEmbed;
 
 #[async_trait]
 impl Endpoint for StaticEmbed {
@@ -740,7 +741,6 @@ impl Endpoint for StaticEmbed {
           return Ok(StatusCode::METHOD_NOT_ALLOWED.into());
       }
       let path = req.uri().path().trim_start_matches('/').trim_end_matches('/').to_string();
-      println!("Path: {}", path);
       match Asset::get(path.as_ref()) {
           Some(content) => {
               let hash = hex::encode(content.metadata.sha256_hash());
@@ -770,21 +770,16 @@ pub async fn start_server() -> Result<(), std::io::Error> {
     // Load .env file if it exists
     let _ = dotenv::dotenv();
 
-    let bind_addr = "127.0.0.1:8000".to_string();
-
-    // Get frontend origin from environment variable, fallback to default
-    let frontend_origin = env::var("FRONTEND_ORIGIN")
-        .unwrap_or_else(|_| "http://127.0.0.1:5501".to_string());
+    // Get bind addr from environment variable, fallback to default
+    let bind_addr = env::var("BIND_ADDR")
+        .unwrap_or_else(|_| "0.0.0.0:8000".to_string());
 
     let cors = Cors::new()
-        .allow_origins(vec![format!("http://{bind_addr}"), frontend_origin.clone()]) // Allow the frontend origin
         .allow_methods(vec!["POST", "GET"])
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
-    .at("/", poem::get(index))
-    .nest("/frontend", StaticEmbed)
-    .at("/join-game", poem::post(join_game))
+        .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::post(get_dimensions))
         .at("/undo", poem::post(undo))
@@ -795,10 +790,12 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
+        .at("/", poem::get(index))
+        .nest("/frontend", StaticEmbed)
         .with(cors);
 
-    println!("Server running at http://127.0.0.1:8000");
-    println!("Allowed frontend origin: {}", frontend_origin);
+
+    println!("Server running at {}", bind_addr);
     Server::new(TcpListener::bind(bind_addr))
         .run(app)
         .await
