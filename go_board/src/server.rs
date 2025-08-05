@@ -410,14 +410,13 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
 }
 
 #[derive(Deserialize)]
-struct PassAndUndoPayload {
+struct PassPayload {
     match_string: String,
     player: String,
-    board_interaction_number: usize,
 }
 
 #[handler]
-async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
+async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
@@ -470,8 +469,15 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 
 }
 
+#[derive(Deserialize)]
+struct UndoPayload {
+    match_string: String,
+    player: String,
+    board_interaction_number: usize,
+}
+
 #[handler]
-async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
+async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     let player = room.board.get_current_player();
