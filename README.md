@@ -7,8 +7,8 @@ This is a web-based Phantom Go game with a Rust backend and a JavaScript fronten
 1. **Clone the repository:**
 
    ```sh
-   git clone git@github.com:MarcinMajka/Phantom-Go.git
-   cd phantom-go
+   git clone https://github.com/MarcinMajka/Phantom-Go.git
+   cd Phantom-Go
    ```
 
 2. **Configure environment (optional):**
@@ -34,9 +34,14 @@ This is a web-based Phantom Go game with a Rust backend and a JavaScript fronten
 
 4. **Start the frontend:**
 
-   - Open the `frontend/index.html` file in VS Code.
-   - Use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension to launch a local server for the frontend.
-   - The frontend will be available at `http://127.0.0.1:5501/frontend/index.html` (or similar, depending on your Live Server settings).
+   - Using VS Code:
+       - Open the `frontend/index.html` file in VS Code.
+       - Use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension to launch a local server for the frontend.
+       - The frontend will be available at `http://127.0.0.1:5501/frontend/index.html` (or similar, depending on your Live Server settings).
+   - Using Python's HTTP server:
+     ```sh
+     python3 -m http.server --bind 127.0.0.1 5501
+     ```
 
 5. **Play the game:**
    - Open the frontend URL in your browser.
