@@ -87,7 +87,6 @@ test.describe("Throttling", () => {
 
     expect(count).toBe(169);
 
-    // TODO: fix the issue with stopping clicking the stones after the response from the server comes back
     const stoneSelectors: string[] = [];
     for (let i = 0; i < count; i++) {
       const row = await guessStones.nth(i).getAttribute("data-row");
