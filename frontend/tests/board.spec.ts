@@ -69,7 +69,7 @@ test.describe("Throttling", () => {
     page,
   }) => {
     // Setting a longer timeout for this test
-    test.setTimeout(120000);
+    test.setTimeout(30000);
 
     // Initiate throttling with Chrome DevTools Protocol
     const cdpSession = await context.newCDPSession(page);
@@ -78,7 +78,7 @@ test.describe("Throttling", () => {
       NETWORK_PRESETS.Regular3G
     );
 
-    for (let i = 33; i <= 202; i++) {
+    for (let i = 33; i < 202; i++) {
       await page.locator(`circle:nth-child(${i})`).click();
     }
 
@@ -88,11 +88,18 @@ test.describe("Throttling", () => {
     expect(count).toBe(169);
 
     // TODO: fix the issue with stopping clicking the stones after the response from the server comes back
-    // Change to decrementing for checking each change
-    for (let i = count; i > 0; i--) {
-      await guessStones.last().click();
-      await expect(guessStones).toHaveCount(i - 1);
+    const stoneSelectors: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = await guessStones.nth(i).getAttribute("data-row");
+      const col = await guessStones.nth(i).getAttribute("data-col");
+      stoneSelectors.push(`.stone[data-row="${row}"][data-col="${col}"]`);
     }
+
+    for (let i = count; i > 0; i--) {
+      await page.locator(stoneSelectors[i - 1]).click();
+    }
+
+    await expect(guessStones).toHaveCount(0, { timeout: 20000 });
   });
 });
 
