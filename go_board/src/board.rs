@@ -1,9 +1,9 @@
 // Lingo:
 //     islands - sets of groups of Color::Empty from the Board
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::{io, usize};
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -38,7 +38,6 @@ impl Player {
             _ => Player::White,
         }
     }
-    
 }
 
 #[derive(Debug)]
@@ -193,23 +192,18 @@ impl GroupsInAtari {
             white: HashSet::new(),
         }
     }
-    
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StonesInAtari {
     pub black: usize,
-    pub white: usize, 
+    pub white: usize,
 }
 
 impl StonesInAtari {
     pub fn new() -> Self {
-        StonesInAtari {
-            black: 0,
-            white: 0,
-        }
+        StonesInAtari { black: 0, white: 0 }
     }
-    
 }
 
 #[derive(Clone, PartialEq)]
@@ -478,14 +472,15 @@ impl Board {
 
         if !ko_capture_is_illegal && !move_is_suicidal {
             if board_is_repeated {
-                let board_was_repeated_before = self.repeated_snapshots.contains(&potential_board.fields);
+                let board_was_repeated_before =
+                    self.repeated_snapshots.contains(&potential_board.fields);
                 if board_was_repeated_before {
                     return false;
                 } else {
                     self.repeated_snapshots.insert(potential_board.fields);
                 }
             }
-            
+
             return true;
         }
 
@@ -530,10 +525,7 @@ impl Board {
             .cloned()
             .collect();
 
-        self.groups_in_atari = GroupsInAtari {
-            black,
-            white,
-        };
+        self.groups_in_atari = GroupsInAtari { black, white };
     }
 
     fn check_illegal_ko_recapture(&self) -> bool {
@@ -579,8 +571,16 @@ impl Board {
 
             let new_groups_in_atari = &self.groups_in_atari;
 
-            let new_black: HashSet<_> = new_groups_in_atari.black.difference(&old_groups_in_atari.black).cloned().collect();
-            let new_white: HashSet<_> = new_groups_in_atari.white.difference(&old_groups_in_atari.white).cloned().collect();
+            let new_black: HashSet<_> = new_groups_in_atari
+                .black
+                .difference(&old_groups_in_atari.black)
+                .cloned()
+                .collect();
+            let new_white: HashSet<_> = new_groups_in_atari
+                .white
+                .difference(&old_groups_in_atari.white)
+                .cloned()
+                .collect();
 
             self.stones_in_atari.black = new_black.iter().map(|group| group.len()).sum();
             self.stones_in_atari.white = new_white.iter().map(|group| group.len()).sum();
@@ -615,7 +615,7 @@ impl Board {
     fn get_adjacent_opponent_stones(&self, group: Vec<Loc>) -> HashSet<Loc> {
         let color = match self.get(group[0]) {
             Color::Black => Color::White,
-            _ => Color::Black,  
+            _ => Color::Black,
         };
         let mut opponent_groups: HashSet<Loc> = HashSet::new();
         for loc in group {
@@ -1028,7 +1028,6 @@ mod tests {
         assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
         assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
         assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
-
     }
 
     #[test]
