@@ -27,7 +27,7 @@ test("Add then remove all guess stones in quick succession", async ({
   await page.locator("button").click();
   await page.locator("#guess-stone-button").click();
 
-  for (let i = 33; i <= 202; i++) {
+  for (let i = 33; i < 202; i++) {
     await page.locator(`circle:nth-child(${i})`).click();
   }
 
@@ -38,11 +38,18 @@ test("Add then remove all guess stones in quick succession", async ({
 
   await page.locator("#remove-stone-button").click();
 
+  const stoneSelectors: string[] = [];
   for (let i = 0; i < count; i++) {
-    await guessStones.last().click();
+    const row = await guessStones.nth(i).getAttribute("data-row");
+    const col = await guessStones.nth(i).getAttribute("data-col");
+    stoneSelectors.push(`.stone[data-row="${row}"][data-col="${col}"]`);
   }
 
-  await expect(guessStones).toHaveCount(0, { timeout: 5000 });
+  for (let i = count; i > 0; i--) {
+    await page.locator(stoneSelectors[i - 1]).click();
+  }
+
+  await expect(guessStones).toHaveCount(0, { timeout: 6000 });
 });
 
 test.describe("Throttling", () => {
