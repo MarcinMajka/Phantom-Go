@@ -100,6 +100,43 @@ test.describe("Throttling", () => {
 
     await expect(guessStones).toHaveCount(0, { timeout: 20000 });
   });
+
+  test("2G: Add then remove all guess stones in quick succession", async ({
+    context,
+    page,
+  }) => {
+    // Setting a longer timeout for this test
+    test.setTimeout(100000);
+
+    // Initiate throttling with Chrome DevTools Protocol
+    const cdpSession = await context.newCDPSession(page);
+    await cdpSession.send(
+      "Network.emulateNetworkConditions",
+      NETWORK_PRESETS.Regular2G
+    );
+
+    for (let i = 33; i < 202; i++) {
+      await page.locator(`circle:nth-child(${i})`).click();
+    }
+
+    const guessStones = page.locator(".stone");
+    const count = await guessStones.count();
+
+    expect(count).toBe(169);
+
+    const stoneSelectors: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = await guessStones.nth(i).getAttribute("data-row");
+      const col = await guessStones.nth(i).getAttribute("data-col");
+      stoneSelectors.push(`.stone[data-row="${row}"][data-col="${col}"]`);
+    }
+
+    for (let i = count; i > 0; i--) {
+      await page.locator(stoneSelectors[i - 1]).click();
+    }
+
+    await expect(guessStones).toHaveCount(0, { timeout: 90000 });
+  });
 });
 
 function generateMatchID() {
