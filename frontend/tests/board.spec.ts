@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test("Change in guess stones in quick succession", async ({ page }) => {
@@ -17,6 +17,42 @@ test("Change in guess stones in quick succession", async ({ page }) => {
     await guessStone.click();
     expect(emptyField).toBeVisible();
   }
+});
+
+// Helper: click center of provided box
+async function clickCenter(page: Page, box) {
+  const x = box.x + box.width / 2;
+  const y = box.y + box.width / 2;
+
+  await page.mouse.click(x, y);
+}
+
+test("Click same intersection in quick succession", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("button").click();
+  await page.locator("#guess-stone-button").click();
+  await page.locator("#remove-stone-button").click();
+
+  const board = page.locator("svg");
+  const box = await board.boundingBox();
+
+  for (let i = 0; i < 100; i++) {
+    await clickCenter(page, box);
+  }
+
+  await page.waitForTimeout(100);
+  await expect(page.locator(".stone")).toHaveCount(0);
+
+  for (let i = 0; i < 101; i++) {
+    await clickCenter(page, box);
+  }
+  await page.waitForTimeout(100);
+
+  await expect(page.locator(".stone")).toHaveCount(1);
 });
 
 test("Add then remove all guess stones in quick succession", async ({
