@@ -1,7 +1,9 @@
 import { test, expect, Page } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
-test("Change in guess stones in quick succession", async ({ page }) => {
+test("Add/remove guess stone and check its status after each click", async ({
+  page,
+}) => {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(generateMatchID());
   await page.locator("button").click();
@@ -27,7 +29,7 @@ async function clickCenter(page: Page, box) {
   await page.mouse.click(x, y);
 }
 
-test("Click same intersection in quick succession", async ({
+test("Add/remove guess stone and check its status after all the clicks", async ({
   page,
   context,
 }) => {
