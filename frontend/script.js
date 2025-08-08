@@ -231,6 +231,8 @@ function removeStone(row, col) {
     }
   }
 
+  updateBoard(boardState, stonesInAtari);
+
   if (colorRemoved === "black") {
     sendGuessStonesToBackend("black", guessStones.black);
   } else if (colorRemoved === "white") {
