@@ -43,7 +43,6 @@ import { boards, elements } from "./elements.js";
 let boardInteractionNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
-let shouldSync = true;
 let boardState = [];
 const guessStones = {
   black: [],
@@ -169,7 +168,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  shouldSync = false; // Disable syncing while sending guess stones
   boardInteractionNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
@@ -184,15 +182,12 @@ function sendGuessStonesToBackend(color, stones) {
     }),
   })
     .then((response) => {
-      shouldSync = true; // Re-enable syncing after sending guess stones
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
     .catch((error) => {
-      shouldSync = true; // Re-enable syncing after sending guess stones
-
       console.error("Error syncing guess stones:", error);
     });
 }
