@@ -1,19 +1,16 @@
 import {
   createButton,
   updateTurn,
-  updateCaptures,
   showStonesInAtari,
   toggleGroupSelection,
   groupsToRemove,
 } from "./UI.js";
 import {
-  fetchWithErrorHandling,
   getAPIUrl,
   getMatchString,
   getPlayerColor,
   getPlayerSessionToken,
 } from "./utils.js";
-import { updateBoard } from "./script.js";
 import { elements } from "./elements.js";
 
 export let addingGuessStone = false;
