@@ -68,15 +68,15 @@ function createBoard(rows, cols) {
 
   // Add the SVG to the page
   if (playerColor === "spectator") {
-    document.getElementById("main-board").appendChild(boards.main);
-    document.getElementById("black-player-board").appendChild(boards.black);
-    document.getElementById("white-player-board").appendChild(boards.white);
+    elements.boards.main.appendChild(boards.main);
+    elements.boards.black.appendChild(boards.black);
+    elements.boards.white.appendChild(boards.white);
   } else if (playerColor === "black") {
     addClickAreas(boards.black, rows, cols, "black");
-    document.getElementById("black-player-board").appendChild(boards.black);
+    elements.boards.black.appendChild(boards.black);
   } else if (playerColor === "white") {
     addClickAreas(boards.white, rows, cols, "white");
-    document.getElementById("white-player-board").appendChild(boards.white);
+    elements.boards.white.appendChild(boards.white);
   }
 }
 
