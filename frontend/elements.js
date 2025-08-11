@@ -19,4 +19,9 @@ export const elements = {
   resign: document.getElementById("resign-button"),
   infoContainer: document.getElementById("info-container"),
   stonesInAtari: document.getElementById("stones-in-atari"),
+  boards: {
+    main: document.getElementById("main-board"),
+    black: document.getElementById("black-player-board"),
+    white: document.getElementById("white-player-board"),
+  },
 };
