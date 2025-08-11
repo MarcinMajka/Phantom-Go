@@ -562,13 +562,16 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let room = get_room(&mut rooms, &payload.match_string)?;
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
+    let game_history_len = room.board.game_history.clone().len();
 
     println!(
         "UNDO BEFORE VALIDATION!! Player: {}, board_interaction_number: {}",
         frontend_player, payload.board_interaction_number
     );
 
-    if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
+    if player.to_string() == frontend_player.to_string() && frontend_player != "spectator"
+        || game_history_len == 0
+    {
         return Ok(Json(GameState::new(
             "It's not your turn to undo!".to_string(),
             vec![],

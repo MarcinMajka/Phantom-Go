@@ -219,7 +219,7 @@ pub struct Board {
     pub groups_in_atari: GroupsInAtari,
     pub new_groups_in_atari: GroupsInAtari,
     pub stones_in_atari: StonesInAtari,
-    game_history: Vec<Move>,
+    pub game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
     black_captures: isize,
