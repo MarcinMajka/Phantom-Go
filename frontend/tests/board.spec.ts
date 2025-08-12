@@ -1,6 +1,16 @@
 import { test, expect, Page } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
+test("Start game", async ({ page }) => {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("button").click();
+
+  const playerTitle = page.locator("#player-title");
+
+  await expect(playerTitle).toBeVisible();
+});
+
 test("Add/remove guess stone and check its status after each click", async ({
   page,
 }) => {
