@@ -7,8 +7,10 @@ test("Start game", async ({ page }) => {
   await page.locator("button").click();
 
   const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
 
   await expect(playerTitle).toBeVisible();
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(1);
 });
 
 test("Add/remove guess stone and check its status after each click", async ({
