@@ -14,30 +14,34 @@ test("Start game", async ({ page }) => {
 });
 
 test("two independent contexts in same browser", async ({ browser }) => {
-  const context1 = await browser.newContext();
-  const page1 = await context1.newPage();
-  await page1.goto("/frontend/index.html");
+  const RUNS = 100;
 
-  const context2 = await browser.newContext();
-  const page2 = await context2.newPage();
-  await page2.goto("/frontend/index.html");
+  for (let i = 0; i < RUNS; i++) {
+    const context1 = await browser.newContext();
+    const page1 = await context1.newPage();
+    await page1.goto("/frontend/index.html");
 
-  const matchString = generateMatchID();
+    const context2 = await browser.newContext();
+    const page2 = await context2.newPage();
+    await page2.goto("/frontend/index.html");
 
-  await page1.locator("#match-string").fill(matchString);
-  await page1.locator("button").click();
+    const matchString = generateMatchID();
 
-  const playerOne = await page1.locator("#player-title").textContent();
+    await page1.locator("#match-string").fill(matchString);
+    await page1.locator("button").click();
 
-  await page2.locator("#match-string").fill(matchString);
-  await page2.locator("button").click();
+    const playerOne = await page1.locator("#player-title").textContent();
 
-  const playerTwo = await page2.locator("#player-title").textContent();
+    await page2.locator("#match-string").fill(matchString);
+    await page2.locator("button").click();
 
-  expect(playerOne !== playerTwo);
+    const playerTwo = await page2.locator("#player-title").textContent();
 
-  await context1.close();
-  await context2.close();
+    expect(playerOne !== playerTwo);
+
+    await context1.close();
+    await context2.close();
+  }
 });
 
 test("Start game as a spectator", async ({ page }) => {
