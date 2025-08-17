@@ -14,6 +14,9 @@ test("Start game", async ({ page }) => {
 });
 
 test("two independent contexts in same browser", async ({ browser }) => {
+  // Not sure why, but when repeating-each, first run is 40 something seconds, next dozen is sub 60s, subsequent time out
+  test.setTimeout(120 * 1000);
+
   const RUNS = 100;
 
   for (let i = 0; i < RUNS; i++) {
