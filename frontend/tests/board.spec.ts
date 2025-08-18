@@ -13,6 +13,19 @@ test("Start game", async ({ page }) => {
   await expect(boardContainer.locator(":scope > div")).toHaveCount(1);
 });
 
+test("Start game as a spectator", async ({ page }) => {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("#spectator-checkbox").click();
+  await page.locator("button").click();
+
+  const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
+
+  await expect(playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+});
+
 test("Confirm the second joining user has the other color", async ({
   browser,
 }) => {
@@ -47,19 +60,6 @@ test("Confirm the second joining user has the other color", async ({
     await context1.close();
     await context2.close();
   }
-});
-
-test("Start game as a spectator", async ({ page }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("#spectator-checkbox").click();
-  await page.locator("button").click();
-
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
-
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
 });
 
 test("Add/remove guess stone and check its status after each click", async ({
