@@ -62,6 +62,45 @@ test("Confirm the second joining user has the other color", async ({
   }
 });
 
+test("Confirm subsequent joining users are spectators", async ({ browser }) => {
+  const RUNS = 50;
+
+  for (let i = 0; i < RUNS; i++) {
+    const context1 = await browser.newContext();
+    const page1 = await context1.newPage();
+    await page1.goto("/frontend/index.html");
+
+    const context2 = await browser.newContext();
+    const page2 = await context2.newPage();
+    await page2.goto("/frontend/index.html");
+
+    const context3 = await browser.newContext();
+    const page3 = await context3.newPage();
+    await page3.goto("/frontend/index.html");
+
+    const matchString = generateMatchID();
+
+    await page1.locator("#match-string").fill(matchString);
+    await page1.locator("button").click();
+    await context1.close();
+
+    await page2.locator("#match-string").fill(matchString);
+    await page2.locator("button").click();
+    await context2.close();
+
+    await page3.locator("#match-string").fill(matchString);
+    await page3.locator("button").click();
+
+    const playerTitle = page3.locator("#player-title");
+    const boardContainer = page3.locator("#board-container");
+
+    await expect(playerTitle).toHaveCount(0);
+    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+
+    await context3.close();
+  }
+});
+
 test("Add/remove guess stone and check its status after each click", async ({
   page,
 }) => {
