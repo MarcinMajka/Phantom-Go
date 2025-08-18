@@ -13,7 +13,9 @@ test("Start game", async ({ page }) => {
   await expect(boardContainer.locator(":scope > div")).toHaveCount(1);
 });
 
-test("two independent contexts in same browser", async ({ browser }) => {
+test("Confirm the second joining user has the other color", async ({
+  browser,
+}) => {
   // Not sure why, but when repeating-each, first run is 40 something seconds, next dozen is sub 60s, subsequent time out
   test.setTimeout(120 * 1000);
 
