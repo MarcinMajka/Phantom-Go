@@ -875,6 +875,14 @@ async fn reset_memory() {
     guess_stones.clear();
 }
 
+#[handler]
+async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<Json<Vec<Move>>, Error> {
+    let mut rooms = lock_rooms()?;
+    let mut room = get_room(&mut rooms, &payload.match_string)?;
+
+    Ok(Json(room.board.get_game_history().clone()))
+}
+
 #[derive(rust_embed::Embed)]
 #[folder = "../frontend"]
 struct Asset;
@@ -942,6 +950,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
+        .at("/get-game-record", poem::post(send_game_record))
         .at("/", poem::get(index))
         .nest("/frontend", StaticEmbed)
         .with(cors);

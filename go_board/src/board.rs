@@ -24,7 +24,7 @@ impl Color {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize)]
 pub enum Player {
     White,
     Black,
@@ -167,7 +167,7 @@ impl Loc {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
