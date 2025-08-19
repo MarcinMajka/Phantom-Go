@@ -876,11 +876,11 @@ async fn reset_memory() {
 }
 
 #[handler]
-async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<Json<String>, Error> {
+async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<String, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
-    Ok(Json(room.board.get_game_sgf()))
+    Ok(room.board.get_game_sgf().clone())
 }
 
 #[derive(rust_embed::Embed)]
