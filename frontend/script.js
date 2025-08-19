@@ -32,6 +32,7 @@ import {
   addingGuessStone,
   removingGuessStone,
   getGroupRequest,
+  downloadSGFButtonHandler,
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
 
@@ -430,4 +431,5 @@ undoButtonHandler();
 passButtonHandler();
 guessStonesButtonsHandler();
 countScoreButtonHandler();
+downloadSGFButtonHandler();
 resignButtonHandler();

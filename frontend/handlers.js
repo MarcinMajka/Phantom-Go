@@ -93,6 +93,39 @@ function countScoreRequest() {
     });
 }
 
+export function downloadSGFButtonHandler() {
+  elements.downloadSGF.addEventListener("click", downloadSGFRequest);
+}
+
+async function downloadSGFRequest() {
+  const match_string = getMatchString();
+  fetch(`${API_URL}/get-game-record`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify({ match_string }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      console.log(response);
+      return response.text();
+    })
+    .then((data) => {
+      console.log(data);
+      const link = document.createElement("a");
+      const blob = new Blob([data], { type: "text/plain" });
+
+      link.href = URL.createObjectURL(blob);
+      link.download = `${match_string}.sgf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+}
+
 export function passButtonHandler() {
   if (elements.pass) {
     elements.pass.addEventListener("click", passRequest);

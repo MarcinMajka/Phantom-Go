@@ -6,8 +6,6 @@ import {
 } from "./utils.js";
 import { boards, elements } from "./elements.js";
 
-
-
 export const groupsToRemove = {};
 
 if (elements.countScore) {
@@ -66,6 +64,7 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
 
   if (!isGameOver) {
     elements.countScore.style.visibility = "visible";
+    elements.downloadSGF.style.visibility = "visible";
   }
 
   if (!window.location.pathname.includes("main.html")) {
