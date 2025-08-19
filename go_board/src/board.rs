@@ -721,6 +721,22 @@ impl Board {
         let col = Board::convert_num_to_sgf_char(loc.col);
         format!("{}{}", col, row)
     }
+
+    pub fn get_game_sgf(&self) -> String {
+        let mut sgf = format!("(;GM[1]KM[{}]", self.komi);
+        let gh = self.game_history.clone();
+
+        for mv in gh.iter() {
+            let player = match mv.player {
+                Player::Black => "B",
+                _ => "W",
+            };
+            let loc = Board::convert_loc_to_sgf_chars(mv.loc);
+            sgf.push_str(&format!(";{}[{}]", player, loc));
+        }
+
+        format!("{})", sgf)
+    }
 }
 
 pub fn take_player_input() -> String {
