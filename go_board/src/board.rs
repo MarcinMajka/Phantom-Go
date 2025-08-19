@@ -695,6 +695,26 @@ impl Board {
         }
         false
     }
+
+    fn convert_num_to_sgf_char(num: usize) -> String {
+        match num {
+            1 => "a",
+            2 => "b",
+            3 => "c",
+            4 => "d",
+            5 => "e",
+            6 => "f",
+            7 => "g",
+            8 => "h",
+            9 => "i",
+            10 => "j",
+            11 => "k",
+            12 => "l",
+            13 => "m",
+            _ => "", // Pass
+        }
+        .to_string()
+    }
 }
 
 pub fn take_player_input() -> String {
