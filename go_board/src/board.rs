@@ -715,6 +715,12 @@ impl Board {
         }
         .to_string()
     }
+
+    fn convert_loc_to_sgf_chars(loc: Loc) -> String {
+        let row = Board::convert_num_to_sgf_char(loc.row);
+        let col = Board::convert_num_to_sgf_char(loc.col);
+        format!("{}{}", col, row)
+    }
 }
 
 pub fn take_player_input() -> String {
