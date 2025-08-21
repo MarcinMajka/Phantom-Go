@@ -692,13 +692,14 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                         .unwrap()
                         .board_interaction_number
                 }
-                _ => {
+                "white" => {
                     room.players
                         .white
                         .as_ref()
                         .unwrap()
                         .board_interaction_number
                 }
+                _ => 0,
             };
             GameState::new(
                 "Current board state sent".to_string(),
