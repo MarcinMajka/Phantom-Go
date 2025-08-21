@@ -639,6 +639,10 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     ))
 }
 
+fn get_board_interaction_number(player: Option<PlayerSession>) -> usize {
+    player.as_ref().unwrap().board_interaction_number
+}
+
 #[derive(Deserialize)]
 struct SyncBoardsPayload {
     match_string: String,
@@ -685,20 +689,8 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
         .with_winner(winner.to_string()),
         None => {
             let board_int_num = match payload.player.as_ref() {
-                "black" => {
-                    room.players
-                        .black
-                        .as_ref()
-                        .unwrap()
-                        .board_interaction_number
-                }
-                "white" => {
-                    room.players
-                        .white
-                        .as_ref()
-                        .unwrap()
-                        .board_interaction_number
-                }
+                "black" => get_board_interaction_number(room.players.black.clone()),
+                "white" => get_board_interaction_number(room.players.white.clone()),
                 _ => 0,
             };
             GameState::new(
