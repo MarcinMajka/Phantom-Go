@@ -305,6 +305,15 @@ function syncBoards() {
       })
       .then((data) => {
         console.log("Server response:", data.message);
+
+        if (data.rejoin_required) {
+          clearTimeout(syncIntervalId);
+          alert("Game data lost. Please rejoin via login page :)");
+          setTimeout(() => {
+            window.location.href = `${getAPIUrl()}/frontend/index.html`;
+          }, 2000);
+        }
+
         failedAttempts = 0; // Reset counter on success
         console.log(
           "Board interaction number: ",

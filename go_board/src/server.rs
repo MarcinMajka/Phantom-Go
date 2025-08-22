@@ -74,6 +74,7 @@ struct GameState {
     counting: bool,
     winner: Option<String>,
     board_interaction_number: usize,
+    rejoin_required: bool,
 }
 
 impl GameState {
@@ -98,6 +99,7 @@ impl GameState {
             counting: board.last_two_moves_are_pass(),
             winner: None,
             board_interaction_number,
+            rejoin_required: false,
         };
 
         if game_state.counting {
@@ -124,6 +126,11 @@ impl GameState {
 
     fn with_winner(mut self, winner: String) -> Self {
         self.winner = Some(winner);
+        self
+    }
+
+    fn with_rejoin_required(mut self) -> Self {
+        self.rejoin_required = true;
         self
     }
 }
@@ -639,8 +646,8 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     ))
 }
 
-fn get_board_interaction_number(player: Option<PlayerSession>) -> usize {
-    player.as_ref().unwrap().board_interaction_number
+fn get_board_interaction_number(player: PlayerSession) -> usize {
+    player.board_interaction_number
 }
 
 #[derive(Deserialize)]
@@ -689,8 +696,36 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
         .with_winner(winner.to_string()),
         None => {
             let board_int_num = match payload.player.as_ref() {
-                "black" => get_board_interaction_number(room.players.black.clone()),
-                "white" => get_board_interaction_number(room.players.white.clone()),
+                "black" => {
+                    if let Some(player) = &room.players.black {
+                        player.board_interaction_number
+                    } else {
+                        return Ok(Json(
+                            GameState::new(
+                                "Game data not accessible".to_string(),
+                                vec![],
+                                &room.board,
+                                0,
+                            )
+                            .with_rejoin_required(),
+                        ));
+                    }
+                }
+                "white" => {
+                    if let Some(player) = &room.players.white {
+                        player.board_interaction_number
+                    } else {
+                        return Ok(Json(
+                            GameState::new(
+                                "Game data not accessible".to_string(),
+                                vec![],
+                                &room.board,
+                                0,
+                            )
+                            .with_rejoin_required(),
+                        ));
+                    }
+                }
                 _ => 0,
             };
             GameState::new(
