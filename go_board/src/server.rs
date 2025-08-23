@@ -650,6 +650,18 @@ fn get_board_interaction_number(player: PlayerSession) -> usize {
     player.board_interaction_number
 }
 
+fn game_data_not_accessible() -> Result<Json<GameState>> {
+    Ok(Json(
+        GameState::new(
+            "Game data not accessible".to_string(),
+            vec![],
+            &Board::new(15, 15, 1.5),
+            0,
+        )
+        .with_rejoin_required(),
+    ))
+}
+
 #[derive(Deserialize)]
 struct SyncBoardsPayload {
     match_string: String,
@@ -700,30 +712,14 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                     if let Some(player) = &room.players.black {
                         player.board_interaction_number
                     } else {
-                        return Ok(Json(
-                            GameState::new(
-                                "Game data not accessible".to_string(),
-                                vec![],
-                                &room.board,
-                                0,
-                            )
-                            .with_rejoin_required(),
-                        ));
+                        return game_data_not_accessible();
                     }
                 }
                 "white" => {
                     if let Some(player) = &room.players.white {
                         player.board_interaction_number
                     } else {
-                        return Ok(Json(
-                            GameState::new(
-                                "Game data not accessible".to_string(),
-                                vec![],
-                                &room.board,
-                                0,
-                            )
-                            .with_rejoin_required(),
-                        ));
+                        return game_data_not_accessible();
                     }
                 }
                 _ => 0,
