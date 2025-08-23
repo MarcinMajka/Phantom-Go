@@ -695,9 +695,6 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
         .entry(payload.match_string.clone())
         .or_insert((Vec::new(), Vec::new()));
 
-    // TODO: Bug! User goes back to a game after server clean up and unwraps a None value (player)
-    println!("{}", payload.player);
-
     let game_state = match room.board.get_winner() {
         Some(winner) => GameState::new(
             format!("Game over! Winner: {}", winner.to_string()),
