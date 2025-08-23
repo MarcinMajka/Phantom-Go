@@ -64,7 +64,9 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
 
   if (!isGameOver) {
     elements.countScore.style.visibility = "visible";
-    elements.downloadSGF.style.visibility = "visible";
+    if (elements.downloadSGF) {
+      elements.downloadSGF.style.visibility = "visible";
+    }
   }
 
   if (!window.location.pathname.includes("main.html")) {
