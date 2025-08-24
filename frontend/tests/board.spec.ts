@@ -62,6 +62,14 @@ test("Confirm the second joining user has the other color", async ({
   }
 });
 
+async function verifySpectatorState(page) {
+  const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
+
+  await expect(playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+}
+
 test("Confirm subsequent joining users are spectators", async ({ browser }) => {
   const RUNS = 50;
 
@@ -91,12 +99,7 @@ test("Confirm subsequent joining users are spectators", async ({ browser }) => {
     await page3.locator("#match-string").fill(matchString);
     await page3.locator("button").click();
 
-    const playerTitle = page3.locator("#player-title");
-    const boardContainer = page3.locator("#board-container");
-
-    await expect(playerTitle).toHaveCount(0);
-    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
-
+    await verifySpectatorState(page3);
     await context3.close();
   }
 });
