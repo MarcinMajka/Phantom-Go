@@ -35,30 +35,18 @@ test("Confirm the second joining user has the other color", async ({
   const RUNS = 100;
 
   for (let i = 0; i < RUNS; i++) {
-    const context1 = await browser.newContext();
-    const page1 = await context1.newPage();
-    await page1.goto("/frontend/index.html");
+    const ms = generateMatchID();
 
-    const context2 = await browser.newContext();
-    const page2 = await context2.newPage();
-    await page2.goto("/frontend/index.html");
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
 
-    const matchString = generateMatchID();
-
-    await page1.locator("#match-string").fill(matchString);
-    await page1.locator("button").click();
-
-    const playerOne = await page1.locator("#player-title").textContent();
-
-    await page2.locator("#match-string").fill(matchString);
-    await page2.locator("button").click();
-
-    const playerTwo = await page2.locator("#player-title").textContent();
+    const playerOne = await p1.locator("#player-title").textContent();
+    const playerTwo = await p2.locator("#player-title").textContent();
 
     expect(playerOne !== playerTwo);
 
-    await context1.close();
-    await context2.close();
+    await c1.close();
+    await c2.close();
   }
 });
 
