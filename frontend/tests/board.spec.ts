@@ -50,7 +50,7 @@ test("Confirm the second joining user has the other color", async ({
   }
 });
 
-async function verifySpectatorState(page) {
+async function verifySpectatorState(page: Page) {
   const playerTitle = page.locator("#player-title");
   const boardContainer = page.locator("#board-container");
 
@@ -107,8 +107,15 @@ test("Add/remove guess stone and check its status after each click", async ({
   }
 });
 
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 // Helper: click center of provided box
-async function clickCenter(page: Page, box) {
+async function clickCenter(page: Page, box: BoundingBox) {
   const x = box.x + box.width / 2;
   const y = box.y + box.width / 2;
 
