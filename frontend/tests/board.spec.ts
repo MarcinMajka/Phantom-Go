@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, Page, Browser } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test("Start game", async ({ page }) => {
@@ -70,37 +70,32 @@ async function verifySpectatorState(page) {
   await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
 }
 
+async function createUserAndJoinMatch(browser: Browser, matchString: string) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(matchString);
+  await page.locator("button").click();
+
+  return { context, page };
+}
+
 test("Confirm subsequent joining users are spectators", async ({ browser }) => {
   const RUNS = 50;
 
   for (let i = 0; i < RUNS; i++) {
-    const context1 = await browser.newContext();
-    const page1 = await context1.newPage();
-    await page1.goto("/frontend/index.html");
-
-    const context2 = await browser.newContext();
-    const page2 = await context2.newPage();
-    await page2.goto("/frontend/index.html");
-
-    const context3 = await browser.newContext();
-    const page3 = await context3.newPage();
-    await page3.goto("/frontend/index.html");
-
     const matchString = generateMatchID();
 
-    await page1.locator("#match-string").fill(matchString);
-    await page1.locator("button").click();
-    await context1.close();
+    // Create first two players (they join and leave immediately)
+    (await createUserAndJoinMatch(browser, matchString)).context.close();
+    (await createUserAndJoinMatch(browser, matchString)).context.close();
 
-    await page2.locator("#match-string").fill(matchString);
-    await page2.locator("button").click();
-    await context2.close();
+    // Create third user (spectator) and verify they're a spectator
+    const spectatorSession = await createUserAndJoinMatch(browser, matchString);
 
-    await page3.locator("#match-string").fill(matchString);
-    await page3.locator("button").click();
-
-    await verifySpectatorState(page3);
-    await context3.close();
+    await verifySpectatorState(spectatorSession.page);
+    await spectatorSession.context.close();
   }
 });
 
