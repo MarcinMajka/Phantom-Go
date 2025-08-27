@@ -115,7 +115,9 @@ interface BoundingBox {
 }
 
 // Helper: click center of provided box
-async function clickCenter(page: Page, box: BoundingBox) {
+async function clickCenter(page: Page, box: BoundingBox | null) {
+  if (!box) throw new Error("Bounding box is null");
+
   const x = box.x + box.width / 2;
   const y = box.y + box.width / 2;
 
