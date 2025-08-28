@@ -1,9 +1,9 @@
 // Lingo:
 //     islands - sets of groups of Color::Empty from the Board
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::{io, usize};
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
@@ -24,7 +24,7 @@ impl Color {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize)]
 pub enum Player {
     White,
     Black,
@@ -38,7 +38,6 @@ impl Player {
             _ => Player::White,
         }
     }
-    
 }
 
 #[derive(Debug)]
@@ -168,7 +167,7 @@ impl Loc {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
 pub struct Move {
     pub player: Player,
     pub loc: Loc,
@@ -193,23 +192,18 @@ impl GroupsInAtari {
             white: HashSet::new(),
         }
     }
-    
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StonesInAtari {
     pub black: usize,
-    pub white: usize, 
+    pub white: usize,
 }
 
 impl StonesInAtari {
     pub fn new() -> Self {
-        StonesInAtari {
-            black: 0,
-            white: 0,
-        }
+        StonesInAtari { black: 0, white: 0 }
     }
-    
 }
 
 #[derive(Clone, PartialEq)]
@@ -225,7 +219,7 @@ pub struct Board {
     pub groups_in_atari: GroupsInAtari,
     pub new_groups_in_atari: GroupsInAtari,
     pub stones_in_atari: StonesInAtari,
-    game_history: Vec<Move>,
+    pub game_history: Vec<Move>,
     current_player: Player,
     komi: f32,
     black_captures: isize,
@@ -478,14 +472,15 @@ impl Board {
 
         if !ko_capture_is_illegal && !move_is_suicidal {
             if board_is_repeated {
-                let board_was_repeated_before = self.repeated_snapshots.contains(&potential_board.fields);
+                let board_was_repeated_before =
+                    self.repeated_snapshots.contains(&potential_board.fields);
                 if board_was_repeated_before {
                     return false;
                 } else {
                     self.repeated_snapshots.insert(potential_board.fields);
                 }
             }
-            
+
             return true;
         }
 
@@ -530,10 +525,7 @@ impl Board {
             .cloned()
             .collect();
 
-        self.groups_in_atari = GroupsInAtari {
-            black,
-            white,
-        };
+        self.groups_in_atari = GroupsInAtari { black, white };
     }
 
     fn check_illegal_ko_recapture(&self) -> bool {
@@ -579,8 +571,16 @@ impl Board {
 
             let new_groups_in_atari = &self.groups_in_atari;
 
-            let new_black: HashSet<_> = new_groups_in_atari.black.difference(&old_groups_in_atari.black).cloned().collect();
-            let new_white: HashSet<_> = new_groups_in_atari.white.difference(&old_groups_in_atari.white).cloned().collect();
+            let new_black: HashSet<_> = new_groups_in_atari
+                .black
+                .difference(&old_groups_in_atari.black)
+                .cloned()
+                .collect();
+            let new_white: HashSet<_> = new_groups_in_atari
+                .white
+                .difference(&old_groups_in_atari.white)
+                .cloned()
+                .collect();
 
             self.stones_in_atari.black = new_black.iter().map(|group| group.len()).sum();
             self.stones_in_atari.white = new_white.iter().map(|group| group.len()).sum();
@@ -615,7 +615,7 @@ impl Board {
     fn get_adjacent_opponent_stones(&self, group: Vec<Loc>) -> HashSet<Loc> {
         let color = match self.get(group[0]) {
             Color::Black => Color::White,
-            _ => Color::Black,  
+            _ => Color::Black,
         };
         let mut opponent_groups: HashSet<Loc> = HashSet::new();
         for loc in group {
@@ -694,6 +694,48 @@ impl Board {
             return last_two_moves[0].loc == last_two_moves[1].loc;
         }
         false
+    }
+
+    fn convert_num_to_sgf_char(num: usize) -> String {
+        match num {
+            1 => "a",
+            2 => "b",
+            3 => "c",
+            4 => "d",
+            5 => "e",
+            6 => "f",
+            7 => "g",
+            8 => "h",
+            9 => "i",
+            10 => "j",
+            11 => "k",
+            12 => "l",
+            13 => "m",
+            _ => "", // Pass
+        }
+        .to_string()
+    }
+
+    fn convert_loc_to_sgf_chars(loc: Loc) -> String {
+        let row = Board::convert_num_to_sgf_char(loc.row);
+        let col = Board::convert_num_to_sgf_char(loc.col);
+        format!("{}{}", col, row)
+    }
+
+    pub fn get_game_sgf(&self) -> String {
+        let mut sgf = format!("(;GM[1]KM[{}]", self.komi);
+        let gh = self.game_history.clone();
+
+        for mv in gh.iter() {
+            let player = match mv.player {
+                Player::Black => "B",
+                _ => "W",
+            };
+            let loc = Board::convert_loc_to_sgf_chars(mv.loc);
+            sgf.push_str(&format!(";{}[{}]", player, loc));
+        }
+
+        format!("{})", sgf)
     }
 }
 
@@ -1028,7 +1070,6 @@ mod tests {
         assert!(board.count_liberties(Loc { row: 7, col: 2 }) == 9);
         assert!(board.count_liberties(Loc { row: 7, col: 3 }) == 9);
         assert!(board.count_liberties(Loc { row: 8, col: 2 }) == 9);
-
     }
 
     #[test]

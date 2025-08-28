@@ -1,0 +1,5 @@
+{
+    "scripts": {
+    "pw:test": "cd frontend && npx playwright test"
+  }
+}

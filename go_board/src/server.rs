@@ -1,32 +1,32 @@
-use poem::{
-    middleware::Cors,
-    handler,
-    listener::TcpListener,
-    web::Json,
-    EndpointExt, Route, Server, Result, Error,
-    http::StatusCode, Response
-};
-use serde::{Serialize, Deserialize};
-use crate::board::{Board, Move, Loc, Player, Color, StonesInAtari};
-use std::collections::{HashMap, HashSet};
-use std::sync::Mutex;
+use crate::board::{Board, Color, Loc, Move, Player, StonesInAtari};
 use lazy_static::lazy_static;
+use poem::listener::BoxIo;
+use poem::{
+    async_trait, handler,
+    http::{header, Method, StatusCode},
+    listener::TcpListener,
+    middleware::Cors,
+    web::{Json, Redirect},
+    Endpoint, EndpointExt, Error, Request, Response, Result, Route, Server,
+};
 use rand::random;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 use std::env;
-
+use std::sync::Mutex;
 
 #[derive(Serialize, Deserialize)]
 struct JoinGameRequest {
     match_string: String,
     session_token: Option<String>,
-    is_spectator: bool
+    is_spectator: bool,
 }
 
 #[derive(Serialize)]
 struct JoinGameResponse {
     color: String,
     redirect_url: String,
-    session_token: String
+    session_token: String,
 }
 
 #[derive(Serialize)]
@@ -41,6 +41,8 @@ pub struct CellClick {
     pub row: usize,
     pub col: usize,
     match_string: String,
+    session_token: String,
+    board_interaction_number: usize,
 }
 
 #[derive(Serialize)]
@@ -72,10 +74,16 @@ struct GameState {
     counting: bool,
     winner: Option<String>,
     board_interaction_number: usize,
+    rejoin_required: bool,
 }
 
 impl GameState {
-    fn new(message: String, board_state: Vec<Vec<String>>, board: &Board, board_interaction_number: usize) -> Self {
+    fn new(
+        message: String,
+        board_state: Vec<Vec<String>>,
+        board: &Board,
+        board_interaction_number: usize,
+    ) -> Self {
         let mut game_state = Self {
             message,
             board: board_state.clone(),
@@ -90,7 +98,8 @@ impl GameState {
             stones_in_atari: StonesInAtari::new(),
             counting: board.last_two_moves_are_pass(),
             winner: None,
-            board_interaction_number
+            board_interaction_number,
+            rejoin_required: false,
         };
 
         if game_state.counting {
@@ -100,7 +109,11 @@ impl GameState {
         game_state
     }
 
-    fn with_guess_stones(mut self, black_stones: Vec<Vec<usize>>, white_stones: Vec<Vec<usize>>) -> Self {
+    fn with_guess_stones(
+        mut self,
+        black_stones: Vec<Vec<usize>>,
+        white_stones: Vec<Vec<usize>>,
+    ) -> Self {
         self.black_guess_stones = black_stones;
         self.white_guess_stones = white_stones;
         self
@@ -115,6 +128,11 @@ impl GameState {
         self.winner = Some(winner);
         self
     }
+
+    fn with_rejoin_required(mut self) -> Self {
+        self.rejoin_required = true;
+        self
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -122,6 +140,7 @@ struct GuessStonesSync {
     color: String,
     stones: Vec<Vec<usize>>,
     match_string: String,
+    board_interaction_number: usize,
 }
 
 #[derive(Clone)]
@@ -129,6 +148,7 @@ struct PlayerSession {
     // Keep color for move validation
     color: Player,
     session_token: String,
+    board_interaction_number: usize,
 }
 
 #[derive(Clone)]
@@ -139,14 +159,16 @@ struct PlayersState {
 
 impl PlayersState {
     fn new() -> Self {
-        Self { black: None, white: None }
+        Self {
+            black: None,
+            white: None,
+        }
     }
 }
 
 #[derive(Clone)]
 struct GameRoom {
     board: Board,
-    board_interaction_number: usize,
     players: PlayersState,
 }
 
@@ -154,7 +176,6 @@ impl GameRoom {
     fn new() -> Self {
         GameRoom {
             board: Board::new(15, 15, 1.5),
-            board_interaction_number: 0,
             players: PlayersState::new(),
         }
     }
@@ -194,30 +215,31 @@ fn lock_rooms() -> Result<std::sync::MutexGuard<'static, HashMap<String, GameRoo
 }
 
 // Room will be mutable, so we can modify it if it exists
-fn get_room<'a>(rooms: &'a mut std::sync::MutexGuard<'static, HashMap<String, GameRoom>>, match_string: &str) -> Result<&'a mut GameRoom, Error> {
+fn get_room<'a>(
+    rooms: &'a mut std::sync::MutexGuard<'static, HashMap<String, GameRoom>>,
+    match_string: &str,
+) -> Result<&'a mut GameRoom, Error> {
     rooms
         .get_mut(match_string)
         .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))
 }
 
-fn lock_guess_stones() -> Result<std::sync::MutexGuard<'static, HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>>, Error> {
-    GUESS_STONES
-        .lock()
-        .map_err(|_| json_error("Failed to lock guess stones", StatusCode::INTERNAL_SERVER_ERROR))
-}
-
-#[derive(Serialize)]
-struct RootResponse {
-    status: String,
+fn lock_guess_stones() -> Result<
+    std::sync::MutexGuard<'static, HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>>,
+    Error,
+> {
+    GUESS_STONES.lock().map_err(|_| {
+        json_error(
+            "Failed to lock guess stones",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    })
 }
 
 #[handler]
-async fn root_endpoint() -> Result<Json<RootResponse>, Error> {
-    Ok(Json(RootResponse {
-        status: "ok".to_string(),
-    }))
+async fn index() -> Redirect {
+    Redirect::moved_permanent("/frontend/index.html")
 }
-
 
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
@@ -235,9 +257,11 @@ async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardD
 // Convert board state to string format for frontend, excluding sentinel borders
 fn get_board_state(board: &Board) -> Vec<Vec<String>> {
     let (rows, cols) = get_playable_dimensions(board);
-    board.fields[1..=rows].iter()
+    board.fields[1..=rows]
+        .iter()
         .map(|row| {
-            row[1..=cols].iter()
+            row[1..=cols]
+                .iter()
                 .map(|&color| color_to_string(color))
                 .collect()
         })
@@ -265,14 +289,23 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         Player::White => "white",
     };
 
+    println!(
+        "BEFORE MOVE VALIDATION:
+    Player: {}, board_interaction_number: {}",
+        frontend_board, payload.board_interaction_number
+    );
+
     if correct_board != frontend_board && frontend_board != "main" {
-        return Ok(Json(GameState::new(
-            format!("It's not your turn!"),
-            board_state,
-            board,
-            room.board_interaction_number
-        )
-        .with_stones_in_atari(board.stones_in_atari.clone())));
+        println!("NOT YOUR TURN!!!");
+        return Ok(Json(
+            GameState::new(
+                format!("It's not your turn!"),
+                board_state,
+                board,
+                payload.board_interaction_number,
+            )
+            .with_stones_in_atari(board.stones_in_atari.clone()),
+        ));
     }
 
     // Create move from payload
@@ -289,27 +322,61 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     board.play(&move_attempt);
 
     if board_state == get_board_state(&board) {
-        return Ok(Json(GameState::new(
-            format!("Move attempted at ({}, {})", payload.row, payload.col),
-            board_state,
-            board,
-            room.board_interaction_number
+        println!("ILLEGAL MOVE");
+        return Ok(Json(
+            GameState::new(
+                format!("Move attempted at ({}, {})", payload.row, payload.col),
+                board_state,
+                board,
+                payload.board_interaction_number,
             )
-            .with_stones_in_atari(board.stones_in_atari.clone())))
+            .with_stones_in_atari(board.stones_in_atari.clone()),
+        ));
     }
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
 
-    // When a new move is played
-    room.board_interaction_number += 1;
+    let board_int_num = payload.board_interaction_number + 1;
+    println!(
+        "AFTER MOVE VALIDATION - LEGAL MOVE!!! Board interaction number: {}",
+        board_int_num
+    );
 
-    Ok(Json(GameState::new(
-        format!("Move attempted at ({}, {})", payload.row, payload.col),
-        board_state,
-        board,
-        room.board_interaction_number
-    )
-    .with_stones_in_atari(board.stones_in_atari.clone())))
+    match frontend_board.as_str() {
+        "black" => {
+            room.players
+                .black
+                .as_mut()
+                .unwrap()
+                .board_interaction_number = board_int_num;
+        }
+        _ => {
+            room.players
+                .white
+                .as_mut()
+                .unwrap()
+                .board_interaction_number = board_int_num;
+        }
+    }
+
+    Ok(Json(
+        GameState::new(
+            format!("Move attempted at ({}, {})", payload.row, payload.col),
+            board_state,
+            board,
+            board_int_num,
+        )
+        .with_stones_in_atari(board.stones_in_atari.clone()),
+    ))
+}
+
+fn is_request_from_player(session_token: &str, room: &GameRoom) -> bool {
+    let session_tokens = [
+        room.players.black.as_ref().unwrap().session_token.as_str(),
+        room.players.white.as_ref().unwrap().session_token.as_str(),
+    ];
+
+    session_token == "" || !session_tokens.contains(&session_token)
 }
 
 // Returns clicked group of stones during counting
@@ -317,14 +384,23 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
+
+    if is_request_from_player(&payload.session_token, room) {
+        return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED));
+    }
+
     let board = &mut room.board;
-    let group = board.group_stones(Loc { row: payload.row + 1, col: payload.col + 1 });
+    let group = board.group_stones(Loc {
+        row: payload.row + 1,
+        col: payload.col + 1,
+    });
     Ok(Json(group))
 }
 
 #[derive(Deserialize)]
 struct GetScorePayload {
     match_string: String,
+    session_token: String,
     groups_to_remove: Vec<Vec<Loc>>,
 }
 
@@ -332,6 +408,10 @@ struct GetScorePayload {
 async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
+
+    if is_request_from_player(&payload.session_token, room) {
+        return Ok(Json(room.board.count_score().to_string()));
+    }
 
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
 
@@ -358,12 +438,37 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
 
     room.board.set_winner(loser.opponent());
 
-    Ok(Json(GameState::new(
-        format!("Player {:?} resigned. Game over!", loser),
-        get_board_state(&room.board),
-        &room.board,
-        room.board_interaction_number
-    ).with_winner(loser.opponent().to_string())))
+    let board_int_num = match payload.player.as_str() {
+        "black" => {
+            room.players
+                .black
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+        _ => {
+            room.players
+                .white
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+    };
+
+    println!(
+        "Player: {}, board_interaction_number: {}",
+        payload.player, board_int_num
+    );
+
+    Ok(Json(
+        GameState::new(
+            format!("Player {:?} resigned. Game over!", loser),
+            get_board_state(&room.board),
+            &room.board,
+            board_int_num,
+        )
+        .with_winner(loser.opponent().to_string()),
+    ))
 }
 
 fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
@@ -374,27 +479,51 @@ fn remove_dead_groups(board: &mut Board, groups: Vec<Vec<Loc>>) {
 }
 
 #[derive(Deserialize)]
-struct PassAndUndoPayload {
+struct PassPayload {
     match_string: String,
-    player: String
+    player: String,
 }
 
 #[handler]
-async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
+async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
 
+    let board_int_num = match frontend_player.as_str() {
+        "black" => {
+            room.players
+                .black
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+        _ => {
+            room.players
+                .white
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+    };
+
+    println!(
+        "Player: {}, board_interaction_number: {}",
+        frontend_player, board_int_num
+    );
+
     if player.to_string() != frontend_player.to_string() && frontend_player != "spectator" {
-        return Ok(Json(GameState::new(
-            "It's not your turn to pass!".to_string(),
-            vec![],
-            &room.board,
-            room.board_interaction_number
-        )
-        .with_stones_in_atari(StonesInAtari { black: 0, white: 0 })));
+        return Ok(Json(
+            GameState::new(
+                "It's not your turn to pass!".to_string(),
+                vec![],
+                &room.board,
+                board_int_num,
+            )
+            .with_stones_in_atari(StonesInAtari { black: 0, white: 0 }),
+        ));
     }
 
     room.board.play(&Move {
@@ -406,69 +535,137 @@ async fn pass(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Erro
 
     if !game_is_over {
         Ok(Json(GameState::new(
-            format!("Player {:?} passed", room.board.get_current_player().opponent()),
+            format!(
+                "Player {:?} passed",
+                room.board.get_current_player().opponent()
+            ),
             vec![],
             &room.board,
-            room.board_interaction_number
+            board_int_num,
         )))
     } else {
         let mut game_state = GameState::new(
             format!("Both players passed. Game over!"),
             vec![],
             &room.board,
-            room.board_interaction_number
+            board_int_num,
         );
         game_state.current_player = "counting".to_string();
         game_state.counting = true;
         Ok(Json(game_state))
     }
+}
 
-
+#[derive(Deserialize)]
+struct UndoPayload {
+    match_string: String,
+    player: String,
+    board_interaction_number: usize,
 }
 
 #[handler]
-async fn undo(payload: Json<PassAndUndoPayload>) -> Result<Json<GameState>, Error> {
+async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
+    let game_history_len = room.board.game_history.clone().len();
 
-    if player.to_string() == frontend_player.to_string() && frontend_player != "spectator" {
+    println!(
+        "UNDO BEFORE VALIDATION!! Player: {}, board_interaction_number: {}",
+        frontend_player, payload.board_interaction_number
+    );
+
+    if player.to_string() == frontend_player.to_string() && frontend_player != "spectator"
+        || game_history_len == 0
+    {
         return Ok(Json(GameState::new(
             "It's not your turn to undo!".to_string(),
             vec![],
             &room.board,
-            room.board_interaction_number
+            payload.board_interaction_number,
         )));
     }
 
-    // When a player undoes
-    room.board_interaction_number += 1;
     room.board.undo();
+
+    let board_int_num = match frontend_player.as_str() {
+        "black" => {
+            room.players
+                .black
+                .as_mut()
+                .unwrap()
+                .board_interaction_number += 1;
+            room.players
+                .black
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+        _ => {
+            room.players
+                .white
+                .as_mut()
+                .unwrap()
+                .board_interaction_number += 1;
+            room.players
+                .white
+                .as_ref()
+                .unwrap()
+                .board_interaction_number
+        }
+    };
+
+    println!(
+        "UNDO AFTER VALIDATION!! Player: {}, board_interaction_number: {}",
+        frontend_player, board_int_num
+    );
 
     // Get the playable board dimensions
     let (rows, cols) = get_playable_dimensions(&room.board);
 
     // Convert board state to string format for frontend, excluding sentinel borders
-    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows].iter()
+    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows]
+        .iter()
         .map(|row| {
-            row[1..=cols].iter()
+            row[1..=cols]
+                .iter()
                 .map(|&color| color_to_string(color))
                 .collect()
         })
         .collect();
 
-    Ok(Json(GameState::new(
-        "Undo successful".to_string(),
-        board_state,
-        &room.board,
-        room.board_interaction_number
-    ).with_stones_in_atari(room.board.stones_in_atari.clone())))
+    Ok(Json(
+        GameState::new(
+            "Undo successful".to_string(),
+            board_state,
+            &room.board,
+            board_int_num,
+        )
+        .with_stones_in_atari(room.board.stones_in_atari.clone()),
+    ))
+}
+
+fn get_board_interaction_number(player: PlayerSession) -> usize {
+    player.board_interaction_number
+}
+
+fn game_data_not_accessible() -> Result<Json<GameState>> {
+    Ok(Json(
+        GameState::new(
+            "Game data not accessible".to_string(),
+            vec![],
+            &Board::new(15, 15, 1.5),
+            0,
+        )
+        .with_rejoin_required(),
+    ))
 }
 
 #[derive(Deserialize)]
 struct SyncBoardsPayload {
     match_string: String,
+    player: String,
 }
 
 #[handler]
@@ -484,9 +681,11 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
 
     let (rows, cols) = get_playable_dimensions(&room.board);
 
-    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows].iter()
+    let board_state: Vec<Vec<String>> = room.board.fields[1..=rows]
+        .iter()
         .map(|row| {
-            row[1..=cols].iter()
+            row[1..=cols]
+                .iter()
                 .map(|&color| color_to_string(color))
                 .collect()
         })
@@ -497,21 +696,38 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
         .or_insert((Vec::new(), Vec::new()));
 
     let game_state = match room.board.get_winner() {
-        Some(winner) => {
-            GameState::new(
-                format!("Game over! Winner: {}", winner.to_string()),
-                board_state.clone(),
-                &room.board,
-                room.board_interaction_number
-            ).with_winner(winner.to_string())
-        },
+        Some(winner) => GameState::new(
+            format!("Game over! Winner: {}", winner.to_string()),
+            board_state.clone(),
+            &room.board,
+            0,
+        )
+        .with_winner(winner.to_string()),
         None => {
-                GameState::new(
+            let board_int_num = match payload.player.as_ref() {
+                "black" => {
+                    if let Some(player) = &room.players.black {
+                        player.board_interaction_number
+                    } else {
+                        return game_data_not_accessible();
+                    }
+                }
+                "white" => {
+                    if let Some(player) = &room.players.white {
+                        player.board_interaction_number
+                    } else {
+                        return game_data_not_accessible();
+                    }
+                }
+                _ => 0,
+            };
+            GameState::new(
                 "Current board state sent".to_string(),
                 board_state.clone(),
                 &room.board,
-                room.board_interaction_number
-            ).with_guess_stones(black_stones.clone(), white_stones.clone())
+                board_int_num,
+            )
+            .with_guess_stones(black_stones.clone(), white_stones.clone())
             .with_stones_in_atari(room.board.stones_in_atari.clone())
         }
     };
@@ -523,15 +739,19 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
 async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameResponse>, Error> {
     let mut rooms = lock_rooms()?;
 
-    let room = rooms.entry(payload.match_string.clone())
+    let room = rooms
+        .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
     if payload.is_spectator {
         return Ok(Json(JoinGameResponse {
             color: "spectator".to_string(),
-            redirect_url: format!("{}?match={}&token=", "/frontend/main.html", payload.match_string),
+            redirect_url: format!(
+                "{}?match={}&token=",
+                "/frontend/main.html", payload.match_string
+            ),
             session_token: String::new(),
-        }))
+        }));
     }
 
     let (color, url, session_token) = match (&room.players.black, &room.players.white) {
@@ -544,34 +764,38 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 room.players.black = Some(PlayerSession {
                     color: Player::Black,
                     session_token: new_token.clone(),
+                    board_interaction_number: 0,
                 });
                 ("black", "/frontend/black.html", new_token)
             } else {
                 room.players.white = Some(PlayerSession {
                     color: Player::White,
                     session_token: new_token.clone(),
+                    board_interaction_number: 0,
                 });
                 ("white", "/frontend/white.html", new_token)
             }
-        },
+        }
         (Some(_black), None) => {
             // Second player - gets opposite color
             let new_token = uuid::Uuid::new_v4().to_string();
             room.players.white = Some(PlayerSession {
                 color: Player::White,
                 session_token: new_token.clone(),
+                board_interaction_number: 0,
             });
             ("white", "/frontend/white.html", new_token)
-        },
+        }
         (None, Some(_white)) => {
             // Second player - gets opposite color
             let new_token = uuid::Uuid::new_v4().to_string();
-            room.players.white = Some(PlayerSession {
+            room.players.black = Some(PlayerSession {
                 color: Player::Black,
                 session_token: new_token.clone(),
+                board_interaction_number: 0,
             });
             ("black", "/frontend/black.html", new_token)
-        },
+        }
         (Some(black), Some(white)) => {
             // Both players exist - check session token
             if let Some(token) = &payload.session_token {
@@ -591,8 +815,11 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     // Return the response with session token
     Ok(Json(JoinGameResponse {
         color: color.to_string(),
-        redirect_url: format!("{}?match={}&token={}", url, payload.match_string, session_token),
-        session_token
+        redirect_url: format!(
+            "{}?match={}&token={}",
+            url, payload.match_string, session_token
+        ),
+        session_token,
     }))
 }
 
@@ -616,15 +843,31 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String
     {
         let mut rooms = lock_rooms()?;
         let mut room = get_room(&mut rooms, &payload.match_string)?;
-        room.board_interaction_number += 1;
+
+        match payload.color.as_str() {
+            "black" => {
+                room.players
+                    .white
+                    .as_mut()
+                    .unwrap()
+                    .board_interaction_number = payload.board_interaction_number;
+            }
+            _ => {
+                room.players
+                    .black
+                    .as_mut()
+                    .unwrap()
+                    .board_interaction_number = payload.board_interaction_number;
+            }
+        };
     }
-       
+
     {
         let mut guess_stones = lock_guess_stones()?;
         let stones = get_stones_mut(&mut guess_stones, &payload.match_string, &payload.color);
         *stones = payload.stones.clone();
     }
-    
+
     Ok(Json("Stones synced".to_string()))
 }
 
@@ -638,7 +881,12 @@ fn json_error(msg: &str, status: StatusCode) -> Error {
         Response::builder()
             .status(status)
             .content_type("application/json")
-            .body(serde_json::to_string(&ErrorResponse { error: msg.to_string() }).unwrap())
+            .body(
+                serde_json::to_string(&ErrorResponse {
+                    error: msg.to_string(),
+                })
+                .unwrap(),
+            ),
     )
 }
 
@@ -646,27 +894,76 @@ fn json_error(msg: &str, status: StatusCode) -> Error {
 async fn reset_memory() {
     let mut rooms = GAME_ROOMS.lock().unwrap();
     rooms.clear();
-    
+
     let mut guess_stones = GUESS_STONES.lock().unwrap();
     guess_stones.clear();
+}
+
+#[handler]
+async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<String, Error> {
+    let mut rooms = lock_rooms()?;
+    let mut room = get_room(&mut rooms, &payload.match_string)?;
+
+    Ok(room.board.get_game_sgf().clone())
+}
+
+#[derive(rust_embed::Embed)]
+#[folder = "../frontend"]
+struct Asset;
+
+struct StaticEmbed;
+
+#[async_trait]
+impl Endpoint for StaticEmbed {
+    type Output = Response;
+
+    async fn call(&self, req: Request) -> Result<Self::Output> {
+        if req.method() != Method::GET {
+            return Ok(StatusCode::METHOD_NOT_ALLOWED.into());
+        }
+        let path = req
+            .uri()
+            .path()
+            .trim_start_matches('/')
+            .trim_end_matches('/')
+            .to_string();
+        match Asset::get(path.as_ref()) {
+            Some(content) => {
+                let hash = hex::encode(content.metadata.sha256_hash());
+                if req
+                    .headers()
+                    .get(header::IF_NONE_MATCH)
+                    .map(|etag| etag.to_str().unwrap_or("DEADBEEF").eq(&hash))
+                    .unwrap_or(false)
+                {
+                    return Ok(StatusCode::NOT_MODIFIED.into());
+                }
+
+                let body: Vec<u8> = content.data.into();
+                let mime = mime_guess::from_path(path).first_or_octet_stream();
+                Ok(Response::builder()
+                    .header(header::CONTENT_TYPE, mime.as_ref())
+                    .header(header::ETAG, hash)
+                    .body(body))
+            }
+            None => Ok(Response::builder().status(StatusCode::NOT_FOUND).finish()),
+        }
+    }
 }
 
 pub async fn start_server() -> Result<(), std::io::Error> {
     // Load .env file if it exists
     let _ = dotenv::dotenv();
 
-    // Get frontend origin from environment variable, fallback to default
-    let frontend_origin = env::var("FRONTEND_ORIGIN")
-        .unwrap_or_else(|_| "http://127.0.0.1:5501".to_string());
+    // Get bind addr from environment variable, fallback to default
+    let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8000".to_string());
 
     let cors = Cors::new()
-        .allow_origin(frontend_origin.clone()) // Allow the frontend origin
         .allow_methods(vec!["POST", "GET"])
         .allow_headers(vec!["Content-Type"]); // Allow Content-Type header
 
     let app = Route::new()
-    .at("/", poem::get(root_endpoint))
-    .at("/join-game", poem::post(join_game))
+        .at("/join-game", poem::post(join_game))
         .at("/cell-click", poem::post(cell_click))
         .at("/dimensions", poem::post(get_dimensions))
         .at("/undo", poem::post(undo))
@@ -677,11 +974,11 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
+        .at("/get-game-record", poem::post(send_game_record))
+        .at("/", poem::get(index))
+        .nest("/frontend", StaticEmbed)
         .with(cors);
 
-    println!("Server running at http://127.0.0.1:8000");
-    println!("Allowed frontend origin: {}", frontend_origin);
-    Server::new(TcpListener::bind("127.0.0.1:8000"))
-        .run(app)
-        .await
+    println!("Server running at {}", bind_addr);
+    Server::new(TcpListener::bind(bind_addr)).run(app).await
 }

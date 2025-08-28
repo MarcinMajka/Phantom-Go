@@ -4,7 +4,6 @@ import {
   addHoverEffect,
   createButton,
   handleGameButtonsAfterGame,
-  highlightStonesInAtari,
   showStonesInAtari,
   showElement,
   drawGridLines,
@@ -15,18 +14,15 @@ import {
   fetchWithErrorHandling,
   getBoardSVG,
   addBackground,
-  toSvgCoords,
   getFillColor,
-  calculateBoardGeometry,
-  getStarPoints,
   getStone,
   cellSize,
-  padding,
   SVG_SIZE,
   createCircleSVG,
   getMatchString,
   getAPIUrl,
   getPlayerColor,
+  getPlayerSessionToken,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -36,13 +32,13 @@ import {
   addingGuessStone,
   removingGuessStone,
   getGroupRequest,
+  downloadSGFButtonHandler,
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
 
 let boardInteractionNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
-let shouldSync = true;
 let boardState = [];
 const guessStones = {
   black: [],
@@ -73,15 +69,15 @@ function createBoard(rows, cols) {
 
   // Add the SVG to the page
   if (playerColor === "spectator") {
-    document.getElementById("main-board").appendChild(boards.main);
-    document.getElementById("black-player-board").appendChild(boards.black);
-    document.getElementById("white-player-board").appendChild(boards.white);
+    elements.boards.main.appendChild(boards.main);
+    elements.boards.black.appendChild(boards.black);
+    elements.boards.white.appendChild(boards.white);
   } else if (playerColor === "black") {
     addClickAreas(boards.black, rows, cols, "black");
-    document.getElementById("black-player-board").appendChild(boards.black);
+    elements.boards.black.appendChild(boards.black);
   } else if (playerColor === "white") {
     addClickAreas(boards.white, rows, cols, "white");
-    document.getElementById("white-player-board").appendChild(boards.white);
+    elements.boards.white.appendChild(boards.white);
   }
 }
 
@@ -118,6 +114,8 @@ function addClickAreas(board, rows, cols, playerBoard) {
               row: parseInt(row),
               col: parseInt(col),
               match_string: getMatchString(),
+              session_token: getPlayerSessionToken(),
+              board_interaction_number: boardInteractionNumber,
             }),
           })
             .then((response) => {
@@ -128,8 +126,12 @@ function addClickAreas(board, rows, cols, playerBoard) {
               return response.json();
             })
             .then((data) => {
+              boardInteractionNumber = data.board_interaction_number;
+              console.log(
+                "Successful move! Board interaction number: ",
+                boardInteractionNumber
+              );
               stonesInAtari = data.stones_in_atari;
-
               boardState = data.board;
 
               // Update UI board based on server's game state
@@ -162,7 +164,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  shouldSync = false; // Disable syncing while sending guess stones
   boardInteractionNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
@@ -173,19 +174,16 @@ function sendGuessStonesToBackend(color, stones) {
       color: color,
       stones: stones,
       match_string: getMatchString(),
+      board_interaction_number: boardInteractionNumber,
     }),
   })
     .then((response) => {
-      shouldSync = true; // Re-enable syncing after sending guess stones
-
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       return response.json();
     })
     .catch((error) => {
-      shouldSync = true; // Re-enable syncing after sending guess stones
-
       console.error("Error syncing guess stones:", error);
     });
 }
@@ -224,37 +222,13 @@ function removeStone(row, col) {
     }
   }
 
+  updateBoard(boardState, stonesInAtari);
+
   if (colorRemoved === "black") {
     sendGuessStonesToBackend("black", guessStones.black);
   } else if (colorRemoved === "white") {
     sendGuessStonesToBackend("white", guessStones.white);
   }
-
-  /*
-    This fetch removes this bug:
-      1. Play a move
-      2. Undo it
-      3. Add a guess stone
-      4. Remove it
-    Expected result: original move is not displayed
-    Actual result: original move is displayed
-  */
-  fetchWithErrorHandling(`${API_URL}/sync-boards`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      match_string: getMatchString(),
-      player: playerColor,
-    }),
-  }).then((data) => {
-    boardState = data.board;
-    stonesInAtari = data.stones_in_atari;
-    updateBoard(boardState, stonesInAtari);
-    updateCaptures(data.black_captures, data.white_captures);
-    updateTurn(data.current_player);
-  });
 }
 
 function placeStone(stoneColor, row, col) {
@@ -330,61 +304,61 @@ function syncBoards() {
         }
       })
       .then((data) => {
-        if (shouldSync) {
-          console.log(
-            "Board interaction number: " + data.board_interaction_number
-          );
+        console.log("Server response:", data.message);
 
-          console.log("Server response:", data.message);
-          failedAttempts = 0; // Reset counter on success
+        if (data.rejoin_required) {
+          clearTimeout(syncIntervalId);
+          alert("Game data lost. Please rejoin via login page :)");
+          setTimeout(() => {
+            window.location.href = `${getAPIUrl()}/frontend/index.html`;
+          }, 2000);
+        }
 
-          console.log("winner:", data.winner);
-          if (data.winner) {
-            isWinnerDecided = true;
-            const res = createButton("resign-result", data.winner + " + R");
-            elements.infoContainer.innerHTML = "";
-            elements.infoContainer.appendChild(res);
-            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
-            document.removeEventListener;
-          }
+        failedAttempts = 0; // Reset counter on success
+        console.log(
+          "Board interaction number: ",
+          data.board_interaction_number
+        );
 
-          if (data.board_interaction_number > boardInteractionNumber) {
-            console.log("Refreshing board...");
+        if (boardInteractionNumber > data.board_interaction_number) {
+          console.log("boardInteractionNumber > data.board_interaction_number");
+          setTimeout(sync, retryInterval);
+          return;
+        }
 
-            guessStones.black = data.black_guess_stones;
-            guessStones.white = data.white_guess_stones;
+        if (data.winner) {
+          isWinnerDecided = true;
+          const res = createButton("resign-result", data.winner + " + R");
+          elements.infoContainer.innerHTML = "";
+          elements.infoContainer.appendChild(res);
+          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+          document.removeEventListener;
+        }
 
-            updateBoard(data.board, data.stones_in_atari);
-            boardInteractionNumber = data.board_interaction_number;
-          } else {
-            console.log(
-              "Skipping board update, interaction number " +
-                data.board_interaction_number +
-                " is not newer than expected " +
-                boardInteractionNumber
-            );
-          }
+        guessStones.black = data.black_guess_stones;
+        guessStones.white = data.white_guess_stones;
 
-          updateCaptures(data.black_captures, data.white_captures);
-          updateTurn(data.current_player);
+        updateBoard(data.board, data.stones_in_atari);
+        updateCaptures(data.black_captures, data.white_captures);
+        updateTurn(data.current_player);
 
-          if (data.counting) {
-            countingPhase = true;
-            handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
-            if (playerColor === "spectator") {
-              showElement(document.getElementById(".main-board-buttons"));
-            }
-          }
-
-          if (countingPhase || isWinnerDecided) {
-            clearInterval(syncIntervalId);
-            console.log(data.current_player);
-            updateTurn(data.current_player);
-
-            console.log("Counting or game finished, stopping sync.");
-            return;
+        if (data.counting) {
+          countingPhase = true;
+          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+          if (playerColor === "spectator") {
+            showElement(document.getElementById(".main-board-buttons"));
           }
         }
+
+        if (countingPhase || isWinnerDecided) {
+          clearInterval(syncIntervalId);
+          console.log(data.current_player);
+          updateTurn(data.current_player);
+
+          console.log("Counting or game finished, stopping sync.");
+          return;
+        }
+
         setTimeout(sync, retryInterval); // Schedule next sync
       });
   }
@@ -432,6 +406,7 @@ function undoRequest() {
     body: JSON.stringify({
       match_string: getMatchString(),
       player: playerColor,
+      board_interaction_number: boardInteractionNumber,
     }),
   })
     .then((response) => {
@@ -443,8 +418,14 @@ function undoRequest() {
     .then((data) => {
       console.log("Server response:", data.message);
       if (data.message === "It's not your turn to undo!") {
+        console.log(
+          "Board interaction number: ",
+          data.board_interaction_number
+        );
         return;
       }
+      console.log("Board interaction number: ", data.board_interaction_number);
+      boardInteractionNumber = data.board_interaction_number;
       boardState = data.board;
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
@@ -459,4 +440,5 @@ undoButtonHandler();
 passButtonHandler();
 guessStonesButtonsHandler();
 countScoreButtonHandler();
+downloadSGFButtonHandler();
 resignButtonHandler();
