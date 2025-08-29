@@ -190,16 +190,17 @@ export function getMatchString() {
 // TODO: using Live Server doesn't work, need to update this for convenience
 // Detect if running locally and set API URL accordingly
 export function getAPIUrl() {
-  var loc = window.location;
+  const loc = window.location;
+  const host = loc.host;
 
   // Common local addresses - localhost, loopback, LAN IP ranges
   const isLocal =
-    loc.host === "localhost" ||
-    loc.host === "127.0.0.1" ||
-    loc.host === "::1" ||
-    /^192\.168\./.test(loc.host) ||
-    /^10\./.test(loc.host) ||
-    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(loc.host);
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    /^192\.168\./.test(host) ||
+    /^10\./.test(host) ||
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host);
 
   if (isLocal) {
     return "http://localhost:8000";
@@ -209,7 +210,7 @@ export function getAPIUrl() {
     return "https://phantom-go.kraftartz.space/api";
   }
 
-  var u = new URL(loc.origin);
+  const u = new URL(loc.origin);
   return u.toString().slice(0, -1); // remove trailing '/'
 }
 
