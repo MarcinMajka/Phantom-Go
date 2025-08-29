@@ -192,7 +192,16 @@ export function getMatchString() {
 export function getAPIUrl() {
   var loc = window.location;
 
-  if (loc.hostname == "localhost" || loc.hostname == "127.0.0.1") {
+  // Common local addresses - localhost, loopback, LAN IP ranges
+  const isLocal =
+    loc.host === "localhost" ||
+    loc.host === "127.0.0.1" ||
+    loc.host === "::1" ||
+    /^192\.168\./.test(loc.host) ||
+    /^10\./.test(loc.host) ||
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(loc.host);
+
+  if (isLocal) {
     return "http://localhost:8000";
   }
 
