@@ -191,14 +191,17 @@ export function getMatchString() {
 // Detect if running locally and set API URL accordingly
 export function getAPIUrl() {
   var loc = window.location;
+
   if (loc.hostname == "localhost" || loc.hostname == "127.0.0.1") {
     return "http://localhost:8000";
-  } else if (loc.hostname == "phantom-go.kraftartz.space") {
-    return "https://phantom-go.kraftartz.space/api";
-  } else {
-    var u = new URL(loc.origin);
-    return u.toString().slice(0, -1); // remove trailing '/'
   }
+
+  if (loc.hostname == "phantom-go.kraftartz.space") {
+    return "https://phantom-go.kraftartz.space/api";
+  }
+
+  var u = new URL(loc.origin);
+  return u.toString().slice(0, -1); // remove trailing '/'
 }
 
 export function getPlayerColor() {
