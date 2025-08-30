@@ -191,7 +191,7 @@ export function getMatchString() {
 // Detect if running locally and set API URL accordingly
 export function getAPIUrl() {
   const loc = window.location;
-  const host = loc.host;
+  const host = loc.hostname;
 
   // Common local addresses - localhost, loopback, LAN IP ranges
   const isLocal =
