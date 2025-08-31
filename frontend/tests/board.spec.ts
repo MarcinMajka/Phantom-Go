@@ -48,25 +48,6 @@ test("Confirm the second joining user has the other color", async ({
   }
 });
 
-async function verifySpectatorState(page: Page) {
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
-
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
-}
-
-async function createUserAndJoinMatch(browser: Browser, matchString: string) {
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("button").click();
-
-  return { context, page };
-}
-
 test("Confirm subsequent joining users are spectators", async ({ browser }) => {
   const RUNS = 50;
 
@@ -103,23 +84,6 @@ test("Add/remove guess stone and check its status after each click", async ({
     expect(emptyField).toBeVisible();
   }
 });
-
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-// Helper: click center of provided box
-async function clickCenter(page: Page, box: BoundingBox | null) {
-  if (!box) throw new Error("Bounding box is null");
-
-  const x = box.x + box.width / 2;
-  const y = box.y + box.width / 2;
-
-  await page.mouse.click(x, y);
-}
 
 test("Add/remove guess stone and check its status after all the clicks", async ({
   page,
@@ -276,4 +240,40 @@ async function startGameWithRandomID(page: Page) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(generateMatchID());
   await page.locator("button").click();
+}
+
+async function verifySpectatorState(page: Page) {
+  const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
+
+  await expect(playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+}
+
+async function createUserAndJoinMatch(browser: Browser, matchString: string) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(matchString);
+  await page.locator("button").click();
+
+  return { context, page };
+}
+
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// Helper: click center of provided box
+async function clickCenter(page: Page, box: BoundingBox | null) {
+  if (!box) throw new Error("Bounding box is null");
+
+  const x = box.x + box.width / 2;
+  const y = box.y + box.width / 2;
+
+  await page.mouse.click(x, y);
 }
