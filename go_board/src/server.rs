@@ -1,6 +1,5 @@
 use crate::board::{Board, Color, Loc, Move, Player, StonesInAtari};
 use lazy_static::lazy_static;
-use poem::listener::BoxIo;
 use poem::{
     async_trait, handler,
     http::{header, Method, StatusCode},
