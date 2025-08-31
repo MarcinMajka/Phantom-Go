@@ -2,9 +2,7 @@ import { test, expect, Page, Browser } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test("Start game", async ({ page }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("button").click();
+  startGameWithRandomID(page);
 
   const playerTitle = page.locator("#player-title");
   const boardContainer = page.locator("#board-container");
@@ -90,9 +88,8 @@ test("Confirm subsequent joining users are spectators", async ({ browser }) => {
 test("Add/remove guess stone and check its status after each click", async ({
   page,
 }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("button").click();
+  startGameWithRandomID(page);
+
   await page.locator("#guess-stone-button").click();
   await page.locator("#remove-stone-button").click();
 
@@ -128,9 +125,8 @@ test("Add/remove guess stone and check its status after all the clicks", async (
   page,
   context,
 }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("button").click();
+  startGameWithRandomID(page);
+
   await page.locator("#guess-stone-button").click();
   await page.locator("#remove-stone-button").click();
 
@@ -155,9 +151,8 @@ test("Add/remove guess stone and check its status after all the clicks", async (
 test("Add then remove all guess stones in quick succession", async ({
   page,
 }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("button").click();
+  startGameWithRandomID(page);
+
   await page.locator("#guess-stone-button").click();
 
   for (let i = 33; i < 202; i++) {
@@ -187,9 +182,7 @@ test("Add then remove all guess stones in quick succession", async ({
 
 test.describe("Throttling", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/frontend/index.html");
-    await page.locator("#match-string").fill(generateMatchID());
-    await page.locator("button").click();
+    startGameWithRandomID(page);
 
     await page.waitForLoadState("networkidle");
 
@@ -277,4 +270,10 @@ function generateMatchID() {
     Math.random().toString(36).substring(2) +
     Math.random().toString(36).substring(2)
   );
+}
+
+async function startGameWithRandomID(page: Page) {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("button").click();
 }
