@@ -279,8 +279,6 @@ function syncBoards() {
   let failedAttempts = 0;
   const maxRetries = 3;
 
-  const syncIntervalId = setTimeout(sync, retryInterval);
-
   function sync() {
     fetchWithErrorHandling(`${API_URL}/sync-boards`, {
       method: "POST",
@@ -293,13 +291,15 @@ function syncBoards() {
       }),
     })
       .catch((error) => {
-        setTimeout(sync, retryInterval);
         failedAttempts++;
         console.error(
           `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
           error
         );
-        if (failedAttempts >= maxRetries) {
+
+        if (failedAttempts < maxRetries) {
+          setTimeout(sync, retryInterval);
+        } else {
           console.error("Max retry attempts reached. Please refresh the page.");
         }
       })
@@ -307,11 +307,11 @@ function syncBoards() {
         console.log("Server response:", data.message);
 
         if (data.rejoin_required) {
-          clearTimeout(syncIntervalId);
           alert("Game data lost. Please rejoin via login page :)");
           setTimeout(() => {
             window.location.href = `${getAPIUrl()}/frontend/index.html`;
           }, 2000);
+          return; // stop syncing
         }
 
         failedAttempts = 0; // Reset counter on success
@@ -333,6 +333,7 @@ function syncBoards() {
           elements.infoContainer.appendChild(res);
           handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
           document.removeEventListener;
+          return;
         }
 
         guessStones.black = data.black_guess_stones;
@@ -351,17 +352,17 @@ function syncBoards() {
         }
 
         if (countingPhase || isWinnerDecided) {
-          clearInterval(syncIntervalId);
           console.log(data.current_player);
           updateTurn(data.current_player);
-
           console.log("Counting or game finished, stopping sync.");
           return;
         }
 
-        setTimeout(sync, retryInterval); // Schedule next sync
+        setTimeout(sync, retryInterval);
       });
   }
+
+  setTimeout(sync, retryInterval);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
