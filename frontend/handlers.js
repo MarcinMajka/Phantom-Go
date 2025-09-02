@@ -94,7 +94,9 @@ function countScoreRequest() {
 }
 
 export function downloadSGFButtonHandler() {
-  elements.downloadSGF.addEventListener("click", downloadSGFRequest);
+  if (elements.downloadSGF) {
+    elements.downloadSGF.addEventListener("click", downloadSGFRequest);
+  }
 }
 
 async function downloadSGFRequest() {
