@@ -12,10 +12,7 @@ test("Start game", async ({ page }) => {
 });
 
 test("Start game as a spectator", async ({ page }) => {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("#spectator-checkbox").click();
-  await page.locator("button").click();
+  startGameAsSpectator(page, generateMatchID());
 
   const playerTitle = page.locator("#player-title");
   const boardContainer = page.locator("#board-container");
@@ -239,6 +236,13 @@ function generateMatchID() {
 async function startGameWithRandomID(page: Page) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("button").click();
+}
+
+async function startGameAsSpectator(page: Page, mathString: string) {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(mathString);
+  await page.locator("#spectator-checkbox").click();
   await page.locator("button").click();
 }
 
