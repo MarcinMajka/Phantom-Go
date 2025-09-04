@@ -226,3 +226,7 @@ svg {
 .main-board-buttons {
     visibility: hidden;
 }
+
+#go-to-main-board-button {
+  visibility: hidden;
+}

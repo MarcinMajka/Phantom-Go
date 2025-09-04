@@ -33,6 +33,7 @@ import {
   removingGuessStone,
   getGroupRequest,
   downloadSGFButtonHandler,
+  goToMainBoardButtonHandler,
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
 
@@ -331,7 +332,7 @@ function syncBoards() {
           const res = createButton("resign-result", data.winner + " + R");
           elements.infoContainer.innerHTML = "";
           elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+          handleGameButtonsAfterGame(isWinnerDecided);
           document.removeEventListener;
           return;
         }
@@ -345,7 +346,7 @@ function syncBoards() {
 
         if (data.counting) {
           countingPhase = true;
-          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
+          handleGameButtonsAfterGame(isWinnerDecided);
           if (playerColor === "spectator") {
             showElement(document.getElementById(".main-board-buttons"));
           }
@@ -443,3 +444,4 @@ guessStonesButtonsHandler();
 countScoreButtonHandler();
 downloadSGFButtonHandler();
 resignButtonHandler();
+goToMainBoardButtonHandler();

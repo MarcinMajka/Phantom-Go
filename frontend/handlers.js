@@ -128,6 +128,14 @@ async function downloadSGFRequest() {
     });
 }
 
+export function goToMainBoardButtonHandler() {
+  if (elements.mainBoardLink) {
+    elements.mainBoardLink.addEventListener("click", () => {
+      window.location.href = "/frontend/main.html?match=" + getMatchString();
+    });
+  }
+}
+
 export function passButtonHandler() {
   if (elements.pass) {
     elements.pass.addEventListener("click", passRequest);

@@ -57,7 +57,7 @@ export function createDiv(id, className) {
 
 let buttonsWereHandledAfterGame = false;
 
-export function handleGameButtonsAfterGame(matchString, isGameOver) {
+export function handleGameButtonsAfterGame(isGameOver) {
   if (buttonsWereHandledAfterGame) return;
 
   buttonsWereHandledAfterGame = true;
@@ -69,16 +69,9 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
     }
   }
 
-  if (!window.location.pathname.includes("main.html")) {
-    const mainBoardButton = createLinkToMainBoard(matchString);
-    elements.infoContainer.appendChild(mainBoardButton);
+  if (elements.mainBoardLink) {
+    elements.mainBoardLink.style.visibility = "visible";
   }
-}
-
-function createLinkToMainBoard(matchString) {
-  return createButton("main-board-button", "Main Board", () => {
-    window.location.href = "/frontend/main.html?match=" + matchString;
-  });
 }
 
 export function highlightStonesInAtari(stones) {
