@@ -11,7 +11,6 @@ export const elements = {
     black: document.getElementById("black-captures"),
     white: document.getElementById("white-captures"),
   },
-  // TODO: do we really need both add and remove separately?
   guessStone: document.getElementById("guess-stone-button"),
   countScore: document.getElementById("count-score-button"),
   downloadSGF: document.getElementById("download-sgf"),
