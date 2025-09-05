@@ -173,25 +173,15 @@ function passRequest() {
 }
 
 export function guessStonesButtonsHandler() {
-  if (elements.addStone) {
-    elements.addStone.addEventListener("click", () => {
+  if (elements.guessStone) {
+    elements.guessStone.addEventListener("click", () => {
       console.log("Add stone button clicked");
-      elements.addStone.classList.toggle("clicked");
-      if (elements.addStone.classList.contains("clicked")) {
+      elements.guessStone.classList.toggle("clicked");
+      if (elements.guessStone.classList.contains("clicked")) {
         addingGuessStone = true;
-      } else {
-        addingGuessStone = false;
-      }
-    });
-  }
-
-  if (elements.removeStone) {
-    elements.removeStone.addEventListener("click", () => {
-      console.log("Remove stone button clicked");
-      elements.removeStone.classList.toggle("clicked");
-      if (elements.removeStone.classList.contains("clicked")) {
         removingGuessStone = true;
       } else {
+        addingGuessStone = false;
         removingGuessStone = false;
       }
     });
