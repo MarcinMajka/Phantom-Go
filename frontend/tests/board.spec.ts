@@ -69,7 +69,6 @@ test("Add/remove guess stone and check its status after each click", async ({
   startGameWithRandomID(page);
 
   await page.locator("#guess-stone-button").click();
-  await page.locator("#remove-stone-button").click();
 
   const guessStone = page.locator(".stone");
   const emptyField = page.locator("circle:nth-child(130)");
@@ -89,7 +88,6 @@ test("Add/remove guess stone and check its status after all the clicks", async (
   startGameWithRandomID(page);
 
   await page.locator("#guess-stone-button").click();
-  await page.locator("#remove-stone-button").click();
 
   const board = page.locator("svg");
   const box = await board.boundingBox();
@@ -125,8 +123,6 @@ test("Add then remove all guess stones in quick succession", async ({
 
   expect(count).toBe(169);
 
-  await page.locator("#remove-stone-button").click();
-
   const stoneSelectors: string[] = [];
   for (let i = 0; i < count; i++) {
     const row = await guessStones.nth(i).getAttribute("data-row");
@@ -148,7 +144,6 @@ test.describe("Throttling", () => {
     await page.waitForLoadState("networkidle");
 
     await page.locator("#guess-stone-button").click();
-    await page.locator("#remove-stone-button").click();
   });
 
   test("3G: Add then remove all guess stones in quick succession", async ({
