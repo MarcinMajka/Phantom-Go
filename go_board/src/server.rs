@@ -668,6 +668,22 @@ struct SyncBoardsPayload {
 }
 
 #[handler]
+async fn send_board_interaction_number(
+    payload: Json<SyncBoardsPayload>,
+) -> Result<Json<usize>, Error> {
+    let mut rooms = lock_rooms()?;
+    let room = rooms
+        .entry(payload.match_string.clone())
+        .or_insert_with(GameRoom::new);
+    let player_session = match payload.player.as_ref() {
+        "black" => room.players.black.as_ref().unwrap(),
+        _ => room.players.white.as_ref().unwrap(),
+    };
+
+    Ok(Json(get_board_interaction_number(player_session.clone())))
+}
+
+#[handler]
 async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
 
@@ -970,6 +986,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
+        .at("/get-board-interaction-number", poem::post(send_board_interaction_number))
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
