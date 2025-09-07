@@ -146,6 +146,7 @@ struct GuessStonesSync {
 struct PlayerSession {
     // Keep color for move validation
     color: Player,
+
     session_token: String,
     board_interaction_number: usize,
 }
@@ -667,20 +668,43 @@ struct SyncBoardsPayload {
     player: String,
 }
 
+#[derive(Serialize)]
+struct GameInfo {
+    board_interaction_number: usize,
+    turn: String,
+    black_captures: isize,
+    white_captures: isize,
+}
+
 #[handler]
 async fn send_board_interaction_number(
     payload: Json<SyncBoardsPayload>,
-) -> Result<Json<usize>, Error> {
+) -> Result<Json<GameInfo>, Error> {
     let mut rooms = lock_rooms()?;
     let room = rooms
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
-    let player_session = match payload.player.as_ref() {
-        "black" => room.players.black.as_ref().unwrap(),
-        _ => room.players.white.as_ref().unwrap(),
+
+    let data = match payload.player.as_ref() {
+        "black" => GameInfo {
+            board_interaction_number: get_board_interaction_number(
+                room.players.black.as_ref().unwrap().clone(),
+            ),
+            turn: room.board.get_current_player().to_string(),
+            black_captures: room.board.get_black_captures(),
+            white_captures: room.board.get_white_captures(),
+        },
+        _ => GameInfo {
+            board_interaction_number: get_board_interaction_number(
+                room.players.black.as_ref().unwrap().clone(),
+            ),
+            turn: room.board.get_current_player().to_string(),
+            black_captures: room.board.get_black_captures(),
+            white_captures: room.board.get_white_captures(),
+        },
     };
 
-    Ok(Json(get_board_interaction_number(player_session.clone())))
+    Ok(Json(data))
 }
 
 #[handler]
@@ -986,7 +1010,10 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
-        .at("/get-board-interaction-number", poem::post(send_board_interaction_number))
+        .at(
+            "/get-board-interaction-number",
+            poem::post(send_board_interaction_number),
+        )
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
