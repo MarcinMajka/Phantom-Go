@@ -296,6 +296,7 @@ function syncBoards() {
         data.board_interaction_number
       );
 
+      // TODO: this might not be the best implementation of the idea - if white captures black stone, it will stay on blacks board, because updateBoard() won't run... Adding it here will defeat the point though. Afaik JS reloads the whole page each time anything changes in the UI, so adding a check here for any change might be a solution
       if (boardInteractionNumber >= data.board_interaction_number) {
         console.log("Not syncing boards!");
         updateTurn(data.turn);
