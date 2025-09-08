@@ -281,7 +281,7 @@ function syncBoards() {
   const maxRetries = 3;
 
   function sync() {
-    fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+    fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -290,77 +290,104 @@ function syncBoards() {
         match_string: getMatchString(),
         player: playerColor,
       }),
-    })
-      .catch((error) => {
-        failedAttempts++;
-        console.error(
-          `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
-          error
-        );
+    }).then((data) => {
+      console.log(
+        "Backend board interaction number:",
+        data.board_interaction_number
+      );
 
-        if (failedAttempts < maxRetries) {
-          setTimeout(sync, retryInterval);
-        } else {
-          console.error("Max retry attempts reached. Please refresh the page.");
-        }
-      })
-      .then((data) => {
-        console.log("Server response:", data.message);
-
-        if (data.rejoin_required) {
-          alert("Game data lost. Please rejoin via login page :)");
-          setTimeout(() => {
-            window.location.href = `${getAPIUrl()}/frontend/index.html`;
-          }, 2000);
-          return; // stop syncing
-        }
-
-        failedAttempts = 0; // Reset counter on success
-        console.log(
-          "Board interaction number: ",
-          data.board_interaction_number
-        );
-
-        if (boardInteractionNumber > data.board_interaction_number) {
-          console.log("boardInteractionNumber > data.board_interaction_number");
-          setTimeout(sync, retryInterval);
-          return;
-        }
-
-        if (data.winner) {
-          isWinnerDecided = true;
-          const res = createButton("resign-result", data.winner + " + R");
-          elements.infoContainer.innerHTML = "";
-          elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(isWinnerDecided);
-          document.removeEventListener;
-          return;
-        }
-
-        guessStones.black = data.black_guess_stones;
-        guessStones.white = data.white_guess_stones;
-
-        updateBoard(data.board, data.stones_in_atari);
-        updateCaptures(data.black_captures, data.white_captures);
-        updateTurn(data.current_player);
-
-        if (data.counting) {
-          countingPhase = true;
-          handleGameButtonsAfterGame(isWinnerDecided);
-          if (playerColor === "spectator") {
-            showElement(document.getElementById(".main-board-buttons"));
-          }
-        }
-
-        if (countingPhase || isWinnerDecided) {
-          console.log(data.current_player);
-          updateTurn(data.current_player);
-          console.log("Counting or game finished, stopping sync.");
-          return;
-        }
+      if (boardInteractionNumber >= data.board_interaction_number) {
+        console.log("Not syncing boards!");
 
         setTimeout(sync, retryInterval);
-      });
+        return;
+      }
+
+      fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          match_string: getMatchString(),
+          player: playerColor,
+        }),
+      })
+        .catch((error) => {
+          failedAttempts++;
+          console.error(
+            `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
+            error
+          );
+
+          if (failedAttempts < maxRetries) {
+            setTimeout(sync, retryInterval);
+          } else {
+            console.error(
+              "Max retry attempts reached. Please refresh the page."
+            );
+          }
+        })
+        .then((data) => {
+          console.log("Server response:", data.message);
+
+          if (data.rejoin_required) {
+            alert("Game data lost. Please rejoin via login page :)");
+            setTimeout(() => {
+              window.location.href = `${getAPIUrl()}/frontend/index.html`;
+            }, 2000);
+            return; // stop syncing
+          }
+
+          failedAttempts = 0; // Reset counter on success
+          console.log(
+            "Board interaction number: ",
+            data.board_interaction_number
+          );
+
+          if (boardInteractionNumber > data.board_interaction_number) {
+            console.log(
+              "boardInteractionNumber > data.board_interaction_number"
+            );
+            setTimeout(sync, retryInterval);
+            return;
+          }
+
+          if (data.winner) {
+            isWinnerDecided = true;
+            const res = createButton("resign-result", data.winner + " + R");
+            elements.infoContainer.innerHTML = "";
+            elements.infoContainer.appendChild(res);
+            handleGameButtonsAfterGame(isWinnerDecided);
+            document.removeEventListener;
+            return;
+          }
+
+          guessStones.black = data.black_guess_stones;
+          guessStones.white = data.white_guess_stones;
+
+          updateBoard(data.board, data.stones_in_atari);
+          updateCaptures(data.black_captures, data.white_captures);
+          updateTurn(data.current_player);
+
+          if (data.counting) {
+            countingPhase = true;
+            handleGameButtonsAfterGame(isWinnerDecided);
+            if (playerColor === "spectator") {
+              showElement(document.getElementById(".main-board-buttons"));
+            }
+          }
+
+          if (countingPhase || isWinnerDecided) {
+            console.log(data.current_player);
+            updateTurn(data.current_player);
+            console.log("Counting or game finished, stopping sync.");
+            return;
+          }
+
+          setTimeout(sync, retryInterval);
+        });
+    });
   }
 
   setTimeout(sync, retryInterval);
