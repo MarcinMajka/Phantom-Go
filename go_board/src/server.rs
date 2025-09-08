@@ -674,6 +674,7 @@ struct GameInfo {
     turn: String,
     black_captures: isize,
     white_captures: isize,
+    stones_in_atari: StonesInAtari,
 }
 
 #[handler]
@@ -693,6 +694,7 @@ async fn send_board_interaction_number(
             turn: room.board.get_current_player().to_string(),
             black_captures: room.board.get_black_captures(),
             white_captures: room.board.get_white_captures(),
+            stones_in_atari: room.board.stones_in_atari.clone(),
         },
         _ => GameInfo {
             board_interaction_number: get_board_interaction_number(
@@ -701,6 +703,7 @@ async fn send_board_interaction_number(
             turn: room.board.get_current_player().to_string(),
             black_captures: room.board.get_black_captures(),
             white_captures: room.board.get_white_captures(),
+            stones_in_atari: room.board.stones_in_atari.clone(),
         },
     };
 

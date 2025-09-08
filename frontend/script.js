@@ -300,6 +300,7 @@ function syncBoards() {
         console.log("Not syncing boards!");
         updateTurn(data.turn);
         updateCaptures(data.black_captures, data.white_captures);
+        showStonesInAtari(data.stones_in_atari);
 
         setTimeout(sync, retryInterval);
         return;
