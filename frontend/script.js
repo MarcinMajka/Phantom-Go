@@ -298,6 +298,8 @@ function syncBoards() {
 
       if (boardInteractionNumber >= data.board_interaction_number) {
         console.log("Not syncing boards!");
+        updateTurn(data.turn);
+        updateCaptures(data.black_captures, data.white_captures);
 
         setTimeout(sync, retryInterval);
         return;
