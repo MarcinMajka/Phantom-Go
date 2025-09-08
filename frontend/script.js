@@ -334,6 +334,7 @@ function syncBoards() {
         .then((data) => {
           console.log("Server response:", data.message);
 
+          // !BUG: since adding pre sync fetch, this part doesn't get triggered when it should
           if (data.rejoin_required) {
             alert("Game data lost. Please rejoin via login page :)");
             setTimeout(() => {
