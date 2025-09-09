@@ -675,6 +675,7 @@ struct GameInfo {
     black_captures: isize,
     white_captures: isize,
     stones_in_atari: StonesInAtari,
+    move_number: usize,
 }
 
 #[handler]
@@ -685,6 +686,7 @@ async fn send_board_interaction_number(
     let room = rooms
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
+    let move_number = room.board.game_history.len();
 
     let data = match payload.player.as_ref() {
         "black" => GameInfo {
@@ -695,6 +697,7 @@ async fn send_board_interaction_number(
             black_captures: room.board.get_black_captures(),
             white_captures: room.board.get_white_captures(),
             stones_in_atari: room.board.stones_in_atari.clone(),
+            move_number,
         },
         _ => GameInfo {
             board_interaction_number: get_board_interaction_number(
@@ -704,6 +707,7 @@ async fn send_board_interaction_number(
             black_captures: room.board.get_black_captures(),
             white_captures: room.board.get_white_captures(),
             stones_in_atari: room.board.stones_in_atari.clone(),
+            move_number,
         },
     };
 
