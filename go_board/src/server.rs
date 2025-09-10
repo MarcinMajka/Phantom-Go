@@ -671,10 +671,6 @@ struct SyncBoardsPayload {
 #[derive(Serialize)]
 struct GameInfo {
     board_interaction_number: usize,
-    turn: String,
-    black_captures: isize,
-    white_captures: isize,
-    stones_in_atari: StonesInAtari,
     move_number: usize,
 }
 
@@ -693,20 +689,12 @@ async fn send_board_interaction_number(
             board_interaction_number: get_board_interaction_number(
                 room.players.black.as_ref().unwrap().clone(),
             ),
-            turn: room.board.get_current_player().to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            stones_in_atari: room.board.stones_in_atari.clone(),
             move_number,
         },
         _ => GameInfo {
             board_interaction_number: get_board_interaction_number(
                 room.players.black.as_ref().unwrap().clone(),
             ),
-            turn: room.board.get_current_player().to_string(),
-            black_captures: room.board.get_black_captures(),
-            white_captures: room.board.get_white_captures(),
-            stones_in_atari: room.board.stones_in_atari.clone(),
             move_number,
         },
     };
