@@ -49,6 +49,7 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
+let moveNumber = 0;
 
 const API_URL = getAPIUrl();
 
@@ -295,18 +296,24 @@ function syncBoards() {
         "Backend board interaction number:",
         data.board_interaction_number
       );
-      console.log("Move number: ", data.move_number);
+      console.log("Backend move number: ", data.move_number);
+      console.log("Frontend move number: ", moveNumber);
 
       // TODO: this might not be the best implementation of the idea - if white captures black stone, it will stay on blacks board, because updateBoard() won't run... Adding it here will defeat the point though. Afaik JS reloads the whole page each time anything changes in the UI, so adding a check here for any change might be a solution
-      if (boardInteractionNumber >= data.board_interaction_number) {
+
+      if (
+        data.move_number <= moveNumber &&
+        boardInteractionNumber >= data.board_interaction_number
+      ) {
         console.log("Not syncing boards!");
-        updateTurn(data.turn);
-        updateCaptures(data.black_captures, data.white_captures);
-        showStonesInAtari(data.stones_in_atari);
 
         setTimeout(sync, retryInterval);
         return;
       }
+
+      moveNumber = data.move_number;
+
+      console.log("Frontend move number after check: ", moveNumber);
 
       fetchWithErrorHandling(`${API_URL}/sync-boards`, {
         method: "POST",
