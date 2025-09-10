@@ -299,7 +299,7 @@ function syncBoards() {
       console.log("Backend move number: ", data.move_number);
       console.log("Frontend move number: ", moveNumber);
 
-      // TODO: this might not be the best implementation of the idea - if white captures black stone, it will stay on blacks board, because updateBoard() won't run... Adding it here will defeat the point though. Afaik JS reloads the whole page each time anything changes in the UI, so adding a check here for any change might be a solution
+      // TODO: test this solution
 
       if (
         data.move_number <= moveNumber &&
