@@ -290,6 +290,8 @@ function syncBoards() {
       body: JSON.stringify({
         match_string: getMatchString(),
         player: playerColor,
+        frontendBoardInteractionNumber: boardInteractionNumber,
+        frontendMoveNumber: moveNumber,
       }),
     }).then((data) => {
       console.log(

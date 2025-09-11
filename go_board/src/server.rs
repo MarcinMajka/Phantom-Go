@@ -666,6 +666,8 @@ fn game_data_not_accessible() -> Result<Json<GameState>> {
 struct SyncBoardsPayload {
     match_string: String,
     player: String,
+    frontend_board_interaction_number: usize,
+    frontend_move_number: usize,
 }
 
 #[derive(Serialize)]
