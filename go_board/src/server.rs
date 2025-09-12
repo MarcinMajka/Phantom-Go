@@ -663,7 +663,7 @@ fn game_data_not_accessible() -> Result<Json<GameState>> {
 }
 
 #[derive(Deserialize)]
-struct SyncBoardsPayload {
+struct ShouldSyncBoardsPayload {
     match_string: String,
     player: String,
     frontend_board_interaction_number: usize,
@@ -678,7 +678,7 @@ struct GameInfo {
 
 #[handler]
 async fn send_board_interaction_number(
-    payload: Json<SyncBoardsPayload>,
+    payload: Json<ShouldSyncBoardsPayload>,
 ) -> Result<Json<GameInfo>, Error> {
     let mut rooms = lock_rooms()?;
     let room = rooms
@@ -702,6 +702,12 @@ async fn send_board_interaction_number(
     };
 
     Ok(Json(data))
+}
+
+#[derive(Deserialize)]
+struct SyncBoardsPayload {
+    match_string: String,
+    player: String,
 }
 
 #[handler]
