@@ -686,6 +686,7 @@ async fn send_board_interaction_number(
         .or_insert_with(GameRoom::new);
     let move_number = room.board.game_history.len();
 
+    // !BUG: this part introduced not syncing when opponent undos
     let data = match payload.player.as_ref() {
         "black" => {
             let board_interaction_number =
