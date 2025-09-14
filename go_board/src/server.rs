@@ -148,6 +148,7 @@ struct PlayerSession {
     color: Player,
 
     session_token: String,
+    // TODO: this being here makes it difficult to manage should_sync logic correctly
     board_interaction_number: usize,
 }
 
@@ -170,6 +171,7 @@ impl PlayersState {
 struct GameRoom {
     board: Board,
     players: PlayersState,
+    // TODO: investigate if game_generation_number here, instead of board_interaction_number in PlayerSession would simplify should_sync logic
 }
 
 impl GameRoom {
