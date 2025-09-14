@@ -672,7 +672,7 @@ struct ShouldSyncBoardsPayload {
 
 #[derive(Serialize)]
 struct GameInfo {
-    board_interaction_number: usize,
+    should_sync: bool,
     move_number: usize,
 }
 
@@ -687,18 +687,26 @@ async fn send_board_interaction_number(
     let move_number = room.board.game_history.len();
 
     let data = match payload.player.as_ref() {
-        "black" => GameInfo {
-            board_interaction_number: get_board_interaction_number(
-                room.players.black.as_ref().unwrap().clone(),
-            ),
-            move_number,
-        },
-        _ => GameInfo {
-            board_interaction_number: get_board_interaction_number(
-                room.players.black.as_ref().unwrap().clone(),
-            ),
-            move_number,
-        },
+        "black" => {
+            let board_interaction_number =
+                get_board_interaction_number(room.players.black.as_ref().unwrap().clone());
+            let should_sync = move_number > payload.frontend_move_number
+                || board_interaction_number > payload.frontend_board_interaction_number;
+            GameInfo {
+                should_sync,
+                move_number,
+            }
+        }
+        _ => {
+            let board_interaction_number =
+                get_board_interaction_number(room.players.white.as_ref().unwrap().clone());
+            let should_sync = move_number > payload.frontend_move_number
+                || board_interaction_number > payload.frontend_board_interaction_number;
+            GameInfo {
+                should_sync,
+                move_number,
+            }
+        }
     };
 
     Ok(Json(data))

@@ -294,19 +294,11 @@ function syncBoards() {
         frontend_move_number: moveNumber,
       }),
     }).then((data) => {
-      console.log(
-        "Backend board interaction number:",
-        data.board_interaction_number
-      );
-      console.log("Backend move number: ", data.move_number);
-      console.log("Frontend move number: ", moveNumber);
+      console.log("Should sync: ", data.should_sync);
 
       // TODO: test this solution
 
-      if (
-        data.move_number <= moveNumber &&
-        boardInteractionNumber >= data.board_interaction_number
-      ) {
+      if (!data.should_sync) {
         console.log("Not syncing boards!");
 
         setTimeout(sync, retryInterval);
