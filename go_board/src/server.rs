@@ -172,6 +172,7 @@ struct GameRoom {
     board: Board,
     players: PlayersState,
     // TODO: investigate if game_generation_number here, instead of board_interaction_number in PlayerSession would simplify should_sync logic
+    game_generation_number: usize,
 }
 
 impl GameRoom {
@@ -179,6 +180,7 @@ impl GameRoom {
         GameRoom {
             board: Board::new(15, 15, 1.5),
             players: PlayersState::new(),
+            game_generation_number: 0,
         }
     }
 }
@@ -293,8 +295,8 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
     println!(
         "BEFORE MOVE VALIDATION:
-    Player: {}, board_interaction_number: {}",
-        frontend_board, payload.board_interaction_number
+    Player: {}, frontend board_interaction_number: {}\n game_generation_number: {}",
+        frontend_board, payload.board_interaction_number, room.game_generation_number
     );
 
     if correct_board != frontend_board && frontend_board != "main" {
@@ -338,35 +340,18 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
 
-    let board_int_num = payload.board_interaction_number + 1;
+    room.game_generation_number += 1;
     println!(
-        "AFTER MOVE VALIDATION - LEGAL MOVE!!! Board interaction number: {}",
-        board_int_num
+        "AFTER MOVE VALIDATION - LEGAL MOVE!!! Game generation number: {}",
+        room.game_generation_number
     );
-
-    match frontend_board.as_str() {
-        "black" => {
-            room.players
-                .black
-                .as_mut()
-                .unwrap()
-                .board_interaction_number = board_int_num;
-        }
-        _ => {
-            room.players
-                .white
-                .as_mut()
-                .unwrap()
-                .board_interaction_number = board_int_num;
-        }
-    }
 
     Ok(Json(
         GameState::new(
             format!("Move attempted at ({}, {})", payload.row, payload.col),
             board_state,
             board,
-            board_int_num,
+            room.game_generation_number,
         )
         .with_stones_in_atari(board.stones_in_atari.clone()),
     ))
@@ -440,26 +425,9 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
 
     room.board.set_winner(loser.opponent());
 
-    let board_int_num = match payload.player.as_str() {
-        "black" => {
-            room.players
-                .black
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-        _ => {
-            room.players
-                .white
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-    };
-
     println!(
         "Player: {}, board_interaction_number: {}",
-        payload.player, board_int_num
+        payload.player, room.game_generation_number
     );
 
     Ok(Json(
@@ -467,7 +435,7 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
             format!("Player {:?} resigned. Game over!", loser),
             get_board_state(&room.board),
             &room.board,
-            board_int_num,
+            room.game_generation_number,
         )
         .with_winner(loser.opponent().to_string()),
     ))
@@ -494,26 +462,9 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
 
-    let board_int_num = match frontend_player.as_str() {
-        "black" => {
-            room.players
-                .black
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-        _ => {
-            room.players
-                .white
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-    };
-
     println!(
         "Player: {}, board_interaction_number: {}",
-        frontend_player, board_int_num
+        frontend_player, room.game_generation_number
     );
 
     if player.to_string() != frontend_player.to_string() && frontend_player != "spectator" {
@@ -522,7 +473,7 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
                 "It's not your turn to pass!".to_string(),
                 vec![],
                 &room.board,
-                board_int_num,
+                room.game_generation_number,
             )
             .with_stones_in_atari(StonesInAtari { black: 0, white: 0 }),
         ));
@@ -543,14 +494,14 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
             ),
             vec![],
             &room.board,
-            board_int_num,
+            room.game_generation_number,
         )))
     } else {
         let mut game_state = GameState::new(
             format!("Both players passed. Game over!"),
             vec![],
             &room.board,
-            board_int_num,
+            room.game_generation_number,
         );
         game_state.current_player = "counting".to_string();
         game_state.counting = true;
@@ -574,8 +525,8 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let game_history_len = room.board.game_history.clone().len();
 
     println!(
-        "UNDO BEFORE VALIDATION!! Player: {}, board_interaction_number: {}",
-        frontend_player, payload.board_interaction_number
+        "UNDO BEFORE VALIDATION!! Player: {}, frontend board_interaction_number: {}\n game_generation_number: {}",
+        frontend_player, payload.board_interaction_number, room.game_generation_number
     );
 
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator"
@@ -590,37 +541,11 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     }
 
     room.board.undo();
-
-    let board_int_num = match frontend_player.as_str() {
-        "black" => {
-            room.players
-                .black
-                .as_mut()
-                .unwrap()
-                .board_interaction_number += 1;
-            room.players
-                .black
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-        _ => {
-            room.players
-                .white
-                .as_mut()
-                .unwrap()
-                .board_interaction_number += 1;
-            room.players
-                .white
-                .as_ref()
-                .unwrap()
-                .board_interaction_number
-        }
-    };
+    room.game_generation_number += 1;
 
     println!(
-        "UNDO AFTER VALIDATION!! Player: {}, board_interaction_number: {}",
-        frontend_player, board_int_num
+        "UNDO AFTER VALIDATION!! Player: {}, board_generation_number: {}",
+        frontend_player, room.game_generation_number
     );
 
     // Get the playable board dimensions
@@ -642,7 +567,7 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
             "Undo successful".to_string(),
             board_state,
             &room.board,
-            board_int_num,
+            room.game_generation_number,
         )
         .with_stones_in_atari(room.board.stones_in_atari.clone()),
     ))
@@ -676,6 +601,7 @@ struct ShouldSyncBoardsPayload {
 struct GameInfo {
     should_sync: bool,
     move_number: usize,
+    board_interaction_number: usize,
 }
 
 #[handler]
@@ -687,32 +613,16 @@ async fn send_board_interaction_number(
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
     let move_number = room.board.game_history.len();
+    let board_interaction_number = room.game_generation_number;
 
     // !BUG: this part introduced not syncing when opponent undos
-    let data = match payload.player.as_ref() {
-        "black" => {
-            let board_interaction_number =
-                get_board_interaction_number(room.players.black.as_ref().unwrap().clone());
-            let should_sync = move_number > payload.frontend_move_number
-                || board_interaction_number > payload.frontend_board_interaction_number;
-            GameInfo {
-                should_sync,
-                move_number,
-            }
-        }
-        _ => {
-            let board_interaction_number =
-                get_board_interaction_number(room.players.white.as_ref().unwrap().clone());
-            let should_sync = move_number > payload.frontend_move_number
-                || board_interaction_number > payload.frontend_board_interaction_number;
-            GameInfo {
-                should_sync,
-                move_number,
-            }
-        }
-    };
+    let should_sync = board_interaction_number > payload.frontend_board_interaction_number;
 
-    Ok(Json(data))
+    Ok(Json(GameInfo {
+        should_sync,
+        move_number,
+        board_interaction_number,
+    }))
 }
 
 #[derive(Deserialize)]
@@ -759,15 +669,15 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
         None => {
             let board_int_num = match payload.player.as_ref() {
                 "black" => {
-                    if let Some(player) = &room.players.black {
-                        player.board_interaction_number
+                    if let Some(_player) = &room.players.black {
+                        room.game_generation_number
                     } else {
                         return game_data_not_accessible();
                     }
                 }
                 "white" => {
-                    if let Some(player) = &room.players.white {
-                        player.board_interaction_number
+                    if let Some(_player) = &room.players.white {
+                        room.game_generation_number
                     } else {
                         return game_data_not_accessible();
                     }
@@ -897,22 +807,7 @@ async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String
         let mut rooms = lock_rooms()?;
         let mut room = get_room(&mut rooms, &payload.match_string)?;
 
-        match payload.color.as_str() {
-            "black" => {
-                room.players
-                    .white
-                    .as_mut()
-                    .unwrap()
-                    .board_interaction_number = payload.board_interaction_number;
-            }
-            _ => {
-                room.players
-                    .black
-                    .as_mut()
-                    .unwrap()
-                    .board_interaction_number = payload.board_interaction_number;
-            }
-        };
+        room.game_generation_number += 1;
     }
 
     {

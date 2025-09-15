@@ -306,6 +306,7 @@ function syncBoards() {
       }
 
       moveNumber = data.move_number;
+      boardInteractionNumber = data.board_interaction_number;
 
       console.log("Frontend move number after check: ", moveNumber);
 
