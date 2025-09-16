@@ -41,7 +41,7 @@ pub struct CellClick {
     pub col: usize,
     match_string: String,
     session_token: String,
-    board_interaction_number: usize,
+    board_generation_number: usize,
 }
 
 #[derive(Serialize)]
@@ -72,7 +72,7 @@ struct GameState {
     stones_in_atari: StonesInAtari,
     counting: bool,
     winner: Option<String>,
-    board_interaction_number: usize,
+    board_generation_number: usize,
     rejoin_required: bool,
 }
 
@@ -81,7 +81,7 @@ impl GameState {
         message: String,
         board_state: Vec<Vec<String>>,
         board: &Board,
-        board_interaction_number: usize,
+        board_generation_number: usize,
     ) -> Self {
         let mut game_state = Self {
             message,
@@ -97,7 +97,7 @@ impl GameState {
             stones_in_atari: StonesInAtari::new(),
             counting: board.last_two_moves_are_pass(),
             winner: None,
-            board_interaction_number,
+            board_generation_number,
             rejoin_required: false,
         };
 
@@ -295,8 +295,8 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
 
     println!(
         "BEFORE MOVE VALIDATION:
-    Player: {}, frontend board_interaction_number: {}\n game_generation_number: {}",
-        frontend_board, payload.board_interaction_number, room.game_generation_number
+    Player: {}, frontend board_generation_number: {}\n game_generation_number: {}",
+        frontend_board, payload.board_generation_number, room.game_generation_number
     );
 
     if correct_board != frontend_board && frontend_board != "main" {
@@ -306,7 +306,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
                 format!("It's not your turn!"),
                 board_state,
                 board,
-                payload.board_interaction_number,
+                payload.board_generation_number,
             )
             .with_stones_in_atari(board.stones_in_atari.clone()),
         ));
@@ -332,7 +332,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
                 format!("Move attempted at ({}, {})", payload.row, payload.col),
                 board_state,
                 board,
-                payload.board_interaction_number,
+                payload.board_generation_number,
             )
             .with_stones_in_atari(board.stones_in_atari.clone()),
         ));
@@ -426,7 +426,7 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
     room.board.set_winner(loser.opponent());
 
     println!(
-        "Player: {}, board_interaction_number: {}",
+        "Player: {}, board_generation_number: {}",
         payload.player, room.game_generation_number
     );
 
@@ -463,7 +463,7 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
     let frontend_player = &payload.player;
 
     println!(
-        "Player: {}, board_interaction_number: {}",
+        "Player: {}, board_generation_number: {}",
         frontend_player, room.game_generation_number
     );
 
@@ -513,7 +513,7 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
 struct UndoPayload {
     match_string: String,
     player: String,
-    board_interaction_number: usize,
+    board_generation_number: usize,
 }
 
 #[handler]
@@ -525,8 +525,8 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let game_history_len = room.board.game_history.clone().len();
 
     println!(
-        "UNDO BEFORE VALIDATION!! Player: {}, frontend board_interaction_number: {}\n game_generation_number: {}",
-        frontend_player, payload.board_interaction_number, room.game_generation_number
+        "UNDO BEFORE VALIDATION!! Player: {}, frontend board_generation_number: {}\n game_generation_number: {}",
+        frontend_player, payload.board_generation_number, room.game_generation_number
     );
 
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator"
@@ -536,7 +536,7 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
             "It's not your turn to undo!".to_string(),
             vec![],
             &room.board,
-            payload.board_interaction_number,
+            payload.board_generation_number,
         )));
     }
 
@@ -593,7 +593,7 @@ fn game_data_not_accessible() -> Result<Json<GameState>> {
 struct ShouldSyncBoardsPayload {
     match_string: String,
     player: String,
-    frontend_board_interaction_number: usize,
+    frontend_board_generation_number: usize,
     frontend_move_number: usize,
 }
 
@@ -601,7 +601,7 @@ struct ShouldSyncBoardsPayload {
 struct GameInfo {
     should_sync: bool,
     move_number: usize,
-    board_interaction_number: usize,
+    board_generation_number: usize,
 }
 
 #[handler]
@@ -613,15 +613,15 @@ async fn send_board_interaction_number(
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
     let move_number = room.board.game_history.len();
-    let board_interaction_number = room.game_generation_number;
+    let board_generation_number = room.game_generation_number;
 
     // !BUG: this part introduced not syncing when opponent undos
-    let should_sync = board_interaction_number > payload.frontend_board_interaction_number;
+    let should_sync = board_generation_number > payload.frontend_board_generation_number;
 
     Ok(Json(GameInfo {
         should_sync,
         move_number,
-        board_interaction_number,
+        board_generation_number,
     }))
 }
 

@@ -37,7 +37,7 @@ import {
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
 
-let boardInteractionNumber = 0;
+let boardGenerationNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
 let boardState = [];
@@ -117,7 +117,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               col: parseInt(col),
               match_string: getMatchString(),
               session_token: getPlayerSessionToken(),
-              board_interaction_number: boardInteractionNumber,
+              board_generation_number: boardGenerationNumber,
             }),
           })
             .then((response) => {
@@ -128,10 +128,10 @@ function addClickAreas(board, rows, cols, playerBoard) {
               return response.json();
             })
             .then((data) => {
-              boardInteractionNumber = data.board_interaction_number;
+              boardGenerationNumber = data.board_generation_number;
               console.log(
                 "Successful move! Board interaction number: ",
-                boardInteractionNumber
+                boardGenerationNumber
               );
               stonesInAtari = data.stones_in_atari;
               boardState = data.board;
@@ -166,7 +166,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  boardInteractionNumber++;
+  boardGenerationNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
     headers: {
@@ -176,7 +176,7 @@ function sendGuessStonesToBackend(color, stones) {
       color: color,
       stones: stones,
       match_string: getMatchString(),
-      board_interaction_number: boardInteractionNumber,
+      board_generation_number: boardGenerationNumber,
     }),
   })
     .then((response) => {
@@ -290,7 +290,7 @@ function syncBoards() {
       body: JSON.stringify({
         match_string: getMatchString(),
         player: playerColor,
-        frontend_board_interaction_number: boardInteractionNumber,
+        frontend_board_generation_number: boardGenerationNumber,
         frontend_move_number: moveNumber,
       }),
     }).then((data) => {
@@ -306,7 +306,7 @@ function syncBoards() {
       }
 
       moveNumber = data.move_number;
-      boardInteractionNumber = data.board_interaction_number;
+      boardGenerationNumber = data.board_generation_number;
 
       console.log("Frontend move number after check: ", moveNumber);
 
@@ -350,13 +350,11 @@ function syncBoards() {
           failedAttempts = 0; // Reset counter on success
           console.log(
             "Board interaction number: ",
-            data.board_interaction_number
+            data.board_generation_number
           );
 
-          if (boardInteractionNumber > data.board_interaction_number) {
-            console.log(
-              "boardInteractionNumber > data.board_interaction_number"
-            );
+          if (boardGenerationNumber > data.board_generation_number) {
+            console.log("boardGenerationNumber > data.board_generation_number");
             setTimeout(sync, retryInterval);
             return;
           }
@@ -443,7 +441,7 @@ function undoRequest() {
     body: JSON.stringify({
       match_string: getMatchString(),
       player: playerColor,
-      board_interaction_number: boardInteractionNumber,
+      board_generation_number: boardGenerationNumber,
     }),
   })
     .then((response) => {
@@ -455,14 +453,11 @@ function undoRequest() {
     .then((data) => {
       console.log("Server response:", data.message);
       if (data.message === "It's not your turn to undo!") {
-        console.log(
-          "Board interaction number: ",
-          data.board_interaction_number
-        );
+        console.log("Board generation number: ", data.board_generation_number);
         return;
       }
-      console.log("Board interaction number: ", data.board_interaction_number);
-      boardInteractionNumber = data.board_interaction_number;
+      console.log("Board generation number: ", data.board_generation_number);
+      boardGenerationNumber = data.board_generation_number;
       boardState = data.board;
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
