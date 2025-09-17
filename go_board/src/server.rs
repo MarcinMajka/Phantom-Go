@@ -484,6 +484,8 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
         loc: Loc::pass(),
     });
 
+    room.game_generation_number += 1;
+
     let game_is_over = room.board.last_two_moves_are_pass();
 
     if !game_is_over {
