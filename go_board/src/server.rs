@@ -362,9 +362,18 @@ fn is_request_from_player(session_token: &str, room: &GameRoom) -> bool {
     session_token == "" || !session_tokens.contains(&session_token)
 }
 
+#[derive(Deserialize)]
+struct GetGroupPayload {
+    frontend_board: String,
+    row: usize,
+    col: usize,
+    match_string: String,
+    session_token: String,
+}
+
 // Returns clicked group of stones during counting
 #[handler]
-async fn get_group(payload: Json<CellClick>) -> Result<Json<Vec<Loc>>, Error> {
+async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
