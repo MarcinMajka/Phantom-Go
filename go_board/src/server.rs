@@ -381,11 +381,11 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Err
         return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED));
     }
 
-    let board = &mut room.board;
-    let group = board.group_stones(Loc {
+    let group = room.board.group_stones(Loc {
         row: payload.row + 1,
         col: payload.col + 1,
     });
+
     Ok(Json(group))
 }
 
