@@ -139,17 +139,13 @@ struct GuessStonesSync {
     color: String,
     stones: Vec<Vec<usize>>,
     match_string: String,
-    board_interaction_number: usize,
 }
 
 #[derive(Clone)]
 struct PlayerSession {
+    session_token: String,
     // Keep color for move validation
     color: Player,
-
-    session_token: String,
-    // TODO: this being here makes it difficult to manage should_sync logic correctly
-    board_interaction_number: usize,
 }
 
 #[derive(Clone)]
@@ -575,10 +571,6 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     ))
 }
 
-fn get_board_interaction_number(player: PlayerSession) -> usize {
-    player.board_interaction_number
-}
-
 fn game_data_not_accessible() -> Result<Json<GameState>> {
     Ok(Json(
         GameState::new(
@@ -729,14 +721,12 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 room.players.black = Some(PlayerSession {
                     color: Player::Black,
                     session_token: new_token.clone(),
-                    board_interaction_number: 0,
                 });
                 ("black", "/frontend/black.html", new_token)
             } else {
                 room.players.white = Some(PlayerSession {
                     color: Player::White,
                     session_token: new_token.clone(),
-                    board_interaction_number: 0,
                 });
                 ("white", "/frontend/white.html", new_token)
             }
@@ -747,7 +737,6 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             room.players.white = Some(PlayerSession {
                 color: Player::White,
                 session_token: new_token.clone(),
-                board_interaction_number: 0,
             });
             ("white", "/frontend/white.html", new_token)
         }
@@ -757,7 +746,6 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             room.players.black = Some(PlayerSession {
                 color: Player::Black,
                 session_token: new_token.clone(),
-                board_interaction_number: 0,
             });
             ("black", "/frontend/black.html", new_token)
         }
