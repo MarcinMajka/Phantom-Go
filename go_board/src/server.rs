@@ -167,7 +167,6 @@ impl PlayersState {
 struct GameRoom {
     board: Board,
     players: PlayersState,
-    // TODO: investigate if game_generation_number here, instead of board_interaction_number in PlayerSession would simplify should_sync logic
     game_generation_number: usize,
 }
 
