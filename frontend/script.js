@@ -348,16 +348,6 @@ function syncBoards() {
           }
 
           failedAttempts = 0; // Reset counter on success
-          console.log(
-            "Board interaction number: ",
-            data.board_generation_number
-          );
-
-          if (boardGenerationNumber > data.board_generation_number) {
-            console.log("boardGenerationNumber > data.board_generation_number");
-            setTimeout(sync, retryInterval);
-            return;
-          }
 
           if (data.winner) {
             isWinnerDecided = true;
