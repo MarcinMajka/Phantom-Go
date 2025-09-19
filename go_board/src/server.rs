@@ -352,7 +352,7 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     ))
 }
 
-fn is_request_from_player(session_token: &str, room: &GameRoom) -> bool {
+fn is_request_from_kibitz(session_token: &str, room: &GameRoom) -> bool {
     let session_tokens = [
         room.players.black.as_ref().unwrap().session_token.as_str(),
         room.players.white.as_ref().unwrap().session_token.as_str(),
@@ -377,7 +377,7 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Err
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
-    if is_request_from_player(&payload.session_token, room) {
+    if is_request_from_kibitz(&payload.session_token, room) {
         return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED));
     }
 
@@ -401,7 +401,8 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
 
-    if is_request_from_player(&payload.session_token, room) {
+    if is_request_from_kibitz(&payload.session_token, room) {
+        // Return current score, with stones on the board as they stand atm
         return Ok(Json(room.board.count_score().to_string()));
     }
 
