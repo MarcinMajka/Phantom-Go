@@ -370,6 +370,7 @@ struct GetGroupPayload {
     session_token: String,
 }
 
+// TODO: make a struct to store the currently selected to-remove groups, then update them in this handler
 // Returns clicked group of stones during counting
 #[handler]
 async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Error> {
