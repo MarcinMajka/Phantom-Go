@@ -593,7 +593,7 @@ fn game_data_not_accessible() -> Result<Json<GameState>> {
 }
 
 #[derive(Deserialize)]
-struct ShouldSyncBoardsPayload {
+struct ShouldSyncPayload {
     match_string: String,
     player: String,
     frontend_board_generation_number: usize,
@@ -608,9 +608,7 @@ struct GameInfo {
 }
 
 #[handler]
-async fn send_board_interaction_number(
-    payload: Json<ShouldSyncBoardsPayload>,
-) -> Result<Json<GameInfo>, Error> {
+async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>, Error> {
     let mut rooms = lock_rooms()?;
     let room = rooms
         .entry(payload.match_string.clone())
@@ -918,10 +916,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/get-group", poem::post(get_group))
         .at("/get-score", poem::post(get_score))
         .at("/sync-guess-stones", poem::post(sync_guess_stones))
-        .at(
-            "/get-board-interaction-number",
-            poem::post(send_board_interaction_number),
-        )
+        .at("/get-board-interaction-number", poem::post(should_sync))
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
