@@ -294,7 +294,13 @@ function syncBoards() {
         frontend_move_number: moveNumber,
       }),
     }).then((data) => {
+      console.log("Winner: ", data.winner);
       console.log("Should sync: ", data.should_sync);
+
+      if (data.winner) {
+        console.log("There's a winner! No board syncs from now on :)");
+        return;
+      }
 
       // TODO: test this solution
 
@@ -349,6 +355,8 @@ function syncBoards() {
 
           failedAttempts = 0; // Reset counter on success
 
+          console.log("DATA.WINNER = ", data.winner);
+
           if (data.winner) {
             isWinnerDecided = true;
             const res = createButton("resign-result", data.winner + " + R");
@@ -367,18 +375,16 @@ function syncBoards() {
           updateTurn(data.current_player);
 
           if (data.counting) {
+            console.log("Current player: " + data.current_player);
+            updateTurn(data.current_player);
+
             countingPhase = true;
+
             handleGameButtonsAfterGame(isWinnerDecided);
+
             if (playerColor === "spectator") {
               showElement(document.getElementById(".main-board-buttons"));
             }
-          }
-
-          if (countingPhase || isWinnerDecided) {
-            console.log(data.current_player);
-            updateTurn(data.current_player);
-            console.log("Counting or game finished, stopping sync.");
-            return;
           }
 
           setTimeout(sync, retryInterval);

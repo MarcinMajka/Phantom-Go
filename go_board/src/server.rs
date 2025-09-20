@@ -611,6 +611,7 @@ struct GameInfo {
     should_sync: bool,
     move_number: usize,
     board_generation_number: usize,
+    winner: Option<Player>,
 }
 
 #[handler]
@@ -621,6 +622,7 @@ async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>,
         .or_insert_with(GameRoom::new);
     let move_number = room.board.game_history.len();
     let board_generation_number = room.game_generation_number;
+    let winner = room.board.get_winner();
 
     // !BUG: this part introduced not syncing when opponent undos
     let should_sync = board_generation_number > payload.frontend_board_generation_number;
@@ -629,6 +631,7 @@ async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>,
         should_sync,
         move_number,
         board_generation_number,
+        winner,
     }))
 }
 
