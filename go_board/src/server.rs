@@ -620,11 +620,10 @@ async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>,
     let room = rooms
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
+
     let move_number = room.board.game_history.len();
     let board_generation_number = room.game_generation_number;
     let winner = room.board.get_winner();
-
-    // !BUG: this part introduced not syncing when opponent undos
     let should_sync = board_generation_number > payload.frontend_board_generation_number;
 
     Ok(Json(GameInfo {
