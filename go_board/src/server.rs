@@ -1,4 +1,4 @@
-use crate::board::{Board, Color, Loc, Move, Player, StonesInAtari};
+use crate::board::{Board, Color, GameResult, Loc, Move, Player, StonesInAtari};
 use lazy_static::lazy_static;
 use poem::{
     async_trait, handler,
@@ -408,9 +408,14 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
 
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
 
-    let score = room.board.count_score().to_string();
+    let score = room.board.count_score();
+    let winner = match score {
+        GameResult::Points(player, _) => player,
+        _ => unreachable!("Other GameResult variants should not appear here (Resignation is handled in handle_resignation() and Draw is impossible with 1.5 komi")
+    };
+    room.board.set_winner(winner);
 
-    Ok(Json(score))
+    Ok(Json(score.to_string()))
 }
 
 #[derive(Deserialize)]
