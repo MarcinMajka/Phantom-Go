@@ -184,6 +184,7 @@ lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> =
         Mutex::new(HashMap::new());
+    static ref GROUPS_TO_REMOVE: Mutex<HashSet<Vec<Loc>>> = Mutex::new(HashSet::new());
 }
 
 fn color_to_string(color: Color) -> String {
