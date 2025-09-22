@@ -387,6 +387,17 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Err
         col: payload.col + 1,
     });
 
+    let mut groups = GROUPS_TO_REMOVE.lock().map_err(|_| {
+        json_error(
+            "Failed to lock GROUPS_TO_REMOVE",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    })?;
+
+    groups.insert(group.clone());
+
+    println!("{:?}", groups);
+
     Ok(Json(group))
 }
 
