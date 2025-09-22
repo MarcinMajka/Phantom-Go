@@ -49,7 +49,6 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
-let moveNumber = 0;
 
 const API_URL = getAPIUrl();
 
@@ -291,7 +290,6 @@ function syncBoards() {
         match_string: getMatchString(),
         player: playerColor,
         frontend_board_generation_number: boardGenerationNumber,
-        frontend_move_number: moveNumber,
       }),
     }).then((data) => {
       console.log("Winner: ", data.winner);
@@ -311,10 +309,7 @@ function syncBoards() {
         return;
       }
 
-      moveNumber = data.move_number;
       boardGenerationNumber = data.board_generation_number;
-
-      console.log("Frontend move number after check: ", moveNumber);
 
       fetchWithErrorHandling(`${API_URL}/sync-boards`, {
         method: "POST",

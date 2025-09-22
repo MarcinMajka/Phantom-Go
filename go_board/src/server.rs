@@ -619,7 +619,6 @@ struct ShouldSyncPayload {
     match_string: String,
     player: String,
     frontend_board_generation_number: usize,
-    frontend_move_number: usize,
 }
 
 #[derive(Serialize)]
