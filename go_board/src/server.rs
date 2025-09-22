@@ -394,7 +394,11 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Err
         )
     })?;
 
-    groups.insert(group.clone());
+    if groups.contains(&group) {
+        groups.remove(&group);
+    } else {
+        groups.insert(group.clone());
+    }
 
     println!("{:?}", groups);
 
