@@ -371,10 +371,16 @@ struct GetGroupPayload {
     session_token: String,
 }
 
+#[derive(Serialize)]
+struct GroupsToRemove {
+    selected: HashSet<Vec<Loc>>,
+    toggle: Vec<Loc>,
+}
+
 // TODO: make a struct to store the currently selected to-remove groups, then update them in this handler
 // Returns clicked group of stones during counting
 #[handler]
-async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Error> {
+async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove>, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
@@ -402,7 +408,12 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<Vec<Loc>>, Err
 
     println!("{:?}", groups);
 
-    Ok(Json(group))
+    let data = GroupsToRemove {
+        selected: groups.clone(),
+        toggle: group,
+    };
+
+    Ok(Json(data))
 }
 
 #[derive(Deserialize)]

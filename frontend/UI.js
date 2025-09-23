@@ -137,12 +137,40 @@ export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
   });
 }
 
-export function toggleGroupSelection(group) {
-  const groupKey = JSON.stringify(group);
+export function toggleGroupSelection(groups) {
+  const selected = groups.selected;
+  const toggle = groups.toggle;
 
-  for (const loc of group) {
+  console.log("Selected:");
+  console.log(selected);
+  console.log("Toggle:");
+  console.log(toggle);
+
+  for (const group of selected) {
+    for (const loc of group) {
+      const [row, col] = [loc.row - 1, loc.col - 1];
+      console.log(`Changing color of: ${row} - ${col} stone`);
+
+      const stoneToColor = boards.main.querySelector(
+        `.stone[data-row="${row}"][data-col="${col}"]`
+      );
+
+      const color = stoneToColor.getAttribute("data-color");
+      const currentFill = stoneToColor.getAttribute("fill");
+
+      // if (currentFill === "transparent") {
+      // stoneToColor.setAttribute("fill", color);
+      // } else {
+      stoneToColor.setAttribute("fill", "transparent");
+      // }
+    }
+  }
+
+  const groupKey = JSON.stringify(toggle);
+
+  for (const loc of toggle) {
     const [row, col] = [loc.row - 1, loc.col - 1];
-    console.log(`Changing color of: ${row} - ${col} stone`);
+    // console.log(`Changing color of: ${row} - ${col} stone`);
 
     const stoneToColor = boards.main.querySelector(
       `.stone[data-row="${row}"][data-col="${col}"]`
@@ -153,10 +181,10 @@ export function toggleGroupSelection(group) {
 
     if (currentFill === "transparent") {
       delete groupsToRemove[groupKey];
-      stoneToColor.setAttribute("fill", color);
+      // stoneToColor.setAttribute("fill", color);
     } else {
-      groupsToRemove[groupKey] = group;
-      stoneToColor.setAttribute("fill", "transparent");
+      groupsToRemove[groupKey] = toggle;
+      // stoneToColor.setAttribute("fill", "transparent");
     }
   }
 }

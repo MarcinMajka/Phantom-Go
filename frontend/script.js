@@ -9,6 +9,7 @@ import {
   drawGridLines,
   drawStarPoints,
   displayMatchIdElement,
+  toggleGroupSelection,
 } from "./UI.js";
 import {
   fetchWithErrorHandling,
@@ -49,6 +50,7 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
+let deadGroupsDuringCounting = [];
 
 const API_URL = getAPIUrl();
 
@@ -239,7 +241,12 @@ function placeStone(stoneColor, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      getGroupRequest(row, col);
+      // TODO: check if deadGroupsDuringCounting gets overwritten
+      console.log("deadGroupsDuringCounting before getGroupRequest()");
+      console.log(deadGroupsDuringCounting);
+      getGroupRequest(row, col, deadGroupsDuringCounting);
+      console.log("deadGroupsDuringCounting after getGroupRequest()");
+      console.log(deadGroupsDuringCounting);
     }
   });
 
@@ -269,6 +276,11 @@ export function updateBoard(boardState, atariStones = []) {
   }
   for (const stone of guessStones.white) {
     addGuessStone("white", ...stone);
+  }
+
+  console.log("countingPhase" + countingPhase);
+  if (countingPhase) {
+    toggleGroupSelection(deadGroupsDuringCounting);
   }
 
   showStonesInAtari(atariStones);
