@@ -141,12 +141,30 @@ export function toggleGroupSelection(groups) {
   const selected = groups.selected;
   const toggle = groups.toggle;
 
-  console.log("Selected:");
-  console.log(selected);
-  console.log("Toggle:");
-  console.log(toggle);
+  const groupKey = JSON.stringify(toggle);
+
+  for (const loc of toggle) {
+    const [row, col] = [loc.row - 1, loc.col - 1];
+
+    const stoneToColor = boards.main.querySelector(
+      `.stone[data-row="${row}"][data-col="${col}"]`
+    );
+
+    const color = stoneToColor.getAttribute("data-color");
+    const currentFill = stoneToColor.getAttribute("fill");
+
+    if (currentFill === "transparent") {
+      delete groupsToRemove[groupKey];
+      stoneToColor.setAttribute("fill", color);
+    } else {
+      groupsToRemove[groupKey] = toggle;
+      stoneToColor.setAttribute("fill", "transparent");
+    }
+  }
 
   for (const group of selected) {
+    if (group.toString() === toggle.toString()) continue;
+
     for (const loc of group) {
       const [row, col] = [loc.row - 1, loc.col - 1];
       console.log(`Changing color of: ${row} - ${col} stone`);
@@ -158,33 +176,7 @@ export function toggleGroupSelection(groups) {
       const color = stoneToColor.getAttribute("data-color");
       const currentFill = stoneToColor.getAttribute("fill");
 
-      // if (currentFill === "transparent") {
-      // stoneToColor.setAttribute("fill", color);
-      // } else {
       stoneToColor.setAttribute("fill", "transparent");
-      // }
-    }
-  }
-
-  const groupKey = JSON.stringify(toggle);
-
-  for (const loc of toggle) {
-    const [row, col] = [loc.row - 1, loc.col - 1];
-    // console.log(`Changing color of: ${row} - ${col} stone`);
-
-    const stoneToColor = boards.main.querySelector(
-      `.stone[data-row="${row}"][data-col="${col}"]`
-    );
-
-    const color = stoneToColor.getAttribute("data-color");
-    const currentFill = stoneToColor.getAttribute("fill");
-
-    if (currentFill === "transparent") {
-      delete groupsToRemove[groupKey];
-      // stoneToColor.setAttribute("fill", color);
-    } else {
-      groupsToRemove[groupKey] = toggle;
-      // stoneToColor.setAttribute("fill", "transparent");
     }
   }
 }
