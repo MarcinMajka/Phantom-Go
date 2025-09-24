@@ -144,11 +144,7 @@ export function toggleGroupSelection(groups) {
   const groupKey = JSON.stringify(toggle);
 
   for (const loc of toggle) {
-    const [row, col] = [loc.row - 1, loc.col - 1];
-
-    const stoneToColor = boards.main.querySelector(
-      `.stone[data-row="${row}"][data-col="${col}"]`
-    );
+    const stoneToColor = getStoneToColor(loc);
 
     const color = stoneToColor.getAttribute("data-color");
     const currentFill = stoneToColor.getAttribute("fill");
@@ -166,14 +162,8 @@ export function toggleGroupSelection(groups) {
     if (group.toString() === toggle.toString()) continue;
 
     for (const loc of group) {
-      const [row, col] = [loc.row - 1, loc.col - 1];
-      console.log(`Changing color of: ${row} - ${col} stone`);
-
-      const stoneToColor = boards.main.querySelector(
-        `.stone[data-row="${row}"][data-col="${col}"]`
-      );
-
-      makeStoneTransparent(stoneToColor);
+      const stone = getStoneToColor(loc);
+      makeStoneTransparent(stone);
     }
   }
 }
@@ -183,4 +173,12 @@ function makeStoneTransparent(stone) {
   const currentFill = stone.getAttribute("fill");
 
   stone.setAttribute("fill", "transparent");
+}
+
+function getStoneToColor(loc) {
+  const [row, col] = [loc.row - 1, loc.col - 1];
+
+  return boards.main.querySelector(
+    `.stone[data-row="${row}"][data-col="${col}"]`
+  );
 }
