@@ -163,16 +163,9 @@ export function toggleGroupSelection(groups) {
 
     for (const loc of group) {
       const stone = getStoneToColor(loc);
-      makeStoneTransparent(stone);
+      stone.setAttribute("fill", "transparent");
     }
   }
-}
-
-function makeStoneTransparent(stone) {
-  const color = stone.getAttribute("data-color");
-  const currentFill = stone.getAttribute("fill");
-
-  stone.setAttribute("fill", "transparent");
 }
 
 function getStoneToColor(loc) {
