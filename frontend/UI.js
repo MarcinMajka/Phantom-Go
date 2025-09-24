@@ -145,15 +145,16 @@ export function toggleGroupSelection(groups) {
 
   for (const loc of toggle) {
     const stoneToColor = getStoneToColor(loc);
-
-    const color = stoneToColor.getAttribute("data-color");
     const currentFill = stoneToColor.getAttribute("fill");
 
     if (currentFill === "transparent") {
       delete groupsToRemove[groupKey];
+
+      const color = stoneToColor.getAttribute("data-color");
       stoneToColor.setAttribute("fill", color);
     } else {
       groupsToRemove[groupKey] = toggle;
+
       stoneToColor.setAttribute("fill", "transparent");
     }
   }
