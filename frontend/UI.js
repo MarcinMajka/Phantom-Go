@@ -173,10 +173,14 @@ export function toggleGroupSelection(groups) {
         `.stone[data-row="${row}"][data-col="${col}"]`
       );
 
-      const color = stoneToColor.getAttribute("data-color");
-      const currentFill = stoneToColor.getAttribute("fill");
-
-      stoneToColor.setAttribute("fill", "transparent");
+      makeStoneTransparent(stoneToColor);
     }
   }
+}
+
+function makeStoneTransparent(stone) {
+  const color = stone.getAttribute("data-color");
+  const currentFill = stone.getAttribute("fill");
+
+  stone.setAttribute("fill", "transparent");
 }
