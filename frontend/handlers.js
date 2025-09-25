@@ -215,6 +215,7 @@ export function getGroupRequest(row, col, groups) {
       console.log(groups);
 
       toggleGroupSelection(groups);
+      return data;
     })
     .catch((error) => {
       console.error("Error:", error);

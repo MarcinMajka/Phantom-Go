@@ -74,6 +74,7 @@ struct GameState {
     winner: Option<String>,
     board_generation_number: usize,
     rejoin_required: bool,
+    groups_selected_during_counting: GroupsToRemove,
 }
 
 impl GameState {
@@ -99,6 +100,10 @@ impl GameState {
             winner: None,
             board_generation_number,
             rejoin_required: false,
+            groups_selected_during_counting: GroupsToRemove {
+                selected: HashSet::from([vec![Loc::from_string("100, 100").unwrap()]]),
+                toggle: vec![Loc::from_string("100, 100").unwrap()],
+            },
         };
 
         if game_state.counting {
@@ -130,6 +135,11 @@ impl GameState {
 
     fn with_rejoin_required(mut self) -> Self {
         self.rejoin_required = true;
+        self
+    }
+
+    fn with_groups_selected_during_counting(mut self, groups_to_remove: GroupsToRemove) -> Self {
+        self.groups_selected_during_counting = groups_to_remove;
         self
     }
 }
@@ -719,6 +729,19 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 }
                 _ => 0,
             };
+
+            let mut groups_to_remove = GROUPS_TO_REMOVE.lock().map_err(|_| {
+                json_error(
+                    "Failed to lock GROUPS_TO_REMOVE",
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                )
+            })?;
+
+            let groups = GroupsToRemove {
+                selected: groups_to_remove.clone(),
+                toggle: vec![Loc::from_string("100, 100").unwrap()],
+            };
+
             GameState::new(
                 "Current board state sent".to_string(),
                 board_state.clone(),
@@ -727,6 +750,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
             )
             .with_guess_stones(black_stones.clone(), white_stones.clone())
             .with_stones_in_atari(room.board.stones_in_atari.clone())
+            .with_groups_selected_during_counting(groups)
         }
     };
 

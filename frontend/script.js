@@ -244,7 +244,11 @@ function placeStone(stoneColor, row, col) {
       // TODO: check if deadGroupsDuringCounting gets overwritten
       console.log("deadGroupsDuringCounting before getGroupRequest()");
       console.log(deadGroupsDuringCounting);
-      getGroupRequest(row, col, deadGroupsDuringCounting);
+      deadGroupsDuringCounting = getGroupRequest(
+        row,
+        col,
+        deadGroupsDuringCounting
+      );
       console.log("deadGroupsDuringCounting after getGroupRequest()");
       console.log(deadGroupsDuringCounting);
     }
@@ -278,11 +282,6 @@ export function updateBoard(boardState, atariStones = []) {
     addGuessStone("white", ...stone);
   }
 
-  console.log("countingPhase" + countingPhase);
-  if (countingPhase) {
-    toggleGroupSelection(deadGroupsDuringCounting);
-  }
-
   showStonesInAtari(atariStones);
 }
 
@@ -314,7 +313,7 @@ function syncBoards() {
 
       // TODO: test this solution
 
-      if (!data.should_sync) {
+      if (!data.should_sync && !countingPhase) {
         console.log("Not syncing boards!");
 
         setTimeout(sync, retryInterval);
@@ -350,6 +349,10 @@ function syncBoards() {
         })
         .then((data) => {
           console.log("Server response:", data.message);
+          console.log(
+            "groups_selected_during_counting: ",
+            data.groups_selected_during_counting
+          );
 
           // !BUG: since adding pre sync fetch, this part doesn't get triggered when it should
           if (data.rejoin_required) {
@@ -388,7 +391,19 @@ function syncBoards() {
             countingPhase = true;
 
             handleGameButtonsAfterGame(isWinnerDecided);
+            console.log("Before syncBoards() toggleGroupSelection()");
+            console.log(
+              "groups_selected_during_counting: ",
+              data.groups_selected_during_counting
+            );
+            deadGroupsDuringCounting = data.groups_selected_during_counting;
+            console.log(deadGroupsDuringCounting);
+            toggleGroupSelection(deadGroupsDuringCounting);
 
+            console.log("After syncBoards() toggleGroupSelection()");
+            console.log(
+              "deadGroupsDuringCounting: " + deadGroupsDuringCounting
+            );
             if (playerColor === "spectator") {
               showElement(document.getElementById(".main-board-buttons"));
             }
