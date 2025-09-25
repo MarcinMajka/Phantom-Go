@@ -349,10 +349,6 @@ function syncBoards() {
         })
         .then((data) => {
           console.log("Server response:", data.message);
-          console.log(
-            "groups_selected_during_counting: ",
-            data.groups_selected_during_counting
-          );
 
           // !BUG: since adding pre sync fetch, this part doesn't get triggered when it should
           if (data.rejoin_required) {
@@ -391,19 +387,10 @@ function syncBoards() {
             countingPhase = true;
 
             handleGameButtonsAfterGame(isWinnerDecided);
-            console.log("Before syncBoards() toggleGroupSelection()");
-            console.log(
-              "groups_selected_during_counting: ",
-              data.groups_selected_during_counting
-            );
             deadGroupsDuringCounting = data.groups_selected_during_counting;
             console.log(deadGroupsDuringCounting);
             toggleGroupSelection(deadGroupsDuringCounting);
 
-            console.log("After syncBoards() toggleGroupSelection()");
-            console.log(
-              "deadGroupsDuringCounting: " + deadGroupsDuringCounting
-            );
             if (playerColor === "spectator") {
               showElement(document.getElementById(".main-board-buttons"));
             }
