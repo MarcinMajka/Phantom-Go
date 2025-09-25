@@ -241,16 +241,11 @@ function placeStone(stoneColor, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      // TODO: check if deadGroupsDuringCounting gets overwritten
-      console.log("deadGroupsDuringCounting before getGroupRequest()");
-      console.log(deadGroupsDuringCounting);
       deadGroupsDuringCounting = getGroupRequest(
         row,
         col,
         deadGroupsDuringCounting
       );
-      console.log("deadGroupsDuringCounting after getGroupRequest()");
-      console.log(deadGroupsDuringCounting);
     }
   });
 
