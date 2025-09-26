@@ -140,7 +140,7 @@ export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
 export function toggleGroupSelection(groups) {
   const selected = groups.selected;
   const toggle = groups.toggle;
-  console.log("THEY SAY TOGGLE IS NOT ITERABLE: ", toggle);
+
   const groupKey = JSON.stringify(toggle);
 
   for (const loc of toggle) {
@@ -163,11 +163,6 @@ export function toggleGroupSelection(groups) {
   }
 
   for (const group of selected) {
-    console.log("group.toString():");
-    console.log(JSON.stringify(group));
-    console.log("toggle.toString():");
-    console.log(JSON.stringify(toggle));
-
     if (JSON.stringify(group) === JSON.stringify(toggle)) continue;
 
     for (const loc of group) {

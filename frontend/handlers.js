@@ -187,8 +187,7 @@ export function guessStonesButtonsHandler() {
   }
 }
 
-export function getGroupRequest(row, col, groups) {
-  console.log("getGroupRequest - groups: " + groups);
+export function getGroupRequest(row, col) {
   fetch(`${API_URL}/get-group`, {
     method: "POST",
     headers: {
@@ -210,11 +209,8 @@ export function getGroupRequest(row, col, groups) {
     })
     .then((data) => {
       console.log("Server response:", data);
-      groups = data;
-      console.log("getGroupRequest - groups after response: ");
-      console.log(groups);
 
-      toggleGroupSelection(groups);
+      toggleGroupSelection(data);
       return data;
     })
     .catch((error) => {

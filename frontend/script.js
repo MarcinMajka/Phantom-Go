@@ -241,11 +241,7 @@ function placeStone(stoneColor, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      deadGroupsDuringCounting = getGroupRequest(
-        row,
-        col,
-        deadGroupsDuringCounting
-      );
+      deadGroupsDuringCounting = getGroupRequest(row, col);
     }
   });
 
@@ -382,8 +378,8 @@ function syncBoards() {
             countingPhase = true;
 
             handleGameButtonsAfterGame(isWinnerDecided);
+
             deadGroupsDuringCounting = data.groups_selected_during_counting;
-            console.log(deadGroupsDuringCounting);
             toggleGroupSelection(deadGroupsDuringCounting);
 
             if (playerColor === "spectator") {
