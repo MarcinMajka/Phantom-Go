@@ -60,6 +60,8 @@ export function countScoreButtonHandler() {
 }
 
 function countScoreRequest() {
+  // TODO: this has to check if both players clicked the button - if yes, then both should get the score,
+  // TODO: if no, then wait for other player - if deadGroupsDuringCounting changes, it resets the flag on player clicking the button
   fetch(`${API_URL}/get-score`, {
     method: "POST",
     headers: {
@@ -82,10 +84,6 @@ function countScoreRequest() {
       const res = createButton("result", `Result: ${data}`);
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
-
-      // updateBoard(boardState);
-      // updateCaptures(data.black_captures, data.white_captures);
-      // updateTurn(data.current_player);
     })
     .catch((error) => {
       console.error("Error during count score:", error);
