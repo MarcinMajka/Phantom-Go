@@ -194,7 +194,8 @@ lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> =
         Mutex::new(HashMap::new());
-    static ref GROUPS_TO_REMOVE: Mutex<HashSet<Vec<Loc>>> = Mutex::new(HashSet::new());
+    static ref GROUPS_TO_REMOVE: Mutex<HashMap<String, HashSet<Vec<Loc>>>> =
+        Mutex::new(HashMap::new());
 }
 
 fn color_to_string(color: Color) -> String {
@@ -409,6 +410,10 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
             StatusCode::INTERNAL_SERVER_ERROR,
         )
     })?;
+
+    let mut groups = groups
+        .entry(payload.match_string.clone())
+        .or_insert_with(|| HashSet::new());
 
     if groups.contains(&group) {
         groups.remove(&group);
@@ -736,6 +741,10 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                     StatusCode::INTERNAL_SERVER_ERROR,
                 )
             })?;
+
+            let mut groups_to_remove = groups_to_remove
+                .entry(payload.match_string.clone())
+                .or_insert_with(|| HashSet::new());
 
             let groups = GroupsToRemove {
                 selected: groups_to_remove.clone(),
