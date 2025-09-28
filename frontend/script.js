@@ -378,7 +378,7 @@ function syncBoards() {
             countingPhase = true;
 
             handleGameButtonsAfterGame(isWinnerDecided);
-
+            // TODO: investigation - one player selects dead stone(s), the other clicks #count-score-button, result comes back as if the first player didn't click it
             deadGroupsDuringCounting = data.groups_selected_during_counting;
             toggleGroupSelection(deadGroupsDuringCounting);
 
