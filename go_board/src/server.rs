@@ -198,6 +198,16 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
+fn lock_groups_to_remove(
+) -> Result<std::sync::MutexGuard<'static, HashMap<String, HashSet<Vec<Loc>>>>, Error> {
+    GROUPS_TO_REMOVE.lock().map_err(|_| {
+        json_error(
+            "Failed to lock GROUPS_TO_REMOVE",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    })
+}
+
 fn color_to_string(color: Color) -> String {
     match color {
         Color::Empty => "empty".to_string(),
@@ -404,12 +414,7 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
         col: payload.col + 1,
     });
 
-    let mut groups = GROUPS_TO_REMOVE.lock().map_err(|_| {
-        json_error(
-            "Failed to lock GROUPS_TO_REMOVE",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        )
-    })?;
+    let mut groups = lock_groups_to_remove()?;
 
     let mut groups = groups
         .entry(payload.match_string.clone())
@@ -735,12 +740,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 _ => 0,
             };
 
-            let mut groups_to_remove = GROUPS_TO_REMOVE.lock().map_err(|_| {
-                json_error(
-                    "Failed to lock GROUPS_TO_REMOVE",
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                )
-            })?;
+            let mut groups_to_remove = lock_groups_to_remove()?;
 
             let mut groups_to_remove = groups_to_remove
                 .entry(payload.match_string.clone())
