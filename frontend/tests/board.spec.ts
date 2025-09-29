@@ -76,6 +76,46 @@ test.describe("Logging in", () => {
   });
 });
 
+test.only("Player 1 selects a dead stone, Player 2 counts score", async ({
+  browser,
+}) => {
+  const ms = generateMatchID();
+
+  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+  let blackPlayer: Page, whitePlayer: Page;
+  if ((await p1.locator("#player-title").textContent()) === "Black Player") {
+    blackPlayer = p1;
+    whitePlayer = p2;
+  } else {
+    blackPlayer = p2;
+    whitePlayer = p1;
+  }
+
+  const board = blackPlayer.locator("svg");
+  const box = await board.boundingBox();
+  clickCenter(blackPlayer, box);
+
+  await whitePlayer.locator("#pass-button").click();
+  await blackPlayer.locator("#pass-button").click();
+
+  await whitePlayer.locator("#go-to-main-board-button").click();
+  await blackPlayer.locator("#go-to-main-board-button").click();
+
+  await whitePlayer.locator(".stone").first().click();
+
+  await blackPlayer.waitForTimeout(1000);
+  await blackPlayer.locator("#count-score-button").click();
+
+  expect(await blackPlayer.locator("#result").textContent()).toBe(
+    "Result: White +2.5"
+  );
+
+  await whitePlayer.waitForTimeout(1000);
+  await whitePlayer.locator("#count-score-button").click();
+});
+
 test("Add/remove guess stone and check its status after each click", async ({
   page,
 }) => {
