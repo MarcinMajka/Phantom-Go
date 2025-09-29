@@ -114,6 +114,11 @@ test.only("Player 1 selects a dead stone, Player 2 counts score", async ({
 
   await whitePlayer.waitForTimeout(1000);
   await whitePlayer.locator("#count-score-button").click();
+
+  // When the bug is fixed, this will run
+  expect(await whitePlayer.locator("#result").textContent()).toBe(
+    "Result: White +2.5"
+  );
 });
 
 test("Add/remove guess stone and check its status after each click", async ({
