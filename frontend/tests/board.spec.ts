@@ -1,66 +1,79 @@
 import { test, expect, Page, Browser } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
-test("Start game", async ({ page }) => {
-  startGameWithRandomID(page);
+test.describe("Logging in", () => {
+  test("Start game", async ({ page }) => {
+    startGameWithRandomID(page);
 
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
+    const playerTitle = page.locator("#player-title");
+    const boardContainer = page.locator("#board-container");
 
-  await expect(playerTitle).toBeVisible();
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(1);
-});
+    await expect(playerTitle).toBeVisible();
+    await expect(boardContainer.locator(":scope > div")).toHaveCount(1);
+  });
 
-test("Start game as a spectator", async ({ page }) => {
-  startGameAsSpectator(page, generateMatchID());
+  test("Start game as a spectator", async ({ page }) => {
+    startGameAsSpectator(page, generateMatchID());
 
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
+    const playerTitle = page.locator("#player-title");
+    const boardContainer = page.locator("#board-container");
 
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
-});
+    await expect(playerTitle).toHaveCount(0);
+    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  });
 
-test("Confirm the second joining user has the other color", async ({
-  browser,
-}) => {
-  // Not sure why, but when repeating-each, first run is 40 something seconds, next dozen is sub 60s, subsequent time out
-  test.setTimeout(120 * 1000);
+  test("Confirm the second joining user has the other color", async ({
+    browser,
+  }) => {
+    // Not sure why, but when repeating-each, first run is 40 something seconds, next dozen is sub 60s, subsequent time out
+    test.setTimeout(120 * 1000);
 
-  const RUNS = 100;
+    const RUNS = 100;
 
-  for (let i = 0; i < RUNS; i++) {
-    const ms = generateMatchID();
+    for (let i = 0; i < RUNS; i++) {
+      const ms = generateMatchID();
 
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+      const { context: c1, page: p1 } = await createUserAndJoinMatch(
+        browser,
+        ms
+      );
+      const { context: c2, page: p2 } = await createUserAndJoinMatch(
+        browser,
+        ms
+      );
 
-    const playerOne = await p1.locator("#player-title").textContent();
-    const playerTwo = await p2.locator("#player-title").textContent();
+      const playerOne = await p1.locator("#player-title").textContent();
+      const playerTwo = await p2.locator("#player-title").textContent();
 
-    expect(playerOne !== playerTwo);
+      expect(playerOne !== playerTwo);
 
-    await c1.close();
-    await c2.close();
-  }
-});
+      await c1.close();
+      await c2.close();
+    }
+  });
 
-test("Confirm subsequent joining users are spectators", async ({ browser }) => {
-  const RUNS = 50;
+  test("Confirm subsequent joining users are spectators", async ({
+    browser,
+  }) => {
+    const RUNS = 50;
 
-  for (let i = 0; i < RUNS; i++) {
-    const matchString = generateMatchID();
+    for (let i = 0; i < RUNS; i++) {
+      const matchString = generateMatchID();
 
-    // Create first two players (they join and leave immediately)
-    (await createUserAndJoinMatch(browser, matchString)).context.close();
-    (await createUserAndJoinMatch(browser, matchString)).context.close();
+      // Create first two players (they join and leave immediately)
+      (await createUserAndJoinMatch(browser, matchString)).context.close();
+      (await createUserAndJoinMatch(browser, matchString)).context.close();
 
-    // Create third user (spectator) and verify they're a spectator
-    const spectatorSession = await createUserAndJoinMatch(browser, matchString);
+      // Create third user (spectator) and verify they're a spectator
+      const spectatorSession = await createUserAndJoinMatch(
+        browser,
+        matchString
+      );
 
-    await verifySpectatorState(spectatorSession.page);
-    await spectatorSession.context.close();
-  }
+      await verifySpectatorState(spectatorSession.page);
+      await spectatorSession.context.close();
+    }
+  });
 });
 
 test("Add/remove guess stone and check its status after each click", async ({
