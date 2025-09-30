@@ -52,6 +52,10 @@ let stonesInAtari = {
 };
 let deadGroupsDuringCounting = [];
 
+export function getDeadGroups() {
+  return deadGroupsDuringCounting.selected;
+}
+
 const API_URL = getAPIUrl();
 
 const playerColor = getPlayerColor();

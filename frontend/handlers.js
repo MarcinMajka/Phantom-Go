@@ -12,6 +12,7 @@ import {
   getPlayerSessionToken,
 } from "./utils.js";
 import { elements } from "./elements.js";
+import { getDeadGroups } from "./script.js";
 
 export let addingGuessStone = false;
 export let removingGuessStone = false;
@@ -56,10 +57,12 @@ function resignRequest() {
 }
 
 export function countScoreButtonHandler() {
-  elements.countScore.addEventListener("click", countScoreRequest);
+  elements.countScore.addEventListener("click", () => {
+    countScoreRequest(getDeadGroups());
+  });
 }
 
-function countScoreRequest() {
+function countScoreRequest(deadGroups) {
   // TODO: this has to check if both players clicked the button - if yes, then both should get the score,
   // TODO: if no, then wait for other player - if deadGroupsDuringCounting changes, it resets the flag on player clicking the button
   fetch(`${API_URL}/get-score`, {
@@ -70,7 +73,7 @@ function countScoreRequest() {
     body: JSON.stringify({
       match_string: getMatchString(),
       session_token: getPlayerSessionToken(),
-      groups_to_remove: Object.values(groupsToRemove),
+      groups_to_remove: deadGroups,
     }),
   })
     .then((response) => {
