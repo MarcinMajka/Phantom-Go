@@ -196,6 +196,8 @@ lazy_static! {
         Mutex::new(HashMap::new());
     static ref GROUPS_TO_REMOVE: Mutex<HashMap<String, HashSet<Vec<Loc>>>> =
         Mutex::new(HashMap::new());
+    static ref OTHER_PLAYER_WANTS_TO_COUNT: Mutex<HashMap<String, bool>> =
+        Mutex::new(HashMap::new());
 }
 
 fn lock_groups_to_remove(
@@ -450,6 +452,25 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     if is_request_from_kibitz(&payload.session_token, room) {
         // Return current score, with stones on the board as they stand atm
         return Ok(Json(room.board.count_score().to_string()));
+    }
+
+    let mut is_counting_finished = OTHER_PLAYER_WANTS_TO_COUNT.lock().map_err(|_| {
+        json_error(
+            "Failed to lock OTHER_PLAYER_WANTS_TO_COUNT",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    })?;
+
+    let mut is_counting_finished = is_counting_finished
+        .entry(payload.match_string.clone())
+        .or_insert_with(|| false);
+
+    println!("Is counting finished: {}", is_counting_finished);
+
+    if !is_counting_finished.clone() {
+        println!("Inside the if statement!");
+        *is_counting_finished = true;
+        return Ok(Json("Waiting for other player".to_string()));
     }
 
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());

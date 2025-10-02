@@ -211,6 +211,11 @@ export function getGroupRequest(row, col) {
     .then((data) => {
       console.log("Server response:", data);
 
+      if (data === "Waiting for other player") {
+        console.log("Waiting for other player...");
+        return;
+      }
+
       toggleGroupSelection(data);
       return data;
     })
