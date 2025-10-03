@@ -420,6 +420,14 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
         return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED));
     }
 
+    {
+        let mut other_player_wants_to_count_lock = lock_other_player_wants_to_count()?;
+        let mut other_player_wants_to_count = other_player_wants_to_count_lock
+            .entry(payload.match_string.clone())
+            .or_insert_with(|| false);
+        *other_player_wants_to_count = false;
+    }
+
     let group = room.board.group_stones(Loc {
         row: payload.row + 1,
         col: payload.col + 1,
