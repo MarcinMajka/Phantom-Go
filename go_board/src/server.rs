@@ -210,6 +210,16 @@ fn lock_groups_to_remove(
     })
 }
 
+fn lock_other_player_wants_to_count(
+) -> Result<std::sync::MutexGuard<'static, HashMap<String, bool>>> {
+    OTHER_PLAYER_WANTS_TO_COUNT.lock().map_err(|_| {
+        json_error(
+            "Failed to lock OTHER_PLAYER_WANTS_TO_COUNT",
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
+    })
+}
+
 fn color_to_string(color: Color) -> String {
     match color {
         Color::Empty => "empty".to_string(),
@@ -454,12 +464,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
         return Ok(Json(room.board.count_score().to_string()));
     }
 
-    let mut is_counting_finished = OTHER_PLAYER_WANTS_TO_COUNT.lock().map_err(|_| {
-        json_error(
-            "Failed to lock OTHER_PLAYER_WANTS_TO_COUNT",
-            StatusCode::INTERNAL_SERVER_ERROR,
-        )
-    })?;
+    let mut is_counting_finished = lock_other_player_wants_to_count()?;
 
     let mut is_counting_finished = is_counting_finished
         .entry(payload.match_string.clone())
