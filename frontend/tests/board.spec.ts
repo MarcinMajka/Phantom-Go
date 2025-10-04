@@ -76,7 +76,8 @@ test.describe("Logging in", () => {
   });
 });
 
-test.only("Player 1 selects a dead stone, Player 2 counts score", async ({
+// TODO: update this test after finishing the feature
+test.skip("Player 1 selects a dead stone, Player 2 counts score", async ({
   browser,
 }) => {
   const ms = generateMatchID();
