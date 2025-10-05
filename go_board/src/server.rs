@@ -498,6 +498,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let score = room.board.count_score();
     let winner = match score {
         GameResult::Points(player, _) => player,
+        // TODO: turns out maybe it's a good idea to use GameResult::Resignation here
         _ => unreachable!("Other GameResult variants should not appear here (Resignation is handled in handle_resignation() and Draw is impossible with 1.5 komi")
     };
     room.board.set_winner(winner);
