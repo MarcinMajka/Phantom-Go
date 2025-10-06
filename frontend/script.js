@@ -301,10 +301,10 @@ function syncBoards() {
       console.log("Winner: ", data.winner);
       console.log("Should sync: ", data.should_sync);
 
-      if (data.winner) {
-        console.log("There's a winner! No board syncs from now on :)");
-        return;
-      }
+      // if (data.winner) {
+      //   console.log("There's a winner! No board syncs from now on :)");
+      //   return;
+      // }
 
       if (!data.should_sync && !countingPhase) {
         console.log("Not syncing boards!");
@@ -358,7 +358,7 @@ function syncBoards() {
 
           if (data.winner) {
             isWinnerDecided = true;
-            const res = createButton("resign-result", data.winner + " + R");
+            const res = createButton("resign-result", data.winner);
             elements.infoContainer.innerHTML = "";
             elements.infoContainer.appendChild(res);
             handleGameButtonsAfterGame(isWinnerDecided);

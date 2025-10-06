@@ -84,9 +84,8 @@ function countScoreRequest(deadGroups) {
     })
     .then((data) => {
       console.log("Result:", data);
-      const res = createButton("result", `Result: ${data}`);
-      elements.infoContainer.innerHTML = "";
-      elements.infoContainer.appendChild(res);
+
+      updateTurn("counting");
     })
     .catch((error) => {
       console.error("Error during count score:", error);

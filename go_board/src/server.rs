@@ -496,12 +496,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     remove_dead_groups(&mut room.board, payload.groups_to_remove.clone());
 
     let score = room.board.count_score();
-    let winner = match score {
-        GameResult::Points(player, _) => player,
-        // TODO: turns out maybe it's a good idea to use GameResult::Resignation here
-        _ => unreachable!("Other GameResult variants should not appear here (Resignation is handled in handle_resignation() and Draw is impossible with 1.5 komi")
-    };
-    room.board.set_winner(winner);
+    room.board.set_winner(score.clone());
 
     Ok(Json(score.to_string()))
 }
@@ -522,7 +517,8 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
         _ => Player::White,
     };
 
-    room.board.set_winner(loser.opponent());
+    room.board
+        .set_winner(GameResult::Resignation(loser.opponent()));
 
     println!(
         "Player: {}, board_generation_number: {}",
@@ -698,7 +694,7 @@ struct GameInfo {
     should_sync: bool,
     move_number: usize,
     board_generation_number: usize,
-    winner: Option<Player>,
+    winner: Option<GameResult>,
 }
 
 #[handler]
