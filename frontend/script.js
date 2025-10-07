@@ -300,6 +300,15 @@ function syncBoards() {
     }).then((data) => {
       console.log("Winner: ", data.winner);
       console.log("Should sync: ", data.should_sync);
+      console.log("Rejoin required: ", data.rejoin_required);
+
+      if (data.rejoin_required) {
+        alert("Game data lost. Please rejoin via login page :)");
+        setTimeout(() => {
+          window.location.href = `${getAPIUrl()}/frontend/index.html`;
+        }, 1000);
+        return;
+      }
 
       // if (data.winner) {
       //   console.log("There's a winner! No board syncs from now on :)");
@@ -342,15 +351,6 @@ function syncBoards() {
         })
         .then((data) => {
           console.log("Server response:", data.message);
-
-          // !BUG: since adding pre sync fetch, this part doesn't get triggered when it should
-          if (data.rejoin_required) {
-            alert("Game data lost. Please rejoin via login page :)");
-            setTimeout(() => {
-              window.location.href = `${getAPIUrl()}/frontend/index.html`;
-            }, 2000);
-            return; // stop syncing
-          }
 
           failedAttempts = 0; // Reset counter on success
 

@@ -695,6 +695,7 @@ struct GameInfo {
     move_number: usize,
     board_generation_number: usize,
     winner: Option<GameResult>,
+    rejoin_required: bool,
 }
 
 #[handler]
@@ -709,11 +710,18 @@ async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>,
     let winner = room.board.get_winner();
     let should_sync = board_generation_number > payload.frontend_board_generation_number;
 
+    let rejoin_required = match payload.player.as_ref() {
+        "black" => room.players.black.is_none(),
+        "white" => room.players.white.is_none(),
+        _ => false,
+    };
+
     Ok(Json(GameInfo {
         should_sync,
         move_number,
         board_generation_number,
         winner,
+        rejoin_required,
     }))
 }
 
