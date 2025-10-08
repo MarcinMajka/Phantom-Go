@@ -134,10 +134,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
             })
             .then((data) => {
               boardGenerationNumber = data.board_generation_number;
-              console.log(
-                "Successful move! Board interaction number: ",
-                boardGenerationNumber
-              );
               stonesInAtari = data.stones_in_atari;
               boardState = data.board;
 
@@ -298,10 +294,6 @@ function syncBoards() {
         frontend_board_generation_number: boardGenerationNumber,
       }),
     }).then((data) => {
-      console.log("Winner: ", data.winner);
-      console.log("Should sync: ", data.should_sync);
-      console.log("Rejoin required: ", data.rejoin_required);
-
       if (data.rejoin_required) {
         alert("Game data lost. Please rejoin via login page :)");
         setTimeout(() => {
@@ -354,8 +346,6 @@ function syncBoards() {
 
           failedAttempts = 0; // Reset counter on success
 
-          console.log("DATA.WINNER = ", data.winner);
-
           if (data.winner) {
             isWinnerDecided = true;
             const res = createButton("resign-result", data.winner);
@@ -374,7 +364,6 @@ function syncBoards() {
           updateTurn(data.current_player);
 
           if (data.counting) {
-            console.log("Current player: " + data.current_player);
             updateTurn(data.current_player);
 
             countingPhase = true;
@@ -449,13 +438,14 @@ function undoRequest() {
     })
     .then((data) => {
       console.log("Server response:", data.message);
+
       if (data.message === "It's not your turn to undo!") {
-        console.log("Board generation number: ", data.board_generation_number);
         return;
       }
-      console.log("Board generation number: ", data.board_generation_number);
+
       boardGenerationNumber = data.board_generation_number;
       boardState = data.board;
+
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
       updateTurn(data.current_player);

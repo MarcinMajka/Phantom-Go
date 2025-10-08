@@ -174,7 +174,6 @@ function passRequest() {
 export function guessStonesButtonsHandler() {
   if (elements.guessStone) {
     elements.guessStone.addEventListener("click", () => {
-      console.log("Add stone button clicked");
       elements.guessStone.classList.toggle("clicked");
       if (elements.guessStone.classList.contains("clicked")) {
         addingGuessStone = true;
