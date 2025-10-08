@@ -328,12 +328,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         Player::White => "white",
     };
 
-    println!(
-        "BEFORE MOVE VALIDATION:
-    Player: {}, frontend board_generation_number: {}\n game_generation_number: {}",
-        frontend_board, payload.board_generation_number, room.game_generation_number
-    );
-
     if correct_board != frontend_board && frontend_board != "main" {
         println!("NOT YOUR TURN!!!");
         return Ok(Json(
@@ -376,10 +370,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     let board_state: Vec<Vec<String>> = get_board_state(&board);
 
     room.game_generation_number += 1;
-    println!(
-        "AFTER MOVE VALIDATION - LEGAL MOVE!!! Game generation number: {}",
-        room.game_generation_number
-    );
 
     Ok(Json(
         GameState::new(
@@ -451,8 +441,6 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
         groups.insert(group.clone());
     }
 
-    println!("{:?}", groups);
-
     let data = GroupsToRemove {
         selected: groups.clone(),
         toggle: group,
@@ -487,7 +475,6 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     println!("Is counting finished: {}", is_counting_finished);
 
     if !is_counting_finished.clone() {
-        println!("Inside the if statement!");
         *is_counting_finished = true;
         return Ok(Json("Waiting for other player".to_string()));
     }
@@ -518,11 +505,6 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
 
     room.board
         .set_winner(GameResult::Resignation(loser.opponent()));
-
-    println!(
-        "Player: {}, board_generation_number: {}",
-        payload.player, room.game_generation_number
-    );
 
     Ok(Json(
         GameState::new(
@@ -555,11 +537,6 @@ async fn pass(payload: Json<PassPayload>) -> Result<Json<GameState>, Error> {
     // Getting player here, because of ownership - coudn't borrow it immutably during board.play() (mutable borrow);
     let player = room.board.get_current_player();
     let frontend_player = &payload.player;
-
-    println!(
-        "Player: {}, board_generation_number: {}",
-        frontend_player, room.game_generation_number
-    );
 
     if player.to_string() != frontend_player.to_string() && frontend_player != "spectator" {
         return Ok(Json(
@@ -620,11 +597,6 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
     let frontend_player = &payload.player;
     let game_history_len = room.board.game_history.clone().len();
 
-    println!(
-        "UNDO BEFORE VALIDATION!! Player: {}, frontend board_generation_number: {}\n game_generation_number: {}",
-        frontend_player, payload.board_generation_number, room.game_generation_number
-    );
-
     if player.to_string() == frontend_player.to_string() && frontend_player != "spectator"
         || game_history_len == 0
     {
@@ -638,11 +610,6 @@ async fn undo(payload: Json<UndoPayload>) -> Result<Json<GameState>, Error> {
 
     room.board.undo();
     room.game_generation_number += 1;
-
-    println!(
-        "UNDO AFTER VALIDATION!! Player: {}, board_generation_number: {}",
-        frontend_player, room.game_generation_number
-    );
 
     // Get the playable board dimensions
     let (rows, cols) = get_playable_dimensions(&room.board);

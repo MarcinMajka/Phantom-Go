@@ -585,7 +585,6 @@ impl Board {
 
             self.stones_in_atari.black = new_black.iter().map(|group| group.len()).sum();
             self.stones_in_atari.white = new_white.iter().map(|group| group.len()).sum();
-            println!("Groups in atari: {:?}", self.groups_in_atari);
         }
     }
 
