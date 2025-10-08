@@ -203,8 +203,7 @@ lazy_static! {
         Mutex::new(HashMap::new());
     static ref GROUPS_TO_REMOVE: Mutex<HashMap<String, HashSet<Vec<Loc>>>> =
         Mutex::new(HashMap::new());
-    static ref OTHER_PLAYER_WANTS_TO_COUNT: Mutex<HashMap<String, bool>> =
-        Mutex::new(HashMap::new());
+    static ref READY_TO_COUNT: Mutex<HashMap<String, bool>> = Mutex::new(HashMap::new());
 }
 
 fn lock_groups_to_remove(
@@ -219,9 +218,9 @@ fn lock_groups_to_remove(
 
 fn lock_other_player_wants_to_count(
 ) -> Result<std::sync::MutexGuard<'static, HashMap<String, bool>>> {
-    OTHER_PLAYER_WANTS_TO_COUNT.lock().map_err(|_| {
+    READY_TO_COUNT.lock().map_err(|_| {
         json_error(
-            "Failed to lock OTHER_PLAYER_WANTS_TO_COUNT",
+            "Failed to lock READY_TO_COUNT",
             StatusCode::INTERNAL_SERVER_ERROR,
         )
     })
