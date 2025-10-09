@@ -71,6 +71,7 @@ function countScoreRequest(deadGroups) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      player: getPlayerColor(),
       match_string: getMatchString(),
       session_token: getPlayerSessionToken(),
       groups_to_remove: deadGroups,

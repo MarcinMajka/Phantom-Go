@@ -456,6 +456,7 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
 
 #[derive(Deserialize)]
 struct GetScorePayload {
+    player: String,
     match_string: String,
     session_token: String,
     groups_to_remove: Vec<Vec<Loc>>,
