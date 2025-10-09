@@ -473,6 +473,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
 
     let mut is_counting_finished = lock_other_player_wants_to_count()?;
 
+    // TODO: with ReadyToCount being { black: bool, white: bool }, I need to differentiate between players
     let mut is_counting_finished = is_counting_finished
         .entry(payload.match_string.clone())
         .or_insert_with(|| false);
