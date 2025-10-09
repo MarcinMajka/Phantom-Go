@@ -197,6 +197,11 @@ impl GameRoom {
     }
 }
 
+struct ReadyToCount {
+    black: bool,
+    white: bool,
+}
+
 lazy_static! {
     static ref GAME_ROOMS: Mutex<HashMap<String, GameRoom>> = Mutex::new(HashMap::new());
     static ref GUESS_STONES: Mutex<HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>> =
