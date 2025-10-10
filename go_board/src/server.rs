@@ -221,8 +221,7 @@ fn lock_groups_to_remove(
     })
 }
 
-fn lock_other_player_wants_to_count(
-) -> Result<std::sync::MutexGuard<'static, HashMap<String, bool>>> {
+fn lock_ready_to_count() -> Result<std::sync::MutexGuard<'static, HashMap<String, bool>>> {
     READY_TO_COUNT.lock().map_err(|_| {
         json_error(
             "Failed to lock READY_TO_COUNT",
@@ -422,7 +421,7 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
     }
 
     {
-        let mut other_player_wants_to_count_lock = lock_other_player_wants_to_count()?;
+        let mut other_player_wants_to_count_lock = lock_ready_to_count()?;
         let mut other_player_wants_to_count = other_player_wants_to_count_lock
             .entry(payload.match_string.clone())
             .or_insert_with(|| false);
@@ -472,7 +471,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
         return Ok(Json(room.board.count_score().to_string()));
     }
 
-    let mut is_counting_finished = lock_other_player_wants_to_count()?;
+    let mut is_counting_finished = lock_ready_to_count()?;
 
     // TODO: with ReadyToCount being { black: bool, white: bool }, I need to differentiate between players
     let mut is_counting_finished = is_counting_finished
@@ -769,7 +768,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 toggle: vec![Loc::from_string("100, 100").unwrap()],
             };
 
-            let mut other_player_wants_to_count_lock = lock_other_player_wants_to_count()?;
+            let mut other_player_wants_to_count_lock = lock_ready_to_count()?;
             let mut other_player_wants_to_count = other_player_wants_to_count_lock
                 .entry(payload.match_string.clone())
                 .or_insert_with(|| false);
