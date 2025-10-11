@@ -197,9 +197,19 @@ impl GameRoom {
     }
 }
 
+#[derive(Clone, Debug)]
 struct ReadyToCount {
     black: bool,
     white: bool,
+}
+
+impl ReadyToCount {
+    fn new() -> Self {
+        ReadyToCount {
+            black: false,
+            white: false,
+        }
+    }
 }
 
 lazy_static! {
@@ -208,7 +218,7 @@ lazy_static! {
         Mutex::new(HashMap::new());
     static ref GROUPS_TO_REMOVE: Mutex<HashMap<String, HashSet<Vec<Loc>>>> =
         Mutex::new(HashMap::new());
-    static ref READY_TO_COUNT: Mutex<HashMap<String, bool>> = Mutex::new(HashMap::new());
+    static ref READY_TO_COUNT: Mutex<HashMap<String, ReadyToCount>> = Mutex::new(HashMap::new());
 }
 
 fn lock_groups_to_remove(
@@ -221,7 +231,7 @@ fn lock_groups_to_remove(
     })
 }
 
-fn lock_ready_to_count() -> Result<std::sync::MutexGuard<'static, HashMap<String, bool>>> {
+fn lock_ready_to_count() -> Result<std::sync::MutexGuard<'static, HashMap<String, ReadyToCount>>> {
     READY_TO_COUNT.lock().map_err(|_| {
         json_error(
             "Failed to lock READY_TO_COUNT",
@@ -424,8 +434,37 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
         let mut other_player_wants_to_count_lock = lock_ready_to_count()?;
         let mut other_player_wants_to_count = other_player_wants_to_count_lock
             .entry(payload.match_string.clone())
-            .or_insert_with(|| false);
-        *other_player_wants_to_count = false;
+            .or_insert_with(|| ReadyToCount::new());
+
+        let requester = if room
+            .players
+            .black
+            .as_ref()
+            .map_or(false, |b| b.session_token == payload.session_token)
+        {
+            "black"
+        } else if room
+            .players
+            .white
+            .as_ref()
+            .map_or(false, |w| w.session_token == payload.session_token)
+        {
+            "white"
+        } else {
+            "unknown"
+        };
+
+        println!(
+            "get_group() resetting ready_to_count for match='{}' requester='{}' session='{}' before={:?}",
+            payload.match_string, requester, payload.session_token, other_player_wants_to_count
+        );
+
+        *other_player_wants_to_count = ReadyToCount::new();
+
+        println!(
+            "get_group() ready_to_count after reset for match='{}': {:?}",
+            payload.match_string, other_player_wants_to_count
+        );
     }
 
     let group = room.board.group_stones(Loc {
@@ -466,22 +505,66 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
 
+    println!(
+        "get_score request: match='{}' player='{}' session='{}'",
+        payload.match_string, payload.player, payload.session_token
+    );
+
     if is_request_from_kibitz(&payload.session_token, room) {
+        println!(
+            "get_score: kibitz or invalid session for match='{}' session='{}'",
+            payload.match_string, payload.session_token
+        );
         // Return current score, with stones on the board as they stand atm
         return Ok(Json(room.board.count_score().to_string()));
     }
 
-    let mut is_counting_finished = lock_ready_to_count()?;
+    let mut ready_to_count = lock_ready_to_count()?;
 
-    // TODO: with ReadyToCount being { black: bool, white: bool }, I need to differentiate between players
-    let mut is_counting_finished = is_counting_finished
+    let mut ready_to_count = ready_to_count
         .entry(payload.match_string.clone())
-        .or_insert_with(|| false);
+        .or_insert_with(|| ReadyToCount::new());
 
-    println!("Is counting finished: {}", is_counting_finished);
+    println!("get_score ready_to_count before set: {:?}", ready_to_count);
 
-    if !is_counting_finished.clone() {
-        *is_counting_finished = true;
+    // Get player identity from session_token instead of trusting client
+    let derived_player = if room
+        .players
+        .black
+        .as_ref()
+        .map_or(false, |b| b.session_token == payload.session_token)
+    {
+        "black"
+    } else if room
+        .players
+        .white
+        .as_ref()
+        .map_or(false, |w| w.session_token == payload.session_token)
+    {
+        "white"
+    } else {
+        // session token doesn't match either player - treat as spectator
+        "spectator"
+    };
+
+    if derived_player != payload.player.as_str() {
+        println!(
+            "get_score: client-declared='{}' differs from session-derived='{}' for match='{}' — using derived",
+            payload.player, derived_player, payload.match_string
+        );
+    }
+
+    match derived_player {
+        "black" => ready_to_count.black = true,
+        "white" => ready_to_count.white = true,
+        _ => (),
+    }
+
+    println!("get_score ready_to_count after set: {:?}", ready_to_count);
+
+    let is_counting_finished = ready_to_count.black && ready_to_count.white;
+
+    if !is_counting_finished {
         return Ok(Json("Waiting for other player".to_string()));
     }
 
@@ -768,37 +851,39 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 toggle: vec![Loc::from_string("100, 100").unwrap()],
             };
 
-            let mut other_player_wants_to_count_lock = lock_ready_to_count()?;
-            let mut other_player_wants_to_count = other_player_wants_to_count_lock
+            let mut ready_to_count = lock_ready_to_count()?;
+            let mut ready_to_count = ready_to_count
                 .entry(payload.match_string.clone())
-                .or_insert_with(|| false);
+                .or_insert_with(|| ReadyToCount::new());
 
-            let game_state = {
-                if *other_player_wants_to_count {
-                    GameState::new(
-                        "Current board state sent".to_string(),
-                        board_state.clone(),
-                        &room.board,
-                        board_int_num,
-                    )
-                    .with_guess_stones(black_stones.clone(), white_stones.clone())
-                    .with_stones_in_atari(room.board.stones_in_atari.clone())
-                    .with_groups_selected_during_counting(groups)
-                    .with_opponent_wanting_to_count()
-                } else {
-                    GameState::new(
-                        "Current board state sent".to_string(),
-                        board_state.clone(),
-                        &room.board,
-                        board_int_num,
-                    )
-                    .with_guess_stones(black_stones.clone(), white_stones.clone())
-                    .with_stones_in_atari(room.board.stones_in_atari.clone())
-                    .with_groups_selected_during_counting(groups)
-                }
+            let is_opponent_ready_to_count = match payload.player.as_ref() {
+                "black" => ready_to_count.white,
+                "white" => ready_to_count.black,
+                _ => false,
             };
 
-            game_state
+            if is_opponent_ready_to_count {
+                GameState::new(
+                    "Current board state sent".to_string(),
+                    board_state.clone(),
+                    &room.board,
+                    board_int_num,
+                )
+                .with_guess_stones(black_stones.clone(), white_stones.clone())
+                .with_stones_in_atari(room.board.stones_in_atari.clone())
+                .with_groups_selected_during_counting(groups)
+                .with_opponent_wanting_to_count()
+            } else {
+                GameState::new(
+                    "Current board state sent".to_string(),
+                    board_state.clone(),
+                    &room.board,
+                    board_int_num,
+                )
+                .with_guess_stones(black_stones.clone(), white_stones.clone())
+                .with_stones_in_atari(room.board.stones_in_atari.clone())
+                .with_groups_selected_during_counting(groups)
+            }
         }
     };
 
