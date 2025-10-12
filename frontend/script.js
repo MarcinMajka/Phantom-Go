@@ -374,6 +374,7 @@ function syncBoards() {
 
             if (playerColor === "spectator") {
               showElement(document.getElementById(".main-board-buttons"));
+              showElement(document.getElementById("ready-to-count-container"));
             }
           }
 
