@@ -19,6 +19,8 @@ export const elements = {
   pass: document.getElementById("pass-button"),
   resign: document.getElementById("resign-button"),
   infoContainer: document.getElementById("info-container"),
+  mainBoardButtons: document.getElementById(".main-board-buttons"),
+  readyToCountContainer: document.getElementById("ready-to-count-container"),
   stonesInAtari: document.getElementById("stones-in-atari"),
   boards: {
     main: document.getElementById("main-board"),

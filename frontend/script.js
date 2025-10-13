@@ -373,8 +373,8 @@ function syncBoards() {
             toggleGroupSelection(deadGroupsDuringCounting);
 
             if (playerColor === "spectator") {
-              showElement(document.getElementById(".main-board-buttons"));
-              showElement(document.getElementById("ready-to-count-container"));
+              showElement(elements.mainBoardButtons);
+              showElement(elements.readyToCountContainer);
             }
           }
 
