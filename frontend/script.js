@@ -323,6 +323,7 @@ function syncBoards() {
         },
         body: JSON.stringify({
           match_string: getMatchString(),
+          session_token: getPlayerSessionToken(),
           player: playerColor,
         }),
       })

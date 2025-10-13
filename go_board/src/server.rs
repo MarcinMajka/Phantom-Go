@@ -787,6 +787,7 @@ async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>,
 #[derive(Deserialize)]
 struct SyncBoardsPayload {
     match_string: String,
+    session_token: String,
     player: String,
 }
 
