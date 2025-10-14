@@ -367,6 +367,20 @@ function syncBoards() {
           if (data.counting) {
             updateTurn(data.current_player);
 
+            const opponentReadyToCountElement = document.getElementById(
+              "opponent-ready-to-count"
+            );
+            console.log(
+              "Opponent wants to count: " + data.opponent_wants_to_count
+            );
+
+            const ready = data.opponent_wants_to_count
+              ? "ready"
+              : "selecting dead stones";
+            if (opponentReadyToCountElement) {
+              opponentReadyToCountElement.innerText = "Opponent: " + ready;
+            }
+
             countingPhase = true;
 
             handleGameButtonsAfterGame(isWinnerDecided);

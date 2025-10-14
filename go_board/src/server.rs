@@ -861,7 +861,9 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 .entry(payload.match_string.clone())
                 .or_insert_with(|| ReadyToCount::new());
 
-            let is_opponent_ready_to_count = match payload.player.as_ref() {
+            let player = derive_player(room, payload.session_token.clone());
+
+            let is_opponent_ready_to_count = match player {
                 "black" => ready_to_count.white,
                 "white" => ready_to_count.black,
                 _ => false,
