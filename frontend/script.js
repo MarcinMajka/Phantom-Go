@@ -369,7 +369,19 @@ function syncBoards() {
 
             console.log("Ready to count:");
             console.log(data.ready_to_count);
+            console.log("black: ", data.ready_to_count.black);
+            console.log("white: ", data.ready_to_count.white);
             console.log();
+
+            const blackReady = document.getElementById("black-ready");
+            const whiteReady = document.getElementById("white-ready");
+
+            const blackReadyText = data.ready_to_count.black
+              ? "Black: ready"
+              : "Black: selecting dead stones";
+            const whiteReadyText = data.ready_to_count.white
+              ? "White: ready"
+              : "White: selecting dead stones";
 
             const opponentReadyToCountElement = document.getElementById(
               "opponent-ready-to-count"
@@ -381,8 +393,9 @@ function syncBoards() {
             const ready = data.opponent_wants_to_count
               ? "ready"
               : "selecting dead stones";
-            if (opponentReadyToCountElement) {
-              opponentReadyToCountElement.innerText = "Opponent: " + ready;
+            if (blackReady && whiteReady) {
+              blackReady.innerText = blackReadyText;
+              whiteReady.innerText = whiteReadyText;
             }
 
             countingPhase = true;
