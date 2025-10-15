@@ -76,6 +76,7 @@ struct GameState {
     rejoin_required: bool,
     groups_selected_during_counting: GroupsToRemove,
     opponent_wants_to_count: bool,
+    ready_to_count: ReadyToCount,
 }
 
 impl GameState {
@@ -106,6 +107,7 @@ impl GameState {
                 toggle: vec![Loc::from_string("100, 100").unwrap()],
             },
             opponent_wants_to_count: false,
+            ready_to_count: ReadyToCount::new(),
         };
 
         if game_state.counting {
@@ -147,6 +149,11 @@ impl GameState {
 
     fn with_opponent_wanting_to_count(mut self) -> Self {
         self.opponent_wants_to_count = true;
+        self
+    }
+
+    fn with_ready_to_count(mut self, rtc: ReadyToCount) -> Self {
+        self.ready_to_count = rtc;
         self
     }
 }
@@ -197,7 +204,7 @@ impl GameRoom {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 struct ReadyToCount {
     black: bool,
     white: bool,
@@ -880,6 +887,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 .with_stones_in_atari(room.board.stones_in_atari.clone())
                 .with_groups_selected_during_counting(groups)
                 .with_opponent_wanting_to_count()
+                .with_ready_to_count(ready_to_count.clone())
             } else {
                 GameState::new(
                     "Current board state sent".to_string(),
@@ -890,6 +898,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 .with_guess_stones(black_stones.clone(), white_stones.clone())
                 .with_stones_in_atari(room.board.stones_in_atari.clone())
                 .with_groups_selected_during_counting(groups)
+                .with_ready_to_count(ready_to_count.clone())
             }
         }
     };

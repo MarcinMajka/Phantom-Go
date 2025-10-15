@@ -367,6 +367,10 @@ function syncBoards() {
           if (data.counting) {
             updateTurn(data.current_player);
 
+            console.log("Ready to count:");
+            console.log(data.ready_to_count);
+            console.log();
+
             const opponentReadyToCountElement = document.getElementById(
               "opponent-ready-to-count"
             );
