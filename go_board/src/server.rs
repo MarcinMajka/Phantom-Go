@@ -443,35 +443,7 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
             .entry(payload.match_string.clone())
             .or_insert_with(|| ReadyToCount::new());
 
-        let requester = if room
-            .players
-            .black
-            .as_ref()
-            .map_or(false, |b| b.session_token == payload.session_token)
-        {
-            "black"
-        } else if room
-            .players
-            .white
-            .as_ref()
-            .map_or(false, |w| w.session_token == payload.session_token)
-        {
-            "white"
-        } else {
-            "unknown"
-        };
-
-        println!(
-            "get_group() resetting ready_to_count for match='{}' requester='{}' session='{}' before={:?}",
-            payload.match_string, requester, payload.session_token, other_player_wants_to_count
-        );
-
         *other_player_wants_to_count = ReadyToCount::new();
-
-        println!(
-            "get_group() ready_to_count after reset for match='{}': {:?}",
-            payload.match_string, other_player_wants_to_count
-        );
     }
 
     let group = room.board.group_stones(Loc {
@@ -533,16 +505,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
 
-    println!(
-        "get_score request: match='{}' player='{}' session='{}'",
-        payload.match_string, payload.player, payload.session_token
-    );
-
     if is_request_from_kibitz(&payload.session_token, room) {
-        println!(
-            "get_score: kibitz or invalid session for match='{}' session='{}'",
-            payload.match_string, payload.session_token
-        );
         // Return current score, with stones on the board as they stand atm
         return Ok(Json(room.board.count_score().to_string()));
     }
@@ -558,20 +521,11 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     // Get player identity from session_token instead of trusting client
     let derived_player = derive_player(room, payload.session_token.clone());
 
-    if derived_player != payload.player.as_str() {
-        println!(
-            "get_score: client-declared='{}' differs from session-derived='{}' for match='{}' — using derived",
-            payload.player, derived_player, payload.match_string
-        );
-    }
-
     match derived_player {
         "black" => ready_to_count.black = true,
         "white" => ready_to_count.white = true,
         _ => (),
     }
-
-    println!("get_score ready_to_count after set: {:?}", ready_to_count);
 
     let is_counting_finished = ready_to_count.black && ready_to_count.white;
 

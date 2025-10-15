@@ -367,12 +367,6 @@ function syncBoards() {
           if (data.counting) {
             updateTurn(data.current_player);
 
-            console.log("Ready to count:");
-            console.log(data.ready_to_count);
-            console.log("black: ", data.ready_to_count.black);
-            console.log("white: ", data.ready_to_count.white);
-            console.log();
-
             const blackReady = document.getElementById("black-ready");
             const whiteReady = document.getElementById("white-ready");
 
@@ -383,16 +377,6 @@ function syncBoards() {
               ? "White: ready"
               : "White: selecting dead stones";
 
-            const opponentReadyToCountElement = document.getElementById(
-              "opponent-ready-to-count"
-            );
-            console.log(
-              "Opponent wants to count: " + data.opponent_wants_to_count
-            );
-
-            const ready = data.opponent_wants_to_count
-              ? "ready"
-              : "selecting dead stones";
             if (blackReady && whiteReady) {
               blackReady.innerText = blackReadyText;
               whiteReady.innerText = whiteReadyText;
