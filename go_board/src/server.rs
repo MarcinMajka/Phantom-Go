@@ -75,7 +75,6 @@ struct GameState {
     board_generation_number: usize,
     rejoin_required: bool,
     groups_selected_during_counting: GroupsToRemove,
-    opponent_wants_to_count: bool,
     ready_to_count: ReadyToCount,
 }
 
@@ -106,7 +105,6 @@ impl GameState {
                 selected: HashSet::from([vec![Loc::from_string("100, 100").unwrap()]]),
                 toggle: vec![Loc::from_string("100, 100").unwrap()],
             },
-            opponent_wants_to_count: false,
             ready_to_count: ReadyToCount::new(),
         };
 
@@ -144,11 +142,6 @@ impl GameState {
 
     fn with_groups_selected_during_counting(mut self, groups_to_remove: GroupsToRemove) -> Self {
         self.groups_selected_during_counting = groups_to_remove;
-        self
-    }
-
-    fn with_opponent_wanting_to_count(mut self) -> Self {
-        self.opponent_wants_to_count = true;
         self
     }
 
@@ -822,38 +815,16 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
                 .entry(payload.match_string.clone())
                 .or_insert_with(|| ReadyToCount::new());
 
-            let player = derive_player(room, payload.session_token.clone());
-
-            let is_opponent_ready_to_count = match player {
-                "black" => ready_to_count.white,
-                "white" => ready_to_count.black,
-                _ => false,
-            };
-
-            if is_opponent_ready_to_count {
-                GameState::new(
-                    "Current board state sent".to_string(),
-                    board_state.clone(),
-                    &room.board,
-                    board_int_num,
-                )
-                .with_guess_stones(black_stones.clone(), white_stones.clone())
-                .with_stones_in_atari(room.board.stones_in_atari.clone())
-                .with_groups_selected_during_counting(groups)
-                .with_opponent_wanting_to_count()
-                .with_ready_to_count(ready_to_count.clone())
-            } else {
-                GameState::new(
-                    "Current board state sent".to_string(),
-                    board_state.clone(),
-                    &room.board,
-                    board_int_num,
-                )
-                .with_guess_stones(black_stones.clone(), white_stones.clone())
-                .with_stones_in_atari(room.board.stones_in_atari.clone())
-                .with_groups_selected_during_counting(groups)
-                .with_ready_to_count(ready_to_count.clone())
-            }
+            GameState::new(
+                "Current board state sent".to_string(),
+                board_state.clone(),
+                &room.board,
+                board_int_num,
+            )
+            .with_guess_stones(black_stones.clone(), white_stones.clone())
+            .with_stones_in_atari(room.board.stones_in_atari.clone())
+            .with_groups_selected_during_counting(groups)
+            .with_ready_to_count(ready_to_count.clone())
         }
     };
 
