@@ -346,6 +346,16 @@ function syncBoards() {
 
           failedAttempts = 0; // Reset counter on success
 
+          if (!data.winner && !data.counting) {
+            guessStones.black = data.black_guess_stones;
+            guessStones.white = data.white_guess_stones;
+
+            updateTurn(data.current_player);
+          }
+
+          updateCaptures(data.black_captures, data.white_captures);
+          updateBoard(data.board, data.stones_in_atari);
+
           if (data.winner) {
             isWinnerDecided = true;
             const res = createButton("resign-result", data.winner);
@@ -356,15 +366,14 @@ function syncBoards() {
             return;
           }
 
-          guessStones.black = data.black_guess_stones;
-          guessStones.white = data.white_guess_stones;
-
-          updateBoard(data.board, data.stones_in_atari);
-          updateCaptures(data.black_captures, data.white_captures);
-          updateTurn(data.current_player);
-
           if (data.counting) {
-            updateTurn(data.current_player);
+            if (getPlayerColor() === "spectator") {
+              if (elements.turn) {
+                delete elements.turn;
+              }
+            } else {
+              updateTurn(data.current_player);
+            }
 
             const blackReady = document.getElementById("black-ready");
             const whiteReady = document.getElementById("white-ready");
