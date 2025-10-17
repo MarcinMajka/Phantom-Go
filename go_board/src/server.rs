@@ -548,6 +548,8 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
     room.board
         .set_winner(GameResult::Resignation(loser.opponent()));
 
+    room.game_generation_number += 1;
+
     Ok(Json(
         GameState::new(
             format!("Player {:?} resigned. Game over!", loser),
