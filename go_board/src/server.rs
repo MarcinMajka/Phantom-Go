@@ -504,8 +504,6 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
         .entry(payload.match_string.clone())
         .or_insert_with(|| ReadyToCount::new());
 
-    println!("get_score ready_to_count before set: {:?}", ready_to_count);
-
     // Get player identity from session_token instead of trusting client
     let derived_player = derive_player(room.clone(), payload.session_token.clone());
 
