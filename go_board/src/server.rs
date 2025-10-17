@@ -36,7 +36,6 @@ struct BoardDimensions {
 
 #[derive(Deserialize, Debug)]
 pub struct CellClick {
-    pub frontend_board: String,
     pub row: usize,
     pub col: usize,
     match_string: String,
@@ -329,9 +328,8 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
+    let frontend_board = derive_player(room.clone(), payload.session_token.clone());
     let current_player = room.board.get_current_player();
-    // Check if the move was made on correct player's board
-    let frontend_board = payload.frontend_board.clone();
     let board_state: Vec<Vec<String>> = get_board_state(&room.board);
 
     let correct_board = match current_player {

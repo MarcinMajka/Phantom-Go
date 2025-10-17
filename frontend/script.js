@@ -117,7 +117,6 @@ function addClickAreas(board, rows, cols, playerBoard) {
             },
             // Send clicked cell coordinates as JSON payload
             body: JSON.stringify({
-              frontend_board: playerBoard,
               row: parseInt(row),
               col: parseInt(col),
               match_string: getMatchString(),
