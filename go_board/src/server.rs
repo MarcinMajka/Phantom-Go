@@ -328,12 +328,11 @@ fn get_board_state(board: &Board) -> Vec<Vec<String>> {
 async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
-    let board = &mut room.board;
 
-    let current_player = board.get_current_player();
+    let current_player = room.board.get_current_player();
     // Check if the move was made on correct player's board
     let frontend_board = payload.frontend_board.clone();
-    let board_state: Vec<Vec<String>> = get_board_state(&board);
+    let board_state: Vec<Vec<String>> = get_board_state(&room.board);
 
     let correct_board = match current_player {
         Player::Black => "black",
@@ -346,10 +345,10 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
             GameState::new(
                 format!("It's not your turn!"),
                 board_state,
-                board,
+                &room.board,
                 payload.board_generation_number,
             )
-            .with_stones_in_atari(board.stones_in_atari.clone()),
+            .with_stones_in_atari(room.board.stones_in_atari.clone()),
         ));
     }
 
@@ -364,22 +363,22 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     };
 
     // Try to play the move - play() handles validation internally
-    board.play(&move_attempt);
+    room.board.play(&move_attempt);
 
-    if board_state == get_board_state(&board) {
+    if board_state == get_board_state(&room.board) {
         println!("ILLEGAL MOVE");
         return Ok(Json(
             GameState::new(
                 format!("Move attempted at ({}, {})", payload.row, payload.col),
                 board_state,
-                board,
+                &room.board,
                 payload.board_generation_number,
             )
-            .with_stones_in_atari(board.stones_in_atari.clone()),
+            .with_stones_in_atari(room.board.stones_in_atari.clone()),
         ));
     }
 
-    let board_state: Vec<Vec<String>> = get_board_state(&board);
+    let board_state: Vec<Vec<String>> = get_board_state(&room.board);
 
     room.game_generation_number += 1;
 
@@ -387,10 +386,10 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
         GameState::new(
             format!("Move attempted at ({}, {})", payload.row, payload.col),
             board_state,
-            board,
+            &room.board,
             room.game_generation_number,
         )
-        .with_stones_in_atari(board.stones_in_atari.clone()),
+        .with_stones_in_atari(room.board.stones_in_atari.clone()),
     ))
 }
 
