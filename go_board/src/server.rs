@@ -512,7 +512,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     // Get player identity from session_token instead of trusting client
     let derived_player = derive_player(room.clone(), payload.session_token.clone());
 
-    match derived_player,as_ref() {
+    match derived_player.as_ref() {
         "black" => ready_to_count.black = true,
         "white" => ready_to_count.white = true,
         _ => (),
