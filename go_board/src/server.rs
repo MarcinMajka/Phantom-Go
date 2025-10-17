@@ -463,23 +463,23 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
 }
 
 // Get player identity from session_token instead of trusting client
-fn derive_player<'a>(room: &mut GameRoom, session_token: String) -> &str {
+fn derive_player(room: GameRoom, session_token: String) -> String {
     if room
         .players
         .black
         .as_ref()
         .map_or(false, |b| b.session_token == session_token)
     {
-        "black"
+        "black".to_string()
     } else if room
         .players
         .white
         .as_ref()
         .map_or(false, |w| w.session_token == session_token)
     {
-        "white"
+        "white".to_string()
     } else {
-        "spectator"
+        "spectator".to_string()
     }
 }
 
@@ -510,9 +510,9 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     println!("get_score ready_to_count before set: {:?}", ready_to_count);
 
     // Get player identity from session_token instead of trusting client
-    let derived_player = derive_player(room, payload.session_token.clone());
+    let derived_player = derive_player(room.clone(), payload.session_token.clone());
 
-    match derived_player {
+    match derived_player,as_ref() {
         "black" => ready_to_count.black = true,
         "white" => ready_to_count.white = true,
         _ => (),
