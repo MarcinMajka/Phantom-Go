@@ -402,7 +402,6 @@ fn is_request_from_kibitz(session_token: &str, room: &GameRoom) -> bool {
 
 #[derive(Deserialize)]
 struct GetGroupPayload {
-    frontend_board: String,
     row: usize,
     col: usize,
     match_string: String,
@@ -482,7 +481,6 @@ fn derive_player(room: GameRoom, session_token: String) -> String {
 
 #[derive(Deserialize)]
 struct GetScorePayload {
-    player: String,
     match_string: String,
     session_token: String,
     groups_to_remove: Vec<Vec<Loc>>,
