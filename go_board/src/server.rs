@@ -491,7 +491,9 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let mut rooms = lock_rooms()?;
     let room = get_room(&mut rooms, &payload.match_string)?;
 
-    if is_request_from_kibitz(&payload.session_token, room) {
+    let derived_player = derive_player(room.clone(), payload.session_token.clone());
+
+    if derived_player == "spectator" {
         // Return current score, with stones on the board as they stand atm
         return Ok(Json(room.board.count_score().to_string()));
     }
@@ -502,13 +504,10 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
         .entry(payload.match_string.clone())
         .or_insert_with(|| ReadyToCount::new());
 
-    // Get player identity from session_token instead of trusting client
-    let derived_player = derive_player(room.clone(), payload.session_token.clone());
-
     match derived_player.as_ref() {
         "black" => ready_to_count.black = true,
         "white" => ready_to_count.white = true,
-        _ => (),
+        _ => unreachable!("Request sent from a spectator handled in the if statement above"),
     }
 
     let is_counting_finished = ready_to_count.black && ready_to_count.white;
