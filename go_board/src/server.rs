@@ -391,15 +391,6 @@ async fn cell_click(payload: Json<CellClick>) -> Result<Json<GameState>, Error> 
     ))
 }
 
-fn is_request_from_kibitz(session_token: &str, room: &GameRoom) -> bool {
-    let session_tokens = [
-        room.players.black.as_ref().unwrap().session_token.as_str(),
-        room.players.white.as_ref().unwrap().session_token.as_str(),
-    ];
-
-    session_token == "" || !session_tokens.contains(&session_token)
-}
-
 #[derive(Deserialize)]
 struct GetGroupPayload {
     row: usize,
@@ -420,7 +411,9 @@ async fn get_group(payload: Json<GetGroupPayload>) -> Result<Json<GroupsToRemove
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
 
-    if is_request_from_kibitz(&payload.session_token, room) {
+    let derived_player = derive_player(room.clone(), payload.session_token.clone());
+
+    if derived_player == "spectator" {
         return Err(json_error("Not a player!", StatusCode::UNAUTHORIZED));
     }
 
