@@ -47,7 +47,7 @@ function resignRequest() {
     })
     .then((data) => {
       console.log("Resign response:", data);
-      const res = createButton("resign-result", data.winner + " + R");
+      const res = createButton("result", data.winner + " + R");
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
     })

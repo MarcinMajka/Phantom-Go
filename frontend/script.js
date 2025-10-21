@@ -357,7 +357,7 @@ function syncBoards() {
 
           if (data.winner) {
             isWinnerDecided = true;
-            const res = createButton("resign-result", data.winner);
+            const res = createButton("result", data.winner);
             elements.infoContainer.innerHTML = "";
             elements.infoContainer.appendChild(res);
             handleGameButtonsAfterGame(isWinnerDecided);
