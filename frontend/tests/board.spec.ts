@@ -76,8 +76,7 @@ test.describe("Logging in", () => {
   });
 });
 
-// TODO: update this test after finishing the feature
-test.skip("Player 1 selects a dead stone, Player 2 counts score", async ({
+test("Player 1 selects a dead stone, Player 2 counts score", async ({
   browser,
 }) => {
   const ms = generateMatchID();
@@ -109,16 +108,20 @@ test.skip("Player 1 selects a dead stone, Player 2 counts score", async ({
   await blackPlayer.waitForTimeout(1000);
   await blackPlayer.locator("#count-score-button").click();
 
-  expect(await blackPlayer.locator("#result").textContent()).toBe(
-    "Result: White +2.5"
+  await blackPlayer.waitForTimeout(1000);
+  expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    "Black: ready"
   );
 
   await whitePlayer.waitForTimeout(1000);
+  expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    "Black: ready"
+  );
   await whitePlayer.locator("#count-score-button").click();
 
-  // When the bug is fixed, this will run
-  expect(await whitePlayer.locator("#result").textContent()).toBe(
-    "Result: White +2.5"
+  // TODO: update this when element IDs make sense
+  expect(await whitePlayer.locator("#resign-result").textContent()).toBe(
+    "White +2.5"
   );
 });
 
