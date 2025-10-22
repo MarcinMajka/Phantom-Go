@@ -119,78 +119,80 @@ test("Player 1 selects a dead stone, Player 2 counts score", async ({
   await c2.close();
 });
 
-test("Add/remove guess stone and check its status after each click", async ({
-  page,
-}) => {
-  startGameWithRandomID(page);
+test.describe("Guess stones", () => {
+  test("Add/remove guess stone and check its status after each click", async ({
+    page,
+  }) => {
+    startGameWithRandomID(page);
 
-  await page.locator("#guess-stone-button").click();
+    await page.locator("#guess-stone-button").click();
 
-  const guessStone = page.locator(".stone");
-  const emptyField = page.locator("circle:nth-child(130)");
+    const guessStone = page.locator(".stone");
+    const emptyField = page.locator("circle:nth-child(130)");
 
-  for (let i = 0; i < 100; i++) {
-    await emptyField.click();
-    expect(guessStone).toBeVisible();
-    await guessStone.click();
-    expect(emptyField).toBeVisible();
-  }
-});
+    for (let i = 0; i < 100; i++) {
+      await emptyField.click();
+      expect(guessStone).toBeVisible();
+      await guessStone.click();
+      expect(emptyField).toBeVisible();
+    }
+  });
 
-test("Add/remove guess stone and check its status after all the clicks", async ({
-  page,
-  context,
-}) => {
-  startGameWithRandomID(page);
+  test("Add/remove guess stone and check its status after all the clicks", async ({
+    page,
+    context,
+  }) => {
+    startGameWithRandomID(page);
 
-  await page.locator("#guess-stone-button").click();
+    await page.locator("#guess-stone-button").click();
 
-  const board = page.locator("svg");
-  const box = await board.boundingBox();
+    const board = page.locator("svg");
+    const box = await board.boundingBox();
 
-  for (let i = 0; i < 100; i++) {
-    await clickCenter(page, box);
-  }
+    for (let i = 0; i < 100; i++) {
+      await clickCenter(page, box);
+    }
 
-  await page.waitForTimeout(100);
-  await expect(page.locator(".stone")).toHaveCount(0);
+    await page.waitForTimeout(100);
+    await expect(page.locator(".stone")).toHaveCount(0);
 
-  for (let i = 0; i < 101; i++) {
-    await clickCenter(page, box);
-  }
-  await page.waitForTimeout(100);
+    for (let i = 0; i < 101; i++) {
+      await clickCenter(page, box);
+    }
+    await page.waitForTimeout(100);
 
-  await expect(page.locator(".stone")).toHaveCount(1);
-});
+    await expect(page.locator(".stone")).toHaveCount(1);
+  });
 
-test("Add then remove all guess stones in quick succession", async ({
-  page,
-}) => {
-  startGameWithRandomID(page);
+  test("Add then remove all guess stones in quick succession", async ({
+    page,
+  }) => {
+    startGameWithRandomID(page);
 
-  await page.locator("#guess-stone-button").click();
+    await page.locator("#guess-stone-button").click();
 
-  for (let i = 33; i < 202; i++) {
-    await page.locator(`circle:nth-child(${i})`).click();
-  }
+    for (let i = 33; i < 202; i++) {
+      await page.locator(`circle:nth-child(${i})`).click();
+    }
 
-  const guessStones = page.locator(".stone");
-  const count = await guessStones.count();
+    const guessStones = page.locator(".stone");
+    const count = await guessStones.count();
 
-  expect(count).toBe(169);
+    expect(count).toBe(169);
 
-  const stoneSelectors: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const row = await guessStones.nth(i).getAttribute("data-row");
-    const col = await guessStones.nth(i).getAttribute("data-col");
-    stoneSelectors.push(`.stone[data-row="${row}"][data-col="${col}"]`);
-  }
+    const stoneSelectors: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = await guessStones.nth(i).getAttribute("data-row");
+      const col = await guessStones.nth(i).getAttribute("data-col");
+      stoneSelectors.push(`.stone[data-row="${row}"][data-col="${col}"]`);
+    }
 
-  for (let i = count; i > 0; i--) {
-    await page.locator(stoneSelectors[i - 1]).click();
-  }
+    for (let i = count; i > 0; i--) {
+      await page.locator(stoneSelectors[i - 1]).click();
+    }
 
-  await expect(guessStones).toHaveCount(0, { timeout: 6000 });
+    await expect(guessStones).toHaveCount(0, { timeout: 6000 });
+  });
 });
 
 test.describe("Throttling", () => {
