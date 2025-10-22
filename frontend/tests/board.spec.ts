@@ -119,8 +119,10 @@ test("Player 1 selects a dead stone, Player 2 counts score", async ({
   );
   await whitePlayer.locator("#count-score-button").click();
 
-  // TODO: update this when element IDs make sense
   expect(await whitePlayer.locator("#result").textContent()).toBe("White +2.5");
+
+  await c1.close();
+  await c2.close();
 });
 
 test("Add/remove guess stone and check its status after each click", async ({
