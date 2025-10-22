@@ -84,14 +84,8 @@ test("Player 1 selects a dead stone, Player 2 counts score", async ({
   const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
   const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
 
-  let blackPlayer: Page, whitePlayer: Page;
-  if ((await p1.locator("#player-title").textContent()) === "Black Player") {
-    blackPlayer = p1;
-    whitePlayer = p2;
-  } else {
-    blackPlayer = p2;
-    whitePlayer = p1;
-  }
+  const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+    await getPlayerPages(p1, p2);
 
   const board = blackPlayer.locator("svg");
   const box = await board.boundingBox();
@@ -320,6 +314,19 @@ async function createUserAndJoinMatch(browser: Browser, matchString: string) {
   await page.locator("button").click();
 
   return { context, page };
+}
+
+interface PlayerPages {
+  blackPlayerPage: Page;
+  whitePlayerPage: Page;
+}
+
+async function getPlayerPages(page1: Page, page2: Page): Promise<PlayerPages> {
+  if ((await page1.locator("#player-title").textContent()) === "Black Player") {
+    return { blackPlayerPage: page1, whitePlayerPage: page2 };
+  } else {
+    return { blackPlayerPage: page2, whitePlayerPage: page1 };
+  }
 }
 
 interface BoundingBox {
