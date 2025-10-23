@@ -119,6 +119,59 @@ test("Player 1 selects a dead stone, Player 2 counts score", async ({
   await c2.close();
 });
 
+test("Player selects a dead stone, counts, then deselects", async ({
+  browser,
+}) => {
+  const ms = generateMatchID();
+
+  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+  const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+    await getPlayerPages(p1, p2);
+
+  let board = blackPlayer.locator("svg");
+  let box = await board.boundingBox();
+  clickCenter(blackPlayer, box);
+
+  await whitePlayer.locator("#pass-button").click();
+  await blackPlayer.locator("#pass-button").click();
+
+  await whitePlayer.locator("#go-to-main-board-button").click();
+  await blackPlayer.locator("#go-to-main-board-button").click();
+
+  await blackPlayer.locator(".stone").first().click();
+
+  await blackPlayer.waitForTimeout(1000);
+  await blackPlayer.locator("#count-score-button").click();
+
+  await blackPlayer.waitForTimeout(1000);
+  expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    "Black: ready"
+  );
+
+  await whitePlayer.waitForTimeout(1000);
+  expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    "Black: ready"
+  );
+
+  const selectedStone = blackPlayer.locator(".stone").first();
+  await selectedStone.click();
+
+  await blackPlayer.waitForTimeout(1000);
+  expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    "Black: selecting dead stones"
+  );
+
+  await whitePlayer.waitForTimeout(1000);
+  expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    "Black: selecting dead stones"
+  );
+
+  await c1.close();
+  await c2.close();
+});
+
 test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after each click", async ({
     page,
