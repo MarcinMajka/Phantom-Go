@@ -372,6 +372,9 @@ function syncBoards() {
               }
             } else {
               updateTurn(data.current_player);
+              window.location.href =
+                "/frontend/main.html?match=" + getMatchString();
+              return;
             }
 
             const blackReady = document.getElementById("black-ready");
