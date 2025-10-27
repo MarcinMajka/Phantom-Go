@@ -57,9 +57,11 @@ function resignRequest() {
 }
 
 export function countScoreButtonHandler() {
-  elements.countScore.addEventListener("click", () => {
-    countScoreRequest(getDeadGroups());
-  });
+  if (elements.countScore) {
+    elements.countScore.addEventListener("click", () => {
+      countScoreRequest(getDeadGroups());
+    });
+  }
 }
 
 function countScoreRequest(deadGroups) {

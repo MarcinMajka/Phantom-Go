@@ -21,7 +21,6 @@ export function displayMatchIdElement() {
 export function updateTurn(currentPlayer) {
   if (currentPlayer === "counting") {
     elements.turn.innerText = "Counting points";
-    elements.countScore.style.visibility = "visible";
   } else {
     elements.turn.innerText = "Turn: " + currentPlayer;
   }
