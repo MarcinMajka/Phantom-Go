@@ -67,10 +67,6 @@ export function handleGameButtonsAfterGame(isGameOver) {
       elements.downloadSGF.style.visibility = "visible";
     }
   }
-
-  if (elements.mainBoardLink) {
-    elements.mainBoardLink.style.visibility = "visible";
-  }
 }
 
 export function highlightStonesInAtari(stones) {

@@ -14,7 +14,6 @@ export const elements = {
   guessStone: document.getElementById("guess-stone-button"),
   countScore: document.getElementById("count-score-button"),
   downloadSGF: document.getElementById("download-sgf"),
-  mainBoardLink: document.getElementById("go-to-main-board-button"),
   undo: document.getElementById("undo-button"),
   pass: document.getElementById("pass-button"),
   resign: document.getElementById("resign-button"),
