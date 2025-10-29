@@ -355,6 +355,11 @@ function syncBoards() {
           updateBoard(data.board, data.stones_in_atari);
 
           if (data.winner) {
+            if (getPlayerColor() !== "spectator") {
+              window.location.href =
+                "/frontend/main.html?match=" + getMatchString();
+            }
+
             isWinnerDecided = true;
             const res = createButton("result", data.winner);
             elements.infoContainer.innerHTML = "";
