@@ -24,6 +24,7 @@ import {
   getAPIUrl,
   getPlayerColor,
   getPlayerSessionToken,
+  navigateToMainBoard,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -356,8 +357,7 @@ function syncBoards() {
 
           if (data.winner) {
             if (getPlayerColor() !== "spectator") {
-              window.location.href =
-                "/frontend/main.html?match=" + getMatchString();
+              navigateToMainBoard();
             }
 
             isWinnerDecided = true;
@@ -376,8 +376,7 @@ function syncBoards() {
               }
             } else {
               updateTurn(data.current_player);
-              window.location.href =
-                "/frontend/main.html?match=" + getMatchString();
+              navigateToMainBoard();
               return;
             }
 

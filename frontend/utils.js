@@ -226,3 +226,7 @@ export function getPlayerColor() {
 export function getPlayerSessionToken() {
   return localStorage.getItem("sessionToken") || "";
 }
+
+export function navigateToMainBoard() {
+  window.location.href = "/frontend/main.html?match=" + getMatchString();
+}
