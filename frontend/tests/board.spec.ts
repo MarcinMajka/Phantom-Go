@@ -95,9 +95,6 @@ test.describe("Counting", () => {
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
 
-    await whitePlayer.locator("#go-to-main-board-button").click();
-    await blackPlayer.locator("#go-to-main-board-button").click();
-
     await whitePlayer.locator(".stone").first().click();
 
     await blackPlayer.waitForTimeout(1000);
@@ -139,9 +136,6 @@ test.describe("Counting", () => {
 
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
-
-    await whitePlayer.locator("#go-to-main-board-button").click();
-    await blackPlayer.locator("#go-to-main-board-button").click();
 
     await blackPlayer.locator(".stone").first().click();
 
@@ -192,9 +186,6 @@ test.describe("Counting", () => {
 
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
-
-    await whitePlayer.locator("#go-to-main-board-button").click();
-    await blackPlayer.locator("#go-to-main-board-button").click();
 
     await blackPlayer.locator(".stone").first().click();
 
