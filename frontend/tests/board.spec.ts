@@ -448,3 +448,11 @@ async function clickCenter(page: Page, box: BoundingBox | null) {
 
   await page.mouse.click(x, y);
 }
+
+async function clickAtCoordinate(page: Page, x: number, y: number) {
+  const intersection = page.locator(
+    `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`
+  );
+
+  await intersection.click();
+}
