@@ -456,3 +456,19 @@ async function clickAtCoordinate(page: Page, x: number, y: number) {
 
   await intersection.click();
 }
+
+test("Tests clickAtCoordinate()", async ({ page }) => {
+  startGameWithRandomID(page);
+
+  await page.locator("#guess-stone-button").click();
+
+  const guessStone = page.locator(".stone");
+
+  for (let i = 0; i < 13; i++) {
+    for (let j = 0; j < 13; j++) {
+      await clickAtCoordinate(page, i, j);
+      const stone = page.locator(`.stone[data-row="${i}"][data-col="${j}"]`);
+      await expect(stone).toBeVisible();
+    }
+  }
+});
