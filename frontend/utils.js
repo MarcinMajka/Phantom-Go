@@ -187,7 +187,6 @@ export function getMatchString() {
   return urlParams.get("match");
 }
 
-// TODO: using Live Server doesn't work, need to update this for convenience
 // Detect if running locally and set API URL accordingly
 export function getAPIUrl() {
   const loc = window.location;

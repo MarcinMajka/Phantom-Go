@@ -65,8 +65,6 @@ export function countScoreButtonHandler() {
 }
 
 function countScoreRequest(deadGroups) {
-  // TODO: this has to check if both players clicked the button - if yes, then both should get the score,
-  // TODO: if no, then wait for other player - if deadGroupsDuringCounting changes, it resets the flag on player clicking the button
   fetch(`${API_URL}/get-score`, {
     method: "POST",
     headers: {
