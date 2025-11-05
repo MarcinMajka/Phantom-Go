@@ -393,6 +393,12 @@ async function startGameWithRandomID(page: Page) {
   await page.locator("button").click();
 }
 
+async function startGameWithID(page: Page, matchString: string) {
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(matchString);
+  await page.locator("button").click();
+}
+
 async function startGameAsSpectator(page: Page, mathString: string) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(mathString);
