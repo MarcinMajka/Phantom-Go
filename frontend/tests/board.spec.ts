@@ -52,6 +52,33 @@ test.describe("Logging in", () => {
     }
   });
 
+  test("Confirm the user can go back to his board view by loggin in again", async ({
+    page,
+  }) => {
+    const ms = generateMatchID();
+    await startGameWithID(page, ms);
+
+    const playerTitle = page.locator("#player-title");
+    const playerColor = await playerTitle.textContent();
+    console.log(playerColor);
+    console.log(
+      await page.evaluate(() => {
+        return localStorage.getItem("sessionToken");
+      })
+    );
+
+    await page.goBack();
+    await page.locator("#match-string").fill(ms);
+    await page.locator("button").click();
+    console.log(
+      await page.evaluate(() => {
+        return localStorage.getItem("sessionToken");
+      })
+    );
+    console.log(await playerTitle.textContent());
+    await expect(await playerTitle.textContent()).toEqual(playerColor);
+  });
+
   test("Confirm subsequent joining users are spectators", async ({
     browser,
   }) => {
