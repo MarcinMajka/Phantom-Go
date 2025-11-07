@@ -426,9 +426,9 @@ async function startGameWithID(page: Page, matchString: string) {
   await page.locator("button").click();
 }
 
-async function startGameAsSpectator(page: Page, mathString: string) {
+async function startGameAsSpectator(page: Page, matchString: string) {
   await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(mathString);
+  await page.locator("#match-string").fill(matchString);
   await page.locator("#spectator-checkbox").click();
   await page.locator("button").click();
 }
