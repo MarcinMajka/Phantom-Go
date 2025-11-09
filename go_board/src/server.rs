@@ -853,21 +853,29 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
             }
         }
         (Some(black), None) => {
-            // Second player - gets opposite color
-            let mut data = {
+            // Is there's a session token
+            if let Some(token) = &payload.session_token {
+                // and it's the same as current only player
+                if token == &black.session_token {
+                    // return the current only player
+                    ("black", "/frontend/black.html", black.session_token.clone())
+                } else {
+                    // Otherwise seat a new player
+                    let new_token = uuid::Uuid::new_v4().to_string();
+                    room.players.white = Some(PlayerSession {
+                        session_token: new_token.clone(),
+                    });
+                    ("white", "/frontend/white.html", new_token)
+                }
+            // If there isn't a session token
+            } else {
+                // Seat a new player
                 let new_token = uuid::Uuid::new_v4().to_string();
                 room.players.white = Some(PlayerSession {
                     session_token: new_token.clone(),
                 });
                 ("white", "/frontend/white.html", new_token)
-            };
-
-            if let Some(token) = &payload.session_token {
-                if token == &black.session_token {
-                    data = ("black", "/frontend/black.html", black.session_token.clone());
-                }
             }
-            data
         }
         (None, Some(_white)) => {
             // Second player - gets opposite color
