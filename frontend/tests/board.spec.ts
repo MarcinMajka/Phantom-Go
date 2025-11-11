@@ -52,6 +52,7 @@ test.describe("Logging in", () => {
     }
   });
 
+  // TODO: This test works, but can be improved - check if other player can do the same and if subsequent are spectators
   test("Confirm the user can go back to his board view by loggin in again", async ({
     page,
   }) => {
