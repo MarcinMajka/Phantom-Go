@@ -52,32 +52,46 @@ test.describe("Logging in", () => {
     }
   });
 
-  // TODO: This test works, but can be improved - check if other player can do the same and if subsequent are spectators
   test("Confirm the user can go back to his board view by loggin in again", async ({
-    page,
+    browser,
   }) => {
     const ms = generateMatchID();
-    await startGameWithID(page, ms);
 
-    const playerTitle = page.locator("#player-title");
-    const playerColor = await playerTitle.textContent();
-    console.log(playerColor);
-    console.log(
-      await page.evaluate(() => {
-        return localStorage.getItem("sessionToken");
-      })
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+    const p1Title = p1.locator("#player-title");
+    const p1Color = await p1Title.textContent();
+
+    await p1.goBack();
+    await p1.locator("#match-string").fill(ms);
+    await p1.locator("button").click();
+
+    expect(await p1Title.textContent()).toEqual(p1Color);
+
+    const p2Title = p2.locator("#player-title");
+    const p2Color = await p2Title.textContent();
+
+    await p2.goBack();
+    await p2.locator("#match-string").fill(ms);
+    await p2.locator("button").click();
+
+    expect(await p2Title.textContent()).toEqual(p2Color);
+
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
     );
 
-    await page.goBack();
-    await page.locator("#match-string").fill(ms);
-    await page.locator("button").click();
-    console.log(
-      await page.evaluate(() => {
-        return localStorage.getItem("sessionToken");
-      })
-    );
-    console.log(await playerTitle.textContent());
-    await expect(await playerTitle.textContent()).toEqual(playerColor);
+    const playerTitle = spectator.locator("#player-title");
+    const boardContainer = spectator.locator("#board-container");
+
+    await expect(playerTitle).toHaveCount(0);
+    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+
+    await c1.close();
+    await c2.close();
+    await c3.close();
   });
 
   test("Confirm subsequent joining users are spectators", async ({
