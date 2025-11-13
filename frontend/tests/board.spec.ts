@@ -118,6 +118,22 @@ test.describe("Logging in", () => {
   });
 });
 
+test("Player logs in, then resigns", async ({ page }) => {
+  startGameWithRandomID(page);
+
+  const resignButton = page.locator("#resign-button");
+
+  await resignButton.click();
+
+  const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
+  const result = page.locator("#result");
+
+  await expect(playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  await expect(result).toContainText("+ R");
+});
+
 test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
