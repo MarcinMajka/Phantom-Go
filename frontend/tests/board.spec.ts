@@ -15,11 +15,7 @@ test.describe("Logging in", () => {
   test("Start game as a spectator", async ({ page }) => {
     startGameAsSpectator(page, generateMatchID());
 
-    const playerTitle = page.locator("#player-title");
-    const boardContainer = page.locator("#board-container");
-
-    await expect(playerTitle).toHaveCount(0);
-    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+    await verifySpectatorState(page);
   });
 
   test("Confirm the second joining user has the other color", async ({
@@ -125,12 +121,9 @@ test("Player logs in, then resigns", async ({ page }) => {
 
   await resignButton.click();
 
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
   const result = page.locator("#result");
 
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  await verifySpectatorState(page);
   await expect(result).toContainText("+ R");
 });
 
