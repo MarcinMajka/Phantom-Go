@@ -529,3 +529,13 @@ test("Tests clickAtCoordinate()", async ({ page }) => {
     }
   }
 });
+
+async function getSessionToken(player: Page) {
+  try {
+    return await player.evaluate(() => localStorage.getItem("sessionToken"));
+  } catch (error) {
+    // If navigation happened, wait and retry
+    await player.waitForLoadState("domcontentloaded");
+    return await player.evaluate(() => localStorage.getItem("sessionToken"));
+  }
+}
