@@ -3,7 +3,7 @@ import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test.describe("Logging in", () => {
   test("Start game", async ({ page }) => {
-    startGameWithRandomID(page);
+    await startGameWithRandomID(page);
 
     const playerTitle = page.locator("#player-title");
     const boardContainer = page.locator("#board-container");
@@ -115,7 +115,7 @@ test.describe("Logging in", () => {
 });
 
 test("Player logs in, then resigns", async ({ page }) => {
-  startGameWithRandomID(page);
+  await startGameWithRandomID(page);
 
   const resignButton = page.locator("#resign-button");
 
@@ -275,7 +275,7 @@ test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after each click", async ({
     page,
   }) => {
-    startGameWithRandomID(page);
+    await startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -294,7 +294,7 @@ test.describe("Guess stones", () => {
     page,
     context,
   }) => {
-    startGameWithRandomID(page);
+    await startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -319,7 +319,7 @@ test.describe("Guess stones", () => {
   test("Add then remove all guess stones in quick succession", async ({
     page,
   }) => {
-    startGameWithRandomID(page);
+    await startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -349,7 +349,7 @@ test.describe("Guess stones", () => {
 
 test.describe("Throttling", () => {
   test.beforeEach(async ({ page }) => {
-    startGameWithRandomID(page);
+    await startGameWithRandomID(page);
 
     await page.waitForLoadState("networkidle");
 
@@ -515,7 +515,7 @@ async function clickAtCoordinate(page: Page, x: number, y: number) {
 }
 
 test("Tests clickAtCoordinate()", async ({ page }) => {
-  startGameWithRandomID(page);
+  await startGameWithRandomID(page);
 
   await page.locator("#guess-stone-button").click();
 
