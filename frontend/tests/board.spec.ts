@@ -269,6 +269,51 @@ test.describe("Counting", () => {
     await c1.close();
     await c2.close();
   });
+
+  test("Spectator counts score - doesn't affect the game", async ({
+    browser,
+  }) => {
+    const ms = generateMatchID();
+
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+      await getPlayerPages(p1, p2);
+
+    await blackPlayer.locator("#pass-button").click();
+    await whitePlayer.locator("#pass-button").click();
+
+    await spectator.waitForTimeout(1000);
+    await spectator.locator("#count-score-button").click();
+
+    expect(await spectator.locator("#black-ready").textContent()).toBe(
+      "Black: selecting dead stones"
+    );
+    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+      "Black: selecting dead stones"
+    );
+    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+      "Black: selecting dead stones"
+    );
+    expect(await spectator.locator("#white-ready").textContent()).toBe(
+      "White: selecting dead stones"
+    );
+    expect(await blackPlayer.locator("#white-ready").textContent()).toBe(
+      "White: selecting dead stones"
+    );
+    expect(await whitePlayer.locator("#white-ready").textContent()).toBe(
+      "White: selecting dead stones"
+    );
+
+    await c1.close();
+    await c2.close();
+    await c3.close();
+  });
 });
 
 test.describe("Guess stones", () => {
