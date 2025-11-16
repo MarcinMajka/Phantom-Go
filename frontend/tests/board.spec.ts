@@ -505,9 +505,11 @@ async function startGameAsSpectator(page: Page, matchString: string) {
 async function verifySpectatorState(page: Page) {
   const playerTitle = page.locator("#player-title");
   const boardContainer = page.locator("#board-container");
+  const sessionToken = await getSessionToken(page);
 
   await expect(playerTitle).toHaveCount(0);
   await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  expect(sessionToken).toBeNull();
 }
 
 async function createUserAndJoinMatch(browser: Browser, matchString: string) {
