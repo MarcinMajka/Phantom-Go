@@ -824,7 +824,38 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
         .or_insert_with(GameRoom::new);
 
     if payload.is_spectator {
-        // TODO: check if payload.session_token == room.players.black/white.session_token - if true, navigate to their page or punish cheating behaviour in some way
+        if let Some(token) = &payload.session_token {
+            let matches_black =
+                room.players.black.as_ref().map(|p| &p.session_token) == Some(token);
+            let matches_white =
+                room.players.white.as_ref().map(|p| &p.session_token) == Some(token);
+
+            if matches_black {
+                let session_token = room.players.black.clone().unwrap().session_token;
+
+                return Ok(Json(JoinGameResponse {
+                    color: "black".to_string(),
+                    redirect_url: format!(
+                        "{}?match={}&token={}",
+                        "/frontend/black.html", payload.match_string, session_token
+                    ),
+                    session_token: session_token,
+                }));
+            }
+            if matches_white {
+                let session_token = room.players.white.clone().unwrap().session_token;
+
+                return Ok(Json(JoinGameResponse {
+                    color: "white".to_string(),
+                    redirect_url: format!(
+                        "{}?match={}&token={}",
+                        "/frontend/white.html", payload.match_string, session_token
+                    ),
+                    session_token: session_token,
+                }));
+            }
+        }
+
         return Ok(Json(JoinGameResponse {
             color: "spectator".to_string(),
             redirect_url: format!(
