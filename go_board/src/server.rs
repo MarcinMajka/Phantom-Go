@@ -824,6 +824,7 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
         .or_insert_with(GameRoom::new);
 
     if payload.is_spectator {
+        // TODO: check if payload.session_token == room.players.black/white.session_token - if true, navigate to their page or punish cheating behaviour in some way
         return Ok(Json(JoinGameResponse {
             color: "spectator".to_string(),
             redirect_url: format!(
