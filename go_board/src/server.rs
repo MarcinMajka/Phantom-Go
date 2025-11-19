@@ -823,6 +823,13 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
+    let mut color = "spectator".to_string();
+    let mut redirect_url = format!(
+        "{}?match={}&token=",
+        "/frontend/main.html", payload.match_string
+    );
+    let mut session_token = "".to_string();
+
     if payload.is_spectator {
         if let Some(token) = &payload.session_token {
             let matches_black =
@@ -831,38 +838,28 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
                 room.players.white.as_ref().map(|p| &p.session_token) == Some(token);
 
             if matches_black {
-                let session_token = room.players.black.clone().unwrap().session_token;
-
-                return Ok(Json(JoinGameResponse {
-                    color: "black".to_string(),
-                    redirect_url: format!(
-                        "{}?match={}&token={}",
-                        "/frontend/black.html", payload.match_string, session_token
-                    ),
-                    session_token: session_token,
-                }));
+                color = "black".to_string();
+                redirect_url = format!(
+                    "{}?match={}&token={}",
+                    "/frontend/black.html", payload.match_string, session_token
+                );
+                session_token = room.players.black.clone().unwrap().session_token;
             }
-            if matches_white {
-                let session_token = room.players.white.clone().unwrap().session_token;
 
-                return Ok(Json(JoinGameResponse {
-                    color: "white".to_string(),
-                    redirect_url: format!(
-                        "{}?match={}&token={}",
-                        "/frontend/white.html", payload.match_string, session_token
-                    ),
-                    session_token: session_token,
-                }));
+            if matches_white {
+                color = "white".to_string();
+                redirect_url = format!(
+                    "{}?match={}&token={}",
+                    "/frontend/white.html", payload.match_string, session_token
+                );
+                session_token = room.players.white.clone().unwrap().session_token;
             }
         }
 
         return Ok(Json(JoinGameResponse {
-            color: "spectator".to_string(),
-            redirect_url: format!(
-                "{}?match={}&token=",
-                "/frontend/main.html", payload.match_string
-            ),
-            session_token: String::new(),
+            color,
+            redirect_url,
+            session_token,
         }));
     }
 
