@@ -61,7 +61,7 @@ test.describe("Logging in", () => {
 
     await p1.goBack();
     await p1.locator("#match-string").fill(ms);
-    await p1.locator("button").click();
+    await p1.locator("#join-button").click();
 
     expect(await p1Title.textContent()).toEqual(p1Color);
 
@@ -70,7 +70,7 @@ test.describe("Logging in", () => {
 
     await p2.goBack();
     await p2.locator("#match-string").fill(ms);
-    await p2.locator("button").click();
+    await p2.locator("#join-button").click();
 
     expect(await p2Title.textContent()).toEqual(p2Color);
 
@@ -486,20 +486,20 @@ function generateMatchID() {
 async function startGameWithRandomID(page: Page) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(generateMatchID());
-  await page.locator("button").click();
+  await page.locator("#join-button").click();
 }
 
 async function startGameWithID(page: Page, matchString: string) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(matchString);
-  await page.locator("button").click();
+  await page.locator("#join-button").click();
 }
 
 async function startGameAsSpectator(page: Page, matchString: string) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(matchString);
   await page.locator("#spectator-checkbox").click();
-  await page.locator("button").click();
+  await page.locator("#join-button").click();
 }
 
 async function verifySpectatorState(page: Page) {
@@ -522,7 +522,7 @@ async function createUserAndJoinMatch(browser: Browser, matchString: string) {
 
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(matchString);
-  await page.locator("button").click();
+  await page.locator("#join-button").click();
 
   return { context, page };
 }
