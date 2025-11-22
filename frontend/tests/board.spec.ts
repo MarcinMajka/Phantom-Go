@@ -590,3 +590,23 @@ async function getSessionToken(player: Page) {
     return await player.evaluate(() => localStorage.getItem("sessionToken"));
   }
 }
+
+async function expectAny<T>(
+  value: T,
+  assertions: Array<(fn: T) => void | Promise<void>>
+): Promise<void> {
+  const errors = [];
+
+  for (const assertFn of assertions) {
+    try {
+      await assertFn(value);
+      return;
+    } catch (err) {
+      errors.push(err as Error);
+    }
+  }
+
+  throw new Error(
+    "All assertions failed:\n" + errors.map((e) => e.message).join("\n")
+  );
+}
