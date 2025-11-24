@@ -136,6 +136,9 @@ test.describe("Logging in", () => {
 
 test("Player logs in, then resigns", async ({ page }) => {
   await startGameWithRandomID(page);
+  const sessionToken = await getSessionToken(page);
+  expect(sessionToken).not.toBe(null);
+  expect(sessionToken).not.toBe("");
 
   const resignButton = page.locator("#resign-button");
 
@@ -143,7 +146,8 @@ test("Player logs in, then resigns", async ({ page }) => {
 
   const result = page.locator("#result");
 
-  await verifySpectatorState(page);
+  // The ! tells TypeScript: "Trust me, it's not null."
+  await verifyPlayerIsOnMainPage(page, sessionToken!);
   await expect(result).toContainText("+ R");
 });
 
@@ -533,6 +537,15 @@ async function verifySpectatorState(page: Page) {
     (t) => expect(t).toBeNull(),
     (t) => expect(t).toBe(""),
   ]);
+}
+
+async function verifyPlayerIsOnMainPage(page: Page, sessionToken: string) {
+  const playerTitle = page.locator("#player-title");
+  const boardContainer = page.locator("#board-container");
+
+  await expect(playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  await expect(await getSessionToken(page)).toBe(sessionToken);
 }
 
 async function createUserAndJoinMatch(browser: Browser, matchString: string) {
