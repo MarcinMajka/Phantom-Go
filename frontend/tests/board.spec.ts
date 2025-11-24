@@ -90,6 +90,26 @@ test.describe("Logging in", () => {
     await c3.close();
   });
 
+  test("Confirm the user can't cheat by opening spectator's page", async ({
+    browser,
+  }) => {
+    const ms = generateMatchID();
+
+    const { context, page } = await createUserAndJoinMatch(browser, ms);
+
+    const p1Title = page.locator("#player-title");
+    const p1Color = await p1Title.textContent();
+
+    await page.goBack();
+    await page.locator("#match-string").fill(ms);
+    await page.locator("#spectator-checkbox").click();
+    await page.locator("#join-button").click();
+
+    expect(await p1Title.textContent()).toEqual(p1Color);
+
+    await context.close();
+  });
+
   test("Confirm subsequent joining users are spectators", async ({
     browser,
   }) => {
