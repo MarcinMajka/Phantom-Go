@@ -151,6 +151,8 @@ test("Player logs in, then resigns", async ({ page }) => {
   await expect(result).toContainText("+ R");
 });
 
+test.describe("Undo", () => {});
+
 test.describe("Passing", () => {});
 
 test.describe("Counting", () => {
