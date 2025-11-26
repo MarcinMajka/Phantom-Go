@@ -153,7 +153,29 @@ test("Player logs in, then resigns", async ({ page }) => {
 
 test.describe("Undo", () => {});
 
-test.describe("Passing", () => {});
+test.describe("Passing", () => {
+  test("Black passes", async ({ browser }) => {
+    const ms = generateMatchID();
+
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+      await getPlayerPages(p1, p2);
+
+    const blackPassButton = blackPlayer.locator("#pass-button");
+    const blackPageTurn = blackPlayer.locator("#player-turn");
+    const whitePageBlackReady = whitePlayer.locator("#player-turn");
+
+    expect(await blackPageTurn.textContent()).toBe("Turn: black");
+    expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
+
+    await blackPassButton.click();
+
+    expect(await blackPageTurn.textContent()).toBe("Turn: white");
+    expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
+  });
+});
 
 test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
