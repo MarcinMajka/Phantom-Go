@@ -172,6 +172,9 @@ test.describe("Passing", () => {
 
     await blackPassButton.click();
 
+    await blackPlayer.waitForTimeout(1000);
+    await whitePlayer.waitForTimeout(1000);
+
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
   });
