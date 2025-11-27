@@ -178,6 +178,36 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
   });
+
+  test("White passes", async ({ browser }) => {
+    const ms = generateMatchID();
+
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+      await getPlayerPages(p1, p2);
+
+    const whitePassButton = whitePlayer.locator("#pass-button");
+    const blackPageTurn = blackPlayer.locator("#player-turn");
+    const whitePageBlackReady = whitePlayer.locator("#player-turn");
+
+    await clickAtCoordinate(blackPlayer, 6, 6);
+
+    await blackPlayer.waitForTimeout(1000);
+    await whitePlayer.waitForTimeout(1000);
+
+    expect(await blackPageTurn.textContent()).toBe("Turn: white");
+    expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
+
+    await whitePassButton.click();
+
+    await blackPlayer.waitForTimeout(1000);
+    await whitePlayer.waitForTimeout(1000);
+
+    expect(await blackPageTurn.textContent()).toBe("Turn: black");
+    expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
+  });
 });
 
 test.describe("Counting", () => {
