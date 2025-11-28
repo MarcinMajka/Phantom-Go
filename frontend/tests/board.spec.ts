@@ -208,6 +208,36 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
   });
+
+  test("Both players passing consecutively results in transfer to Main Board", async ({
+    browser,
+  }) => {
+    const ms = generateMatchID();
+
+    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+
+    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
+      await getPlayerPages(p1, p2);
+
+    const blackPassButton = blackPlayer.locator("#pass-button");
+    const whitePassButton = whitePlayer.locator("#pass-button");
+
+    await blackPassButton.click();
+    await whitePassButton.click();
+
+    await blackPlayer.waitForTimeout(1000);
+    await whitePlayer.waitForTimeout(1000);
+
+    await verifyPlayerIsOnMainPage(
+      blackPlayer,
+      (await getSessionToken(blackPlayer))!
+    );
+    await verifyPlayerIsOnMainPage(
+      whitePlayer,
+      (await getSessionToken(whitePlayer))!
+    );
+  });
 });
 
 test.describe("Counting", () => {
