@@ -155,13 +155,12 @@ test.describe("Undo", () => {});
 
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -180,13 +179,12 @@ test.describe("Passing", () => {
   });
 
   test("White passes", async ({ browser }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -212,13 +210,12 @@ test.describe("Passing", () => {
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -244,13 +241,12 @@ test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
@@ -286,13 +282,12 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -336,13 +331,12 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
     const {
       blackPlayerPage: blackPlayer,
       whitePlayerPage: whitePlayer,
       c1,
       c2,
-    } = await startGameAndGetPlayerPages(browser, ms!);
+    } = await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -732,20 +726,13 @@ async function expectAny<T>(
   );
 }
 
-async function startGameAndGetPlayerPages(
-  browser: Browser,
-  matchString: string
-) {
-  const { context: c1, page: p1 } = await createUserAndJoinMatch(
-    browser,
-    matchString
-  );
-  const { context: c2, page: p2 } = await createUserAndJoinMatch(
-    browser,
-    matchString
-  );
+async function startGameAndGetPlayerPages(browser: Browser) {
+  const ms = generateMatchID();
+
+  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
 
   const playerPages = await getPlayerPages(p1, p2);
 
-  return { ...playerPages, c1, c2 };
+  return { ...playerPages, c1, c2, ms };
 }
