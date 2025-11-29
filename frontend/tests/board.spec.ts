@@ -167,8 +167,7 @@ test.describe("Passing", () => {
 
     await blackPassButton.click();
 
-    await blackPlayer.waitForTimeout(1000);
-    await whitePlayer.waitForTimeout(1000);
+    await boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
@@ -184,16 +183,14 @@ test.describe("Passing", () => {
 
     await clickAtCoordinate(blackPlayer, 6, 6);
 
-    await blackPlayer.waitForTimeout(1000);
-    await whitePlayer.waitForTimeout(1000);
+    await boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
     await whitePassButton.click();
 
-    await blackPlayer.waitForTimeout(1000);
-    await whitePlayer.waitForTimeout(1000);
+    await boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
@@ -211,8 +208,7 @@ test.describe("Passing", () => {
     await blackPassButton.click();
     await whitePassButton.click();
 
-    await blackPlayer.waitForTimeout(1000);
-    await whitePlayer.waitForTimeout(1000);
+    await boardRefresh(blackPlayer, whitePlayer);
 
     await verifyPlayerIsOnMainPage(
       blackPlayer,
@@ -710,4 +706,9 @@ async function startGameAndGetPlayerPages(browser: Browser) {
   const playerPages = await getPlayerPages(p1, p2);
 
   return { ...playerPages, c1, c2, ms };
+}
+
+async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
+  await blackPlayer.waitForTimeout(1000);
+  await whitePlayer.waitForTimeout(1000);
 }
