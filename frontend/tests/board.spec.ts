@@ -155,12 +155,8 @@ test.describe("Undo", () => {});
 
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -179,12 +175,8 @@ test.describe("Passing", () => {
   });
 
   test("White passes", async ({ browser }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -210,12 +202,8 @@ test.describe("Passing", () => {
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -241,12 +229,8 @@ test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
   }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
@@ -282,12 +266,8 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -331,12 +311,8 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
-    const {
-      blackPlayerPage: blackPlayer,
-      whitePlayerPage: whitePlayer,
-      c1,
-      c2,
-    } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -389,8 +365,7 @@ test.describe("Counting", () => {
       ms
     );
 
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const { blackPlayer, whitePlayer } = await getPlayerPages(p1, p2);
 
     await blackPlayer.locator("#pass-button").click();
     await whitePlayer.locator("#pass-button").click();
@@ -643,15 +618,15 @@ async function createUserAndJoinMatch(browser: Browser, matchString: string) {
 }
 
 interface PlayerPages {
-  blackPlayerPage: Page;
-  whitePlayerPage: Page;
+  blackPlayer: Page;
+  whitePlayer: Page;
 }
 
 async function getPlayerPages(page1: Page, page2: Page): Promise<PlayerPages> {
   if ((await page1.locator("#player-title").textContent()) === "Black Player") {
-    return { blackPlayerPage: page1, whitePlayerPage: page2 };
+    return { blackPlayer: page1, whitePlayer: page2 };
   } else {
-    return { blackPlayerPage: page2, whitePlayerPage: page1 };
+    return { blackPlayer: page2, whitePlayer: page1 };
   }
 }
 
