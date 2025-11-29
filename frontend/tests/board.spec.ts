@@ -731,3 +731,21 @@ async function expectAny<T>(
     "All assertions failed:\n" + errors.map((e) => e.message).join("\n")
   );
 }
+
+async function startGameAndGetPlayerPages(
+  browser: Browser,
+  matchString: string
+) {
+  const { context: c1, page: p1 } = await createUserAndJoinMatch(
+    browser,
+    matchString
+  );
+  const { context: c2, page: p2 } = await createUserAndJoinMatch(
+    browser,
+    matchString
+  );
+
+  const playerPages = await getPlayerPages(p1, p2);
+
+  return { ...playerPages, c1, c2 };
+}
