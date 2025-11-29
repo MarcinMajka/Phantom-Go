@@ -156,12 +156,12 @@ test.describe("Undo", () => {});
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -181,12 +181,12 @@ test.describe("Passing", () => {
 
   test("White passes", async ({ browser }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -213,12 +213,12 @@ test.describe("Passing", () => {
     browser,
   }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -245,12 +245,12 @@ test.describe("Counting", () => {
     browser,
   }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
@@ -287,12 +287,12 @@ test.describe("Counting", () => {
     browser,
   }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -337,12 +337,12 @@ test.describe("Counting", () => {
     browser,
   }) => {
     const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-
-    const { blackPlayerPage: blackPlayer, whitePlayerPage: whitePlayer } =
-      await getPlayerPages(p1, p2);
+    const {
+      blackPlayerPage: blackPlayer,
+      whitePlayerPage: whitePlayer,
+      c1,
+      c2,
+    } = await startGameAndGetPlayerPages(browser, ms!);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
