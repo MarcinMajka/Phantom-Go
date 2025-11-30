@@ -171,6 +171,9 @@ test.describe("Passing", () => {
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
+
+    c1.close();
+    c2.close();
   });
 
   test("White passes", async ({ browser }) => {
@@ -194,6 +197,9 @@ test.describe("Passing", () => {
 
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
+
+    c1.close();
+    c2.close();
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
@@ -218,6 +224,9 @@ test.describe("Passing", () => {
       whitePlayer,
       (await getSessionToken(whitePlayer))!
     );
+
+    c1.close();
+    c2.close();
   });
 });
 
