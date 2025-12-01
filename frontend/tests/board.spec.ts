@@ -153,20 +153,25 @@ test("Player logs in, then resigns", async ({ page }) => {
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { blackPlayer, c1, c2 } = await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
     const undoButton = blackPlayer.locator("#undo-button");
-    const turn = blackPlayer.locator("#player-turn");
+    const turnBlack = blackPlayer.locator("#player-turn");
+    const turnWhite = whitePlayer.locator("#player-turn");
 
-    await expect(turn).toHaveText("Turn: black");
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
     await clickAtCoordinate(blackPlayer, 1, 2);
 
-    await expect(turn).toHaveText("Turn: white");
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
 
     await undoButton.click();
-    await expect(turn).toHaveText("Turn: black");
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
     c1.close();
