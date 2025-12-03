@@ -153,29 +153,39 @@ test("Player logs in, then resigns", async ({ page }) => {
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
       await startGameAndGetPlayerPages(browser);
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
     const undoButton = blackPlayer.locator("#undo-button");
     const turnBlack = blackPlayer.locator("#player-turn");
     const turnWhite = whitePlayer.locator("#player-turn");
+    const turnSpectator = spectator.locator("#player-turn");
 
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
     await clickAtCoordinate(blackPlayer, 1, 2);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
+    await expect(turnSpectator).toHaveText("Turn: white");
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
 
     await undoButton.click();
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
     c1.close();
     c2.close();
+    c3.close();
   });
 });
 
