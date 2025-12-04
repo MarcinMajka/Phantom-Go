@@ -178,10 +178,46 @@ test.describe("Undo", () => {
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
 
     await undoButton.click();
+
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
+
+    c1.close();
+    c2.close();
+    c3.close();
+  });
+
+  test("Black passes, then UNDO", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const passButton = blackPlayer.locator("#pass-button");
+    const undoButton = blackPlayer.locator("#undo-button");
+    const turnBlack = blackPlayer.locator("#player-turn");
+    const turnWhite = whitePlayer.locator("#player-turn");
+    const turnSpectator = spectator.locator("#player-turn");
+
+    await passButton.click();
+
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
+
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(turnSpectator).toHaveText("Turn: white");
+
+    await undoButton.click();
+
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
 
     c1.close();
     c2.close();
