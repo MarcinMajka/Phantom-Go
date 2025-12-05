@@ -223,6 +223,60 @@ test.describe("Undo", () => {
     c2.close();
     c3.close();
   });
+
+  test("White UNDO, black UNDO", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const undoButtonBlack = blackPlayer.locator("#undo-button");
+    const undoButtonWhite = whitePlayer.locator("#undo-button");
+    const turnBlack = blackPlayer.locator("#player-turn");
+    const turnWhite = whitePlayer.locator("#player-turn");
+    const turnSpectator = spectator.locator("#player-turn");
+
+    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(spectator.locator("#main-board .stone")).toHaveCount(0);
+
+    await clickAtCoordinate(blackPlayer, 1, 1);
+    await clickAtCoordinate(whitePlayer, 5, 5);
+
+    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(1);
+    await expect(spectator.locator("#main-board .stone")).toHaveCount(2);
+
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
+
+    await undoButtonWhite.click();
+
+    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(spectator.locator("#main-board .stone")).toHaveCount(1);
+
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(turnSpectator).toHaveText("Turn: white");
+
+    await undoButtonBlack.click();
+
+    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(spectator.locator("#main-board .stone")).toHaveCount(0);
+
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
+
+    c1.close();
+    c2.close();
+    c3.close();
+  });
 });
 
 test.describe("Passing", () => {
