@@ -224,6 +224,43 @@ test.describe("Undo", () => {
     c3.close();
   });
 
+  test("White passes, then UNDO", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const passButton = whitePlayer.locator("#pass-button");
+    const undoButton = whitePlayer.locator("#undo-button");
+    const turnBlack = blackPlayer.locator("#player-turn");
+    const turnWhite = whitePlayer.locator("#player-turn");
+    const turnSpectator = spectator.locator("#player-turn");
+
+    await clickAtCoordinate(blackPlayer, 5, 5);
+
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(turnSpectator).toHaveText("Turn: white");
+
+    await passButton.click();
+
+    await expect(turnBlack).toHaveText("Turn: black");
+    await expect(turnWhite).toHaveText("Turn: black");
+    await expect(turnSpectator).toHaveText("Turn: black");
+
+    await undoButton.click();
+
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(turnSpectator).toHaveText("Turn: white");
+
+    c1.close();
+    c2.close();
+    c3.close();
+  });
+
   test("White UNDO, black UNDO", async ({ browser }) => {
     const { blackPlayer, whitePlayer, c1, c2, ms } =
       await startGameAndGetPlayerPages(browser);
