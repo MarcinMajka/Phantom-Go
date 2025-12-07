@@ -192,6 +192,7 @@ test.describe("Undo", () => {
   test("Black passes, then UNDO", async ({ browser }) => {
     const { blackPlayer, whitePlayer, c1, c2, ms } =
       await startGameAndGetPlayerPages(browser);
+
     const { context: c3, page: spectator } = await createUserAndJoinMatch(
       browser,
       ms
@@ -524,16 +525,12 @@ test.describe("Counting", () => {
   test("Spectator counts score - doesn't affect the game", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
-
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
     const { context: c3, page: spectator } = await createUserAndJoinMatch(
       browser,
       ms
     );
-
-    const { blackPlayer, whitePlayer } = await getPlayerPages(p1, p2);
 
     await blackPlayer.locator("#pass-button").click();
     await whitePlayer.locator("#pass-button").click();
