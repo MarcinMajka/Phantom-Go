@@ -151,6 +151,32 @@ test("Player logs in, then resigns", async ({ page }) => {
   await expect(result).toContainText("+ R");
 });
 
+test("Players can't place a stone on opponent's stone", async ({ browser }) => {
+  const { blackPlayer, whitePlayer, c1, c2 } = await startGameAndGetPlayerPages(
+    browser
+  );
+
+  const turnBlack = blackPlayer.locator("#player-turn");
+  const turnWhite = whitePlayer.locator("#player-turn");
+
+  await clickAtCoordinate(blackPlayer, 5, 5);
+
+  await expect(turnBlack).toHaveText("Turn: white");
+  await expect(turnWhite).toHaveText("Turn: white");
+  await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+  await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+
+  await clickAtCoordinate(whitePlayer, 5, 5);
+
+  await expect(turnBlack).toHaveText("Turn: white");
+  await expect(turnWhite).toHaveText("Turn: white");
+  await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+  await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+
+  c1.close();
+  c2.close();
+});
+
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
     const { blackPlayer, whitePlayer, c1, c2, ms } =
