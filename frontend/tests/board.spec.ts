@@ -173,8 +173,8 @@ test("Players can't place a stone on opponent's stone", async ({ browser }) => {
   await expect(blackPlayer.locator(".stone")).toHaveCount(1);
   await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-  c1.close();
-  c2.close();
+  await c1.close();
+  await c2.close();
 });
 
 test.describe("Undo", () => {
@@ -210,9 +210,9 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
-    c1.close();
-    c2.close();
-    c3.close();
+    await c1.close();
+    await c2.close();
+    await c3.close();
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
@@ -246,9 +246,9 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    c1.close();
-    c2.close();
-    c3.close();
+    await c1.close();
+    await c2.close();
+    await c3.close();
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
@@ -283,9 +283,9 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    c1.close();
-    c2.close();
-    c3.close();
+    await c1.close();
+    await c2.close();
+    await c3.close();
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
@@ -337,9 +337,9 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    c1.close();
-    c2.close();
-    c3.close();
+    await c1.close();
+    await c2.close();
+    await c3.close();
   });
 });
 
@@ -362,8 +362,8 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    c1.close();
-    c2.close();
+    await c1.close();
+    await c2.close();
   });
 
   test("White passes", async ({ browser }) => {
@@ -388,8 +388,8 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
 
-    c1.close();
-    c2.close();
+    await c1.close();
+    await c2.close();
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
@@ -415,8 +415,8 @@ test.describe("Passing", () => {
       (await getSessionToken(whitePlayer))!
     );
 
-    c1.close();
-    c2.close();
+    await c1.close();
+    await c2.close();
   });
 });
 
