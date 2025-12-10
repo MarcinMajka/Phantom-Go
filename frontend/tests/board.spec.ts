@@ -177,6 +177,26 @@ test("Players can't place a stone on opponent's stone", async ({ browser }) => {
   await c2.close();
 });
 
+test("Capturing white stones updates Black Captures", async ({ browser }) => {
+  const { blackPlayer, whitePlayer, c1, c2 } = await startGameAndGetPlayerPages(
+    browser
+  );
+
+  const blackCaptures = blackPlayer.locator("#black-captures");
+
+  await clickAtCoordinate(blackPlayer, 0, 1);
+  await clickAtCoordinate(whitePlayer, 0, 0);
+
+  await expect(blackCaptures).toHaveText("Black Captures: 0");
+
+  await clickAtCoordinate(blackPlayer, 1, 0);
+
+  await expect(blackCaptures).toHaveText("Black Captures: 1");
+
+  await c1.close();
+  await c2.close();
+});
+
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
     const { blackPlayer, whitePlayer, c1, c2, ms } =
