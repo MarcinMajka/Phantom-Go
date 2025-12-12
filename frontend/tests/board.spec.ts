@@ -151,60 +151,65 @@ test("Player logs in, then resigns", async ({ page }) => {
   await expect(result).toContainText("+ R");
 });
 
-test("Players can't place a stone on opponent's stone", async ({ browser }) => {
-  const { blackPlayer, whitePlayer, c1, c2 } = await startGameAndGetPlayerPages(
-    browser
-  );
+test.describe("Rules", () => {
+  test("Players can't place a stone on opponent's stone", async ({
+    browser,
+  }) => {
+    const { blackPlayer, whitePlayer, c1, c2 } =
+      await startGameAndGetPlayerPages(browser);
 
-  const turnBlack = blackPlayer.locator("#player-turn");
-  const turnWhite = whitePlayer.locator("#player-turn");
+    const turnBlack = blackPlayer.locator("#player-turn");
+    const turnWhite = whitePlayer.locator("#player-turn");
 
-  await clickAtCoordinate(blackPlayer, 5, 5);
+    await clickAtCoordinate(blackPlayer, 5, 5);
 
-  await expect(turnBlack).toHaveText("Turn: white");
-  await expect(turnWhite).toHaveText("Turn: white");
-  await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-  await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-  await clickAtCoordinate(whitePlayer, 5, 5);
+    await clickAtCoordinate(whitePlayer, 5, 5);
 
-  await expect(turnBlack).toHaveText("Turn: white");
-  await expect(turnWhite).toHaveText("Turn: white");
-  await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-  await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(turnBlack).toHaveText("Turn: white");
+    await expect(turnWhite).toHaveText("Turn: white");
+    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-  await c1.close();
-  await c2.close();
+    await c1.close();
+    await c2.close();
+  });
 });
 
-test("Capturing white stones updates Black Captures", async ({ browser }) => {
-  const { blackPlayer, whitePlayer, c1, c2, ms } =
-    await startGameAndGetPlayerPages(browser);
+test.describe("Capturing stones", () => {
+  test("Capturing white stones updates Black Captures", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
 
-  const { context: c3, page: spectator } = await createUserAndJoinMatch(
-    browser,
-    ms
-  );
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
 
-  const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
-  const whitePageBlackCaptures = whitePlayer.locator("#black-captures");
-  const spectatorPageBlackCaptures = spectator.locator("#black-captures");
+    const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
+    const whitePageBlackCaptures = whitePlayer.locator("#black-captures");
+    const spectatorPageBlackCaptures = spectator.locator("#black-captures");
 
-  await clickAtCoordinate(blackPlayer, 0, 1);
-  await clickAtCoordinate(whitePlayer, 0, 0);
+    await clickAtCoordinate(blackPlayer, 0, 1);
+    await clickAtCoordinate(whitePlayer, 0, 0);
 
-  await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
-  await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
-  await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-  await clickAtCoordinate(blackPlayer, 1, 0);
+    await clickAtCoordinate(blackPlayer, 1, 0);
 
-  await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
-  await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
-  await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
+    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
+    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
+    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
 
-  await c1.close();
-  await c2.close();
+    await c1.close();
+    await c2.close();
+  });
 });
 
 test.describe("Undo", () => {
