@@ -210,6 +210,39 @@ test.describe("Capturing stones", () => {
     await c1.close();
     await c2.close();
   });
+
+  test("Capturing black stones updates White Captures", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
+
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const blackPageWhiteCaptures = blackPlayer.locator("#white-captures");
+    const whitePageWhiteCaptures = whitePlayer.locator("#white-captures");
+    const spectatorPageWhiteCaptures = spectator.locator("#white-captures");
+
+    await clickAtCoordinate(blackPlayer, 0, 0);
+    await clickAtCoordinate(whitePlayer, 1, 0);
+    await clickAtCoordinate(blackPlayer, 0, 1);
+    await clickAtCoordinate(whitePlayer, 1, 1);
+    await clickAtCoordinate(blackPlayer, 1, 2);
+
+    await expect(blackPageWhiteCaptures).toHaveText("White Captures: 0");
+    await expect(whitePageWhiteCaptures).toHaveText("White Captures: 0");
+    await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 0");
+
+    await clickAtCoordinate(whitePlayer, 0, 2);
+
+    await expect(blackPageWhiteCaptures).toHaveText("White Captures: 2");
+    await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
+    await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
+
+    await c1.close();
+    await c2.close();
+  });
 });
 
 test.describe("Undo", () => {
