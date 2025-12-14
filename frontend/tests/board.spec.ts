@@ -1,4 +1,4 @@
-import { test, expect, Page, Browser } from "@playwright/test";
+import { test, expect, Page, Browser, BrowserContext } from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test.describe("Logging in", () => {
@@ -976,4 +976,10 @@ async function startGameAndGetPlayerPages(browser: Browser) {
 async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
   await blackPlayer.waitForTimeout(1000);
   await whitePlayer.waitForTimeout(1000);
+}
+
+async function closeContexts(...contexts: BrowserContext[]) {
+  for (const context of contexts) {
+    await context.close();
+  }
 }
