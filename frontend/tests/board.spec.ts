@@ -43,8 +43,7 @@ test.describe("Logging in", () => {
 
       expect(playerOne !== playerTwo);
 
-      await c1.close();
-      await c2.close();
+      await closeContexts(c1, c2);
     }
   });
 
@@ -85,9 +84,7 @@ test.describe("Logging in", () => {
     await expect(playerTitle).toHaveCount(0);
     await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 
   test("Confirm the user can't cheat by opening spectator's page", async ({
@@ -175,8 +172,7 @@ test.describe("Rules", () => {
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
     await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 });
 
@@ -207,9 +203,7 @@ test.describe("Capturing stones", () => {
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
@@ -241,9 +235,7 @@ test.describe("Capturing stones", () => {
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 });
 
@@ -280,9 +272,7 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
@@ -316,9 +306,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
@@ -353,9 +341,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
@@ -407,9 +393,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 });
 
@@ -432,8 +416,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 
   test("White passes", async ({ browser }) => {
@@ -458,8 +441,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
@@ -485,8 +467,7 @@ test.describe("Passing", () => {
       (await getSessionToken(whitePlayer))!
     );
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 });
 
@@ -524,8 +505,7 @@ test.describe("Counting", () => {
       "White +2.5"
     );
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 
   test("Player selects a dead stone, counts, then deselects", async ({
@@ -569,8 +549,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
@@ -614,8 +593,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await c1.close();
-    await c2.close();
+    await closeContexts(c1, c2);
   });
 
   test("Spectator counts score - doesn't affect the game", async ({
@@ -653,9 +631,7 @@ test.describe("Counting", () => {
       "White: selecting dead stones"
     );
 
-    await c1.close();
-    await c2.close();
-    await c3.close();
+    await closeContexts(c1, c2, c3);
   });
 });
 
