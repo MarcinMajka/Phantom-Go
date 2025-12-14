@@ -209,6 +209,7 @@ test.describe("Capturing stones", () => {
 
     await c1.close();
     await c2.close();
+    await c3.close();
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
@@ -242,6 +243,7 @@ test.describe("Capturing stones", () => {
 
     await c1.close();
     await c2.close();
+    await c3.close();
   });
 });
 
