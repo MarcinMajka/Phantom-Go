@@ -395,6 +395,42 @@ test.describe("Undo", () => {
 
     await closeContexts(c1, c2, c3);
   });
+
+  test("Capturing white stone, then undo", async ({ browser }) => {
+    const { blackPlayer, whitePlayer, c1, c2, ms } =
+      await startGameAndGetPlayerPages(browser);
+
+    const { context: c3, page: spectator } = await createUserAndJoinMatch(
+      browser,
+      ms
+    );
+
+    const undoButtonBlack = blackPlayer.locator("#undo-button");
+    const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
+    const whitePageBlackCaptures = whitePlayer.locator("#black-captures");
+    const spectatorPageBlackCaptures = spectator.locator("#black-captures");
+
+    await clickAtCoordinate(blackPlayer, 0, 1);
+    await clickAtCoordinate(whitePlayer, 0, 0);
+
+    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
+
+    await clickAtCoordinate(blackPlayer, 1, 0);
+
+    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
+    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
+    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
+
+    await undoButtonBlack.click();
+
+    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
+    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
+
+    await closeContexts(c1, c2, c3);
+  });
 });
 
 test.describe("Passing", () => {
