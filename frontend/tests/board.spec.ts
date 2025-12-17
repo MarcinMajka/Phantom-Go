@@ -993,3 +993,19 @@ async function closeContexts(...contexts: BrowserContext[]) {
     await context.close();
   }
 }
+
+async function expectSameTextOnAllPages(
+  blackPlayer,
+  whitePlayer,
+  spectator,
+  elementId: string,
+  text: string
+) {
+  const blackPageBlackCaptures = blackPlayer.locator(elementId);
+  const whitePageBlackCaptures = whitePlayer.locator(elementId);
+  const spectatorPageBlackCaptures = spectator.locator(elementId);
+
+  await expect(blackPageBlackCaptures).toHaveText(text);
+  await expect(whitePageBlackCaptures).toHaveText(text);
+  await expect(spectatorPageBlackCaptures).toHaveText(text);
+}
