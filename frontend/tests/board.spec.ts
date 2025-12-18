@@ -178,13 +178,10 @@ test.describe("Rules", () => {
 
 test.describe("Capturing stones", () => {
   test("Capturing white stones updates Black Captures", async ({ browser }) => {
-    const { black, white, spectator, c1, c2, c3 } =
-      await startGameAndGetAllPages(browser);
+    const { pages, c1, c2, c3 } = await startGameAndGetAllPages(browser);
 
-    const pages = { black, white, spectator };
-
-    await clickAtCoordinate(black, 0, 1);
-    await clickAtCoordinate(white, 0, 0);
+    await clickAtCoordinate(pages.black, 0, 1);
+    await clickAtCoordinate(pages.white, 0, 0);
 
     await expectSameTextOnAllPages(
       pages,
@@ -192,7 +189,7 @@ test.describe("Capturing stones", () => {
       "Black Captures: 0"
     );
 
-    await clickAtCoordinate(black, 1, 0);
+    await clickAtCoordinate(pages.black, 1, 0);
 
     await expectSameTextOnAllPages(
       pages,
@@ -1025,5 +1022,5 @@ async function startGameAndGetAllPages(browser: Browser) {
     spectator: p3,
   };
 
-  return { ...pages, c1, c2, c3, ms };
+  return { pages, c1, c2, c3, ms };
 }
