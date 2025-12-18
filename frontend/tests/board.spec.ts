@@ -186,23 +186,26 @@ test.describe("Capturing stones", () => {
       ms
     );
 
-    const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
-    const whitePageBlackCaptures = whitePlayer.locator("#black-captures");
-    const spectatorPageBlackCaptures = spectator.locator("#black-captures");
-
     await clickAtCoordinate(blackPlayer, 0, 1);
     await clickAtCoordinate(whitePlayer, 0, 0);
 
-    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
-    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
-    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
+    await expectSameTextOnAllPages(
+      blackPlayer,
+      whitePlayer,
+      spectator,
+      "#black-captures",
+      "Black Captures: 0"
+    );
 
     await clickAtCoordinate(blackPlayer, 1, 0);
 
-    await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
-    await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
-    await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
-
+    await expectSameTextOnAllPages(
+      blackPlayer,
+      whitePlayer,
+      spectator,
+      "#black-captures",
+      "Black Captures: 1"
+    );
     await closeContexts(c1, c2, c3);
   });
 
