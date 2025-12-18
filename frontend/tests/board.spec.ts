@@ -206,6 +206,7 @@ test.describe("Capturing stones", () => {
       "#black-captures",
       "Black Captures: 1"
     );
+
     await closeContexts(c1, c2, c3);
   });
 
@@ -998,9 +999,9 @@ async function closeContexts(...contexts: BrowserContext[]) {
 }
 
 async function expectSameTextOnAllPages(
-  blackPlayer,
-  whitePlayer,
-  spectator,
+  blackPlayer: Page,
+  whitePlayer: Page,
+  spectator: Page,
   elementId: string,
   text: string
 ) {
