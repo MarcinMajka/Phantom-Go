@@ -1005,11 +1005,11 @@ async function expectSameTextOnAllPages(
   elementId: string,
   text: string
 ) {
-  const blackPageBlackCaptures = blackPlayer.locator(elementId);
-  const whitePageBlackCaptures = whitePlayer.locator(elementId);
-  const spectatorPageBlackCaptures = spectator.locator(elementId);
+  const blackPageElement = blackPlayer.locator(elementId);
+  const whitePageElement = whitePlayer.locator(elementId);
+  const spectatorPageElement = spectator.locator(elementId);
 
-  await expect(blackPageBlackCaptures).toHaveText(text);
-  await expect(whitePageBlackCaptures).toHaveText(text);
-  await expect(spectatorPageBlackCaptures).toHaveText(text);
+  await expect(blackPageElement).toHaveText(text);
+  await expect(whitePageElement).toHaveText(text);
+  await expect(spectatorPageElement).toHaveText(text);
 }
