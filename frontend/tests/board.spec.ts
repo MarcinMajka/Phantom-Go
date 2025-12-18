@@ -1015,3 +1015,20 @@ async function expectSameTextOnAllPages(
   await expect(whitePageElement).toHaveText(text);
   await expect(spectatorPageElement).toHaveText(text);
 }
+
+async function startGameAndGetAllPages(browser: Browser) {
+  const ms = generateMatchID();
+
+  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
+  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+  const { context: c3, page: p3 } = await createUserAndJoinMatch(browser, ms);
+
+  const playerPages = await getPlayerPages(p1, p2);
+  const pages: Pages = {
+    black: playerPages.blackPlayer,
+    white: playerPages.whitePlayer,
+    spectator: p3,
+  };
+
+  return { ...pages, c1, c2, c3, ms };
+}
