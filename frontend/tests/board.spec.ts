@@ -186,13 +186,13 @@ test.describe("Capturing stones", () => {
       ms
     );
 
+    const pages = { black: blackPlayer, white: whitePlayer, spectator };
+
     await clickAtCoordinate(blackPlayer, 0, 1);
     await clickAtCoordinate(whitePlayer, 0, 0);
 
     await expectSameTextOnAllPages(
-      blackPlayer,
-      whitePlayer,
-      spectator,
+      pages,
       "#black-captures",
       "Black Captures: 0"
     );
@@ -200,9 +200,7 @@ test.describe("Capturing stones", () => {
     await clickAtCoordinate(blackPlayer, 1, 0);
 
     await expectSameTextOnAllPages(
-      blackPlayer,
-      whitePlayer,
-      spectator,
+      pages,
       "#black-captures",
       "Black Captures: 1"
     );
@@ -998,16 +996,20 @@ async function closeContexts(...contexts: BrowserContext[]) {
   }
 }
 
+interface Pages {
+  black: Page;
+  white: Page;
+  spectator: Page;
+}
+
 async function expectSameTextOnAllPages(
-  blackPlayer: Page,
-  whitePlayer: Page,
-  spectator: Page,
+  pages: Pages,
   elementId: string,
   text: string
 ) {
-  const blackPageElement = blackPlayer.locator(elementId);
-  const whitePageElement = whitePlayer.locator(elementId);
-  const spectatorPageElement = spectator.locator(elementId);
+  const blackPageElement = pages.black.locator(elementId);
+  const whitePageElement = pages.white.locator(elementId);
+  const spectatorPageElement = pages.spectator.locator(elementId);
 
   await expect(blackPageElement).toHaveText(text);
   await expect(whitePageElement).toHaveText(text);
