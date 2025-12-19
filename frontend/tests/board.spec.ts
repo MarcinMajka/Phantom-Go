@@ -178,10 +178,11 @@ test.describe("Rules", () => {
 
 test.describe("Capturing stones", () => {
   test("Capturing white stones updates Black Captures", async ({ browser }) => {
-    const { pages, c1, c2, c3 } = await startGameAndGetAllPages(browser);
+    const { pages, contexts } = await startGameAndGetAllPages(browser);
 
     await clickAtCoordinate(pages.black, 0, 1);
     await clickAtCoordinate(pages.white, 0, 0);
+    await closeContexts(...contexts);
 
     await expectSameTextOnAllPages(
       pages,
@@ -197,7 +198,7 @@ test.describe("Capturing stones", () => {
       "Black Captures: 1"
     );
 
-    await closeContexts(c1, c2, c3);
+    await closeContexts(...contexts);
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
@@ -1021,6 +1022,8 @@ async function startGameAndGetAllPages(browser: Browser) {
     white: playerPages.whitePlayer,
     spectator: p3,
   };
+  // Doesn't matter which context is bound to which player, because it's just for clean up at the end
+  const contexts = [c1, c2, c3];
 
-  return { pages, c1, c2, c3, ms };
+  return { pages, contexts, ms };
 }
