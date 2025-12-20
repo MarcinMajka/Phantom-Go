@@ -182,7 +182,6 @@ test.describe("Capturing stones", () => {
 
     await clickAtCoordinate(pages.black, 0, 1);
     await clickAtCoordinate(pages.white, 0, 0);
-    await closeContexts(...contexts);
 
     await expectSameTextOnAllPages(
       pages,
