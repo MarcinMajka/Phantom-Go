@@ -178,7 +178,7 @@ test.describe("Rules", () => {
 
 test.describe("Capturing stones", () => {
   test("Capturing white stones updates Black Captures", async ({ browser }) => {
-    const { pages, contexts } = await startGameAndGetAllPages(browser);
+    const { pages } = await startGameAndGetAllPages(browser);
 
     await clickAtCoordinate(pages.black, 0, 1);
     await clickAtCoordinate(pages.white, 0, 0);
@@ -197,7 +197,9 @@ test.describe("Capturing stones", () => {
       "Black Captures: 1"
     );
 
-    await closeContexts(...contexts);
+    await closeContextsFromPages(
+      ...[pages.black, pages.white, pages.spectator]
+    );
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
@@ -989,6 +991,12 @@ async function closeContexts(...contexts: BrowserContext[]) {
   }
 }
 
+async function closeContextsFromPages(...pages: Page[]) {
+  for (const page of pages) {
+    await page.context().close();
+  }
+}
+
 interface Pages {
   black: Page;
   white: Page;
@@ -1012,9 +1020,9 @@ async function expectSameTextOnAllPages(
 async function startGameAndGetAllPages(browser: Browser) {
   const ms = generateMatchID();
 
-  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
-  const { context: c3, page: p3 } = await createUserAndJoinMatch(browser, ms);
+  const { page: p1 } = await createUserAndJoinMatch(browser, ms);
+  const { page: p2 } = await createUserAndJoinMatch(browser, ms);
+  const { page: p3 } = await createUserAndJoinMatch(browser, ms);
 
   const playerPages = await getPlayerPages(p1, p2);
   const pages: Pages = {
@@ -1022,8 +1030,6 @@ async function startGameAndGetAllPages(browser: Browser) {
     white: playerPages.whitePlayer,
     spectator: p3,
   };
-  // Doesn't matter which context is bound to which player, because it's just for clean up at the end
-  const contexts = [c1, c2, c3];
 
-  return { pages, contexts, ms };
+  return { pages, ms };
 }
