@@ -982,6 +982,7 @@ async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
   await whitePlayer.waitForTimeout(1000);
 }
 
+// TODO: context can be taken from Page by using page.context() - refactor everything not to handle contexts separately?
 async function closeContexts(...contexts: BrowserContext[]) {
   for (const context of contexts) {
     await context.close();
