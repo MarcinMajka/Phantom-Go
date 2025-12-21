@@ -197,9 +197,7 @@ test.describe("Capturing stones", () => {
       "Black Captures: 1"
     );
 
-    await closeContextsFromPages(
-      ...[pages.black, pages.white, pages.spectator]
-    );
+    await closeContextsFromPages(...Object.values(pages));
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
