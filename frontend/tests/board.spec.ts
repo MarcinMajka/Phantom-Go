@@ -43,7 +43,7 @@ test.describe("Logging in", () => {
 
       expect(playerOne !== playerTwo);
 
-      await closeContexts(c1, c2);
+      await closeContextsFromPages(p1, p2);
     }
   });
 
@@ -172,7 +172,7 @@ test.describe("Rules", () => {
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
     await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 });
 
@@ -446,7 +446,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 
   test("White passes", async ({ browser }) => {
@@ -471,7 +471,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
@@ -497,7 +497,7 @@ test.describe("Passing", () => {
       (await getSessionToken(whitePlayer))!
     );
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 });
 
@@ -535,7 +535,7 @@ test.describe("Counting", () => {
       "White +2.5"
     );
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then deselects", async ({
@@ -579,7 +579,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
@@ -623,7 +623,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await closeContexts(c1, c2);
+    await closeContextsFromPages(blackPlayer, whitePlayer);
   });
 
   test("Spectator counts score - doesn't affect the game", async ({
