@@ -84,7 +84,7 @@ test.describe("Logging in", () => {
     await expect(playerTitle).toHaveCount(0);
     await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(p1, p2, spectator);
   });
 
   test("Confirm the user can't cheat by opening spectator's page", async ({
@@ -229,7 +229,7 @@ test.describe("Capturing stones", () => {
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 });
 
@@ -266,7 +266,7 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
@@ -300,7 +300,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
@@ -335,7 +335,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
@@ -387,7 +387,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
@@ -423,7 +423,7 @@ test.describe("Undo", () => {
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 });
 
@@ -661,7 +661,7 @@ test.describe("Counting", () => {
       "White: selecting dead stones"
     );
 
-    await closeContexts(c1, c2, c3);
+    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
   });
 });
 
