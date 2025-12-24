@@ -43,7 +43,7 @@ test.describe("Logging in", () => {
 
       expect(playerOne !== playerTwo);
 
-      await closeContextsFromPages(p1, p2);
+      await closeContexts(p1, p2);
     }
   });
 
@@ -84,7 +84,7 @@ test.describe("Logging in", () => {
     await expect(playerTitle).toHaveCount(0);
     await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
 
-    await closeContextsFromPages(p1, p2, spectator);
+    await closeContexts(p1, p2, spectator);
   });
 
   test("Confirm the user can't cheat by opening spectator's page", async ({
@@ -172,7 +172,7 @@ test.describe("Rules", () => {
     await expect(blackPlayer.locator(".stone")).toHaveCount(1);
     await expect(whitePlayer.locator(".stone")).toHaveCount(0);
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 });
 
@@ -197,7 +197,7 @@ test.describe("Capturing stones", () => {
       "Black Captures: 1"
     );
 
-    await closeContextsFromPages(...Object.values(pages));
+    await closeContexts(...Object.values(pages));
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
@@ -229,7 +229,7 @@ test.describe("Capturing stones", () => {
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 });
 
@@ -266,7 +266,7 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(blackPlayer.locator(".stone")).toHaveCount(0);
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
@@ -300,7 +300,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
@@ -335,7 +335,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
@@ -387,7 +387,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
@@ -423,7 +423,7 @@ test.describe("Undo", () => {
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 });
 
@@ -446,7 +446,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 
   test("White passes", async ({ browser }) => {
@@ -471,7 +471,7 @@ test.describe("Passing", () => {
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
@@ -497,7 +497,7 @@ test.describe("Passing", () => {
       (await getSessionToken(whitePlayer))!
     );
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 });
 
@@ -535,7 +535,7 @@ test.describe("Counting", () => {
       "White +2.5"
     );
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then deselects", async ({
@@ -579,7 +579,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
@@ -623,7 +623,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones"
     );
 
-    await closeContextsFromPages(blackPlayer, whitePlayer);
+    await closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Spectator counts score - doesn't affect the game", async ({
@@ -661,7 +661,7 @@ test.describe("Counting", () => {
       "White: selecting dead stones"
     );
 
-    await closeContextsFromPages(blackPlayer, whitePlayer, spectator);
+    await closeContexts(blackPlayer, whitePlayer, spectator);
   });
 });
 
@@ -982,14 +982,7 @@ async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
   await whitePlayer.waitForTimeout(1000);
 }
 
-// TODO: context can be taken from Page by using page.context() - refactor everything not to handle contexts separately?
-async function closeContexts(...contexts: BrowserContext[]) {
-  for (const context of contexts) {
-    await context.close();
-  }
-}
-
-async function closeContextsFromPages(...pages: Page[]) {
+async function closeContexts(...pages: Page[]) {
   for (const page of pages) {
     await page.context().close();
   }
