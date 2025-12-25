@@ -1,4 +1,11 @@
-import { test, expect, Page, Browser, BrowserContext } from "@playwright/test";
+import {
+  test,
+  expect,
+  Page,
+  Browser,
+  BrowserContext,
+  Locator,
+} from "@playwright/test";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test.describe("Logging in", () => {
@@ -935,6 +942,10 @@ test("Tests clickAtCoordinate()", async ({ page }) => {
     }
   }
 });
+
+async function validateStonePlacement(locator: Locator, color: string) {
+  await expect(locator).toHaveAttribute("fill", color);
+}
 
 async function getSessionToken(player: Page) {
   try {
