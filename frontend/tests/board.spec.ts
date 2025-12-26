@@ -36,14 +36,8 @@ test.describe("Logging in", () => {
     for (let i = 0; i < RUNS; i++) {
       const ms = generateMatchID();
 
-      const { context: c1, page: p1 } = await createUserAndJoinMatch(
-        browser,
-        ms
-      );
-      const { context: c2, page: p2 } = await createUserAndJoinMatch(
-        browser,
-        ms
-      );
+      const { page: p1 } = await createUserAndJoinMatch(browser, ms);
+      const { page: p2 } = await createUserAndJoinMatch(browser, ms);
 
       const playerOne = await p1.locator("#player-title").textContent();
       const playerTwo = await p2.locator("#player-title").textContent();
@@ -59,8 +53,8 @@ test.describe("Logging in", () => {
   }) => {
     const ms = generateMatchID();
 
-    const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+    const { page: p1 } = await createUserAndJoinMatch(browser, ms);
+    const { page: p2 } = await createUserAndJoinMatch(browser, ms);
 
     const p1Title = p1.locator("#player-title");
     const p1Color = await p1Title.textContent();
@@ -159,8 +153,9 @@ test.describe("Rules", () => {
   test("Players can't place a stone on opponent's stone", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     const turnBlack = blackPlayer.locator("#player-turn");
     const turnWhite = whitePlayer.locator("#player-turn");
@@ -208,13 +203,11 @@ test.describe("Capturing stones", () => {
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const blackPageWhiteCaptures = blackPlayer.locator("#white-captures");
     const whitePageWhiteCaptures = whitePlayer.locator("#white-captures");
@@ -242,12 +235,10 @@ test.describe("Capturing stones", () => {
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const undoButton = blackPlayer.locator("#undo-button");
     const turnBlack = blackPlayer.locator("#player-turn");
@@ -277,13 +268,11 @@ test.describe("Undo", () => {
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const passButton = blackPlayer.locator("#pass-button");
     const undoButton = blackPlayer.locator("#undo-button");
@@ -313,10 +302,7 @@ test.describe("Undo", () => {
   test("White passes, then UNDO", async ({ browser }) => {
     const { blackPlayer, whitePlayer, c1, c2, ms } =
       await startGameAndGetPlayerPages(browser);
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
-    );
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const passButton = whitePlayer.locator("#pass-button");
     const undoButton = whitePlayer.locator("#undo-button");
@@ -346,12 +332,10 @@ test.describe("Undo", () => {
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const undoButtonBlack = blackPlayer.locator("#undo-button");
     const undoButtonWhite = whitePlayer.locator("#undo-button");
@@ -398,13 +382,11 @@ test.describe("Undo", () => {
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     const undoButtonBlack = blackPlayer.locator("#undo-button");
     const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
@@ -436,8 +418,9 @@ test.describe("Undo", () => {
 
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -457,8 +440,9 @@ test.describe("Passing", () => {
   });
 
   test("White passes", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -484,8 +468,9 @@ test.describe("Passing", () => {
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -512,8 +497,9 @@ test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
@@ -548,8 +534,9 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -592,8 +579,9 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2 } =
-      await startGameAndGetPlayerPages(browser);
+    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
+      browser
+    );
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -636,12 +624,10 @@ test.describe("Counting", () => {
   test("Spectator counts score - doesn't affect the game", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
+      browser
     );
+    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
 
     await blackPlayer.locator("#pass-button").click();
     await whitePlayer.locator("#pass-button").click();
