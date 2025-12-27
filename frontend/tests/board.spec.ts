@@ -203,82 +203,72 @@ test.describe("Capturing stones", () => {
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const blackPageWhiteCaptures = pages.black.locator("#white-captures");
+    const whitePageWhiteCaptures = pages.white.locator("#white-captures");
+    const spectatorPageWhiteCaptures =
+      pages.spectator.locator("#white-captures");
 
-    const blackPageWhiteCaptures = blackPlayer.locator("#white-captures");
-    const whitePageWhiteCaptures = whitePlayer.locator("#white-captures");
-    const spectatorPageWhiteCaptures = spectator.locator("#white-captures");
-
-    await clickAtCoordinate(blackPlayer, 0, 0);
-    await clickAtCoordinate(whitePlayer, 1, 0);
-    await clickAtCoordinate(blackPlayer, 0, 1);
-    await clickAtCoordinate(whitePlayer, 1, 1);
-    await clickAtCoordinate(blackPlayer, 1, 2);
+    await clickAtCoordinate(pages.black, 0, 0);
+    await clickAtCoordinate(pages.white, 1, 0);
+    await clickAtCoordinate(pages.black, 0, 1);
+    await clickAtCoordinate(pages.white, 1, 1);
+    await clickAtCoordinate(pages.black, 1, 2);
 
     await expect(blackPageWhiteCaptures).toHaveText("White Captures: 0");
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 0");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 0");
 
-    await clickAtCoordinate(whitePlayer, 0, 2);
+    await clickAtCoordinate(pages.white, 0, 2);
 
     await expect(blackPageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const undoButton = blackPlayer.locator("#undo-button");
-    const turnBlack = blackPlayer.locator("#player-turn");
-    const turnWhite = whitePlayer.locator("#player-turn");
-    const turnSpectator = spectator.locator("#player-turn");
+    const undoButton = pages.black.locator("#undo-button");
+    const turnBlack = pages.black.locator("#player-turn");
+    const turnWhite = pages.white.locator("#player-turn");
+    const turnSpectator = pages.spectator.locator("#player-turn");
 
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
-    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
+    await expect(pages.black.locator(".stone")).toHaveCount(0);
 
-    await clickAtCoordinate(blackPlayer, 1, 2);
+    await clickAtCoordinate(pages.black, 1, 2);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
-    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
+    await expect(pages.black.locator(".stone")).toHaveCount(1);
 
     await undoButton.click();
 
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
-    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
+    await expect(pages.black.locator(".stone")).toHaveCount(0);
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
-
-    const passButton = blackPlayer.locator("#pass-button");
-    const undoButton = blackPlayer.locator("#undo-button");
-    const turnBlack = blackPlayer.locator("#player-turn");
-    const turnWhite = whitePlayer.locator("#player-turn");
-    const turnSpectator = spectator.locator("#player-turn");
+    const passButton = pages.black.locator("#pass-button");
+    const undoButton = pages.black.locator("#undo-button");
+    const turnBlack = pages.black.locator("#player-turn");
+    const turnWhite = pages.white.locator("#player-turn");
+    const turnSpectator = pages.spectator.locator("#player-turn");
 
     await passButton.click();
 
@@ -296,21 +286,19 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, c1, c2, ms } =
-      await startGameAndGetPlayerPages(browser);
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const passButton = whitePlayer.locator("#pass-button");
-    const undoButton = whitePlayer.locator("#undo-button");
-    const turnBlack = blackPlayer.locator("#player-turn");
-    const turnWhite = whitePlayer.locator("#player-turn");
-    const turnSpectator = spectator.locator("#player-turn");
+    const passButton = pages.white.locator("#pass-button");
+    const undoButton = pages.white.locator("#undo-button");
+    const turnBlack = pages.black.locator("#player-turn");
+    const turnWhite = pages.white.locator("#player-turn");
+    const turnSpectator = pages.spectator.locator("#player-turn");
 
-    await clickAtCoordinate(blackPlayer, 5, 5);
+    await clickAtCoordinate(pages.black, 5, 5);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
@@ -328,31 +316,28 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const undoButtonBlack = blackPlayer.locator("#undo-button");
-    const undoButtonWhite = whitePlayer.locator("#undo-button");
-    const turnBlack = blackPlayer.locator("#player-turn");
-    const turnWhite = whitePlayer.locator("#player-turn");
-    const turnSpectator = spectator.locator("#player-turn");
+    const undoButtonBlack = pages.black.locator("#undo-button");
+    const undoButtonWhite = pages.white.locator("#undo-button");
+    const turnBlack = pages.black.locator("#player-turn");
+    const turnWhite = pages.white.locator("#player-turn");
+    const turnSpectator = pages.spectator.locator("#player-turn");
 
-    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
-    await expect(spectator.locator("#main-board .stone")).toHaveCount(0);
+    await expect(pages.black.locator(".stone")).toHaveCount(0);
+    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
 
-    await clickAtCoordinate(blackPlayer, 1, 1);
-    await clickAtCoordinate(whitePlayer, 5, 5);
+    await clickAtCoordinate(pages.black, 1, 1);
+    await clickAtCoordinate(pages.white, 5, 5);
 
-    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(1);
-    await expect(spectator.locator("#main-board .stone")).toHaveCount(2);
+    await expect(pages.black.locator(".stone")).toHaveCount(1);
+    await expect(pages.white.locator(".stone")).toHaveCount(1);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(2);
 
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
@@ -360,9 +345,9 @@ test.describe("Undo", () => {
 
     await undoButtonWhite.click();
 
-    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
-    await expect(spectator.locator("#main-board .stone")).toHaveCount(1);
+    await expect(pages.black.locator(".stone")).toHaveCount(1);
+    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
@@ -370,37 +355,34 @@ test.describe("Undo", () => {
 
     await undoButtonBlack.click();
 
-    await expect(blackPlayer.locator(".stone")).toHaveCount(0);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
-    await expect(spectator.locator("#main-board .stone")).toHaveCount(0);
+    await expect(pages.black.locator(".stone")).toHaveCount(0);
+    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
 
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const undoButtonBlack = pages.black.locator("#undo-button");
+    const blackPageBlackCaptures = pages.black.locator("#black-captures");
+    const whitePageBlackCaptures = pages.white.locator("#black-captures");
+    const spectatorPageBlackCaptures =
+      pages.spectator.locator("#black-captures");
 
-    const undoButtonBlack = blackPlayer.locator("#undo-button");
-    const blackPageBlackCaptures = blackPlayer.locator("#black-captures");
-    const whitePageBlackCaptures = whitePlayer.locator("#black-captures");
-    const spectatorPageBlackCaptures = spectator.locator("#black-captures");
-
-    await clickAtCoordinate(blackPlayer, 0, 1);
-    await clickAtCoordinate(whitePlayer, 0, 0);
+    await clickAtCoordinate(pages.black, 0, 1);
+    await clickAtCoordinate(pages.white, 0, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await clickAtCoordinate(blackPlayer, 1, 0);
+    await clickAtCoordinate(pages.black, 1, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
@@ -412,7 +394,7 @@ test.describe("Undo", () => {
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
@@ -624,37 +606,34 @@ test.describe("Counting", () => {
   test("Spectator counts score - doesn't affect the game", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer, ms } = await startGameAndGetPlayerPages(
-      browser
-    );
-    const { page: spectator } = await createUserAndJoinMatch(browser, ms);
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    await blackPlayer.locator("#pass-button").click();
-    await whitePlayer.locator("#pass-button").click();
+    await pages.black.locator("#pass-button").click();
+    await pages.white.locator("#pass-button").click();
 
-    await spectator.waitForTimeout(1000);
-    await spectator.locator("#count-score-button").click();
+    await pages.spectator.waitForTimeout(1000);
+    await pages.spectator.locator("#count-score-button").click();
 
-    expect(await spectator.locator("#black-ready").textContent()).toBe(
+    expect(await pages.spectator.locator("#black-ready").textContent()).toBe(
       "Black: selecting dead stones"
     );
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    expect(await pages.black.locator("#black-ready").textContent()).toBe(
       "Black: selecting dead stones"
     );
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    expect(await pages.white.locator("#black-ready").textContent()).toBe(
       "Black: selecting dead stones"
     );
-    expect(await spectator.locator("#white-ready").textContent()).toBe(
+    expect(await pages.spectator.locator("#white-ready").textContent()).toBe(
       "White: selecting dead stones"
     );
-    expect(await blackPlayer.locator("#white-ready").textContent()).toBe(
+    expect(await pages.black.locator("#white-ready").textContent()).toBe(
       "White: selecting dead stones"
     );
-    expect(await whitePlayer.locator("#white-ready").textContent()).toBe(
+    expect(await pages.white.locator("#white-ready").textContent()).toBe(
       "White: selecting dead stones"
     );
 
-    await closeContexts(blackPlayer, whitePlayer, spectator);
+    await closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
