@@ -51,41 +51,27 @@ test.describe("Logging in", () => {
   test("Confirm the user can go back to his board view by loggin in again", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
+    const { pages, ms } = await startGameAndGetAllPages(browser);
 
-    const { page: p1 } = await createUserAndJoinMatch(browser, ms);
-    const { page: p2 } = await createUserAndJoinMatch(browser, ms);
+    await pages.black.goBack();
+    await pages.black.locator("#match-string").fill(ms);
+    await pages.black.locator("#join-button").click();
 
-    const p1Title = p1.locator("#player-title");
-    const p1Color = await p1Title.textContent();
-
-    await p1.goBack();
-    await p1.locator("#match-string").fill(ms);
-    await p1.locator("#join-button").click();
-
-    expect(await p1Title.textContent()).toEqual(p1Color);
-
-    const p2Title = p2.locator("#player-title");
-    const p2Color = await p2Title.textContent();
-
-    await p2.goBack();
-    await p2.locator("#match-string").fill(ms);
-    await p2.locator("#join-button").click();
-
-    expect(await p2Title.textContent()).toEqual(p2Color);
-
-    const { context: c3, page: spectator } = await createUserAndJoinMatch(
-      browser,
-      ms
+    await expect(pages.black.locator("#player-title")).toHaveText(
+      "Black Player"
     );
 
-    const playerTitle = spectator.locator("#player-title");
-    const boardContainer = spectator.locator("#board-container");
+    await pages.white.goBack();
+    await pages.white.locator("#match-string").fill(ms);
+    await pages.white.locator("#join-button").click();
 
-    await expect(playerTitle).toHaveCount(0);
-    await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+    await expect(pages.white.locator("#player-title")).toHaveText(
+      "White Player"
+    );
 
-    await closeContexts(p1, p2, spectator);
+    await verifySpectatorState(pages.spectator);
+
+    await closeContexts(...Object.values(pages));
   });
 
   test("Confirm the user can't cheat by opening spectator's page", async ({
