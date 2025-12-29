@@ -53,17 +53,13 @@ test.describe("Logging in", () => {
   }) => {
     const { pages, ms } = await startGameAndGetAllPages(browser);
 
-    await pages.black.goBack();
-    await pages.black.locator("#match-string").fill(ms);
-    await pages.black.locator("#join-button").click();
+    await rejoinPage(pages.black, ms);
 
     await expect(pages.black.locator("#player-title")).toHaveText(
       "Black Player"
     );
 
-    await pages.white.goBack();
-    await pages.white.locator("#match-string").fill(ms);
-    await pages.white.locator("#join-button").click();
+    await rejoinPage(pages.white, ms);
 
     await expect(pages.white.locator("#player-title")).toHaveText(
       "White Player"
@@ -985,4 +981,10 @@ async function startGameAndGetAllPages(browser: Browser) {
   };
 
   return { pages, ms };
+}
+
+async function rejoinPage(player: Page, matchString: string) {
+  await player.goBack();
+  await player.locator("#match-string").fill(matchString);
+  await player.locator("#join-button").click();
 }
