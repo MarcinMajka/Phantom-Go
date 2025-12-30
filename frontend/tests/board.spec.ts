@@ -36,8 +36,8 @@ test.describe("Logging in", () => {
     for (let i = 0; i < RUNS; i++) {
       const ms = generateMatchID();
 
-      const { page: p1 } = await createUserAndJoinMatch(browser, ms);
-      const { page: p2 } = await createUserAndJoinMatch(browser, ms);
+      const p1 = await createUserAndJoinMatch(browser, ms);
+      const p2 = await createUserAndJoinMatch(browser, ms);
 
       const playerOne = await p1.locator("#player-title").textContent();
       const playerTwo = await p2.locator("#player-title").textContent();
@@ -75,7 +75,7 @@ test.describe("Logging in", () => {
   }) => {
     const ms = generateMatchID();
 
-    const { context, page } = await createUserAndJoinMatch(browser, ms);
+    const page = await createUserAndJoinMatch(browser, ms);
 
     const p1Title = page.locator("#player-title");
     const p1Color = await p1Title.textContent();
@@ -87,7 +87,7 @@ test.describe("Logging in", () => {
 
     expect(await p1Title.textContent()).toEqual(p1Color);
 
-    await context.close();
+    await closeContexts(page);
   });
 
   test("Confirm subsequent joining users are spectators", async ({
@@ -99,8 +99,8 @@ test.describe("Logging in", () => {
       const matchString = generateMatchID();
 
       // Create first two players (they join and leave immediately)
-      (await createUserAndJoinMatch(browser, matchString)).context.close();
-      (await createUserAndJoinMatch(browser, matchString)).context.close();
+      (await createUserAndJoinMatch(browser, matchString)).context().close();
+      (await createUserAndJoinMatch(browser, matchString)).context().close();
 
       // Create third user (spectator) and verify they're a spectator
       const spectatorSession = await createUserAndJoinMatch(
@@ -108,8 +108,8 @@ test.describe("Logging in", () => {
         matchString
       );
 
-      await verifySpectatorState(spectatorSession.page);
-      await spectatorSession.context.close();
+      await verifySpectatorState(spectatorSession);
+      await spectatorSession.context().close();
     }
   });
 });
@@ -640,7 +640,6 @@ test.describe("Guess stones", () => {
 
   test("Add/remove guess stone and check its status after all the clicks", async ({
     page,
-    context,
   }) => {
     await startGameWithRandomID(page);
 
@@ -835,7 +834,7 @@ async function createUserAndJoinMatch(browser: Browser, matchString: string) {
   await page.locator("#match-string").fill(matchString);
   await page.locator("#join-button").click();
 
-  return { context, page };
+  return page;
 }
 
 interface PlayerPages {
@@ -927,12 +926,12 @@ async function expectAny<T>(
 async function startGameAndGetPlayerPages(browser: Browser) {
   const ms = generateMatchID();
 
-  const { context: c1, page: p1 } = await createUserAndJoinMatch(browser, ms);
-  const { context: c2, page: p2 } = await createUserAndJoinMatch(browser, ms);
+  const p1 = await createUserAndJoinMatch(browser, ms);
+  const p2 = await createUserAndJoinMatch(browser, ms);
 
   const playerPages = await getPlayerPages(p1, p2);
 
-  return { ...playerPages, c1, c2, ms };
+  return { ...playerPages, ms };
 }
 
 async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
@@ -969,9 +968,9 @@ async function expectSameTextOnAllPages(
 async function startGameAndGetAllPages(browser: Browser) {
   const ms = generateMatchID();
 
-  const { page: p1 } = await createUserAndJoinMatch(browser, ms);
-  const { page: p2 } = await createUserAndJoinMatch(browser, ms);
-  const { page: p3 } = await createUserAndJoinMatch(browser, ms);
+  const p1 = await createUserAndJoinMatch(browser, ms);
+  const p2 = await createUserAndJoinMatch(browser, ms);
+  const p3 = await createUserAndJoinMatch(browser, ms);
 
   const playerPages = await getPlayerPages(p1, p2);
   const pages: Pages = {
