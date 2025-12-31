@@ -81,9 +81,7 @@ test.describe("Logging in", () => {
     const p1Color = await p1Title.textContent();
 
     await page.goBack();
-    await page.locator("#match-string").fill(ms);
-    await page.locator("#spectator-checkbox").click();
-    await page.locator("#join-button").click();
+    await startGameAsSpectator(page, ms);
 
     expect(await p1Title.textContent()).toEqual(p1Color);
 
