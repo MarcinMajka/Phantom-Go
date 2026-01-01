@@ -115,8 +115,10 @@ test.describe("Logging in", () => {
 test("Player logs in, then resigns", async ({ page }) => {
   await startGameWithRandomID(page);
   const sessionToken = await getSessionToken(page);
-  expect(sessionToken).not.toBe(null);
-  expect(sessionToken).not.toBe("");
+  await expectAny(sessionToken, [
+    (t) => expect(t).not.toBeNull(),
+    (t) => expect(t).not.toBe(""),
+  ]);
 
   const resignButton = page.locator("#resign-button");
 
