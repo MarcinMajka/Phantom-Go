@@ -135,28 +135,25 @@ test.describe("Rules", () => {
   test("Players can't place a stone on opponent's stone", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { pages } = await startGameAndGetAllPages(browser);
 
-    const turnBlack = blackPlayer.locator("#player-turn");
-    const turnWhite = whitePlayer.locator("#player-turn");
+    await clickAtCoordinate(pages.black, 5, 5);
 
-    await clickAtCoordinate(blackPlayer, 5, 5);
+    await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(turnBlack).toHaveText("Turn: white");
-    await expect(turnWhite).toHaveText("Turn: white");
-    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expect(pages.black.locator(".stone")).toHaveCount(1);
+    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
-    await clickAtCoordinate(whitePlayer, 5, 5);
+    await clickAtCoordinate(pages.white, 5, 5);
 
-    await expect(turnBlack).toHaveText("Turn: white");
-    await expect(turnWhite).toHaveText("Turn: white");
-    await expect(blackPlayer.locator(".stone")).toHaveCount(1);
-    await expect(whitePlayer.locator(".stone")).toHaveCount(0);
+    await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await expect(pages.black.locator(".stone")).toHaveCount(1);
+    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
+
+    await closeContexts(...Object.values(pages));
   });
 });
 
