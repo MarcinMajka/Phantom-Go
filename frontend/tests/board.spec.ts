@@ -136,22 +136,23 @@ test.describe("Rules", () => {
     browser,
   }) => {
     const { pages } = await startGameAndGetAllPages(browser);
-    const moveLocatorText = ".stone[data-row=5][data-col=5]";
+    const moveLocatorText = '.stone[data-row="5"][data-col="5"]';
+    const psl = await getPagesStoneLocators(pages, moveLocatorText);
 
     await clickAtCoordinate(pages.black, 5, 5);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(pages.black.locator(".stone")).toHaveCount(1);
-    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(psl.black).toHaveCount(1);
+    await expect(psl.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await clickAtCoordinate(pages.white, 5, 5);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(pages.black.locator(".stone")).toHaveCount(1);
-    await expect(pages.white.locator(".stone")).toHaveCount(0);
+    await expect(psl.black).toHaveCount(1);
+    await expect(psl.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await closeContexts(...Object.values(pages));
