@@ -136,6 +136,7 @@ test.describe("Rules", () => {
     browser,
   }) => {
     const { pages } = await startGameAndGetAllPages(browser);
+    const moveLocatorText = ".stone[data-row=5][data-col=5]";
 
     await clickAtCoordinate(pages.black, 5, 5);
 
@@ -983,4 +984,21 @@ async function rejoinPage(player: Page, matchString: string) {
   await player.goBack();
   await player.locator("#match-string").fill(matchString);
   await player.locator("#join-button").click();
+}
+
+interface PagesStoneLocators {
+  black: Locator;
+  white: Locator;
+  spectator: Locator;
+}
+
+async function getPagesStoneLocators(
+  pages: Pages,
+  stoneLocator: string
+): Promise<PagesStoneLocators> {
+  return {
+    black: pages.black.locator(stoneLocator),
+    white: pages.white.locator(stoneLocator),
+    spectator: pages.spectator.locator(stoneLocator),
+  };
 }
