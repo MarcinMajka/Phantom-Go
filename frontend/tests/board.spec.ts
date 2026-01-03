@@ -136,8 +136,8 @@ test.describe("Rules", () => {
     browser,
   }) => {
     const { pages } = await startGameAndGetAllPages(browser);
-    const moveLocatorText = '.stone[data-row="5"][data-col="5"]';
-    const psl = await getPagesStoneLocators(pages, moveLocatorText);
+    const stoneAtSelector = '.stone[data-row="5"][data-col="5"]';
+    const psl = await getPagesStoneLocators(pages, stoneAtSelector);
 
     await clickAtCoordinate(pages.black, 5, 5);
 
