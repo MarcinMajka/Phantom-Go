@@ -137,22 +137,25 @@ test.describe("Rules", () => {
   }) => {
     const { pages } = await startGameAndGetAllPages(browser);
     const stoneAtSelector = '.stone[data-row="5"][data-col="5"]';
-    const psl = await getPagesStoneLocators(pages, stoneAtSelector);
+    const stoneLocators = await getStoneLocatorsForPages(
+      pages,
+      stoneAtSelector
+    );
 
     await clickAtCoordinate(pages.black, 5, 5);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(psl.black).toHaveCount(1);
-    await expect(psl.white).toHaveCount(0);
+    await expect(stoneLocators.black).toHaveCount(1);
+    await expect(stoneLocators.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await clickAtCoordinate(pages.white, 5, 5);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(psl.black).toHaveCount(1);
-    await expect(psl.white).toHaveCount(0);
+    await expect(stoneLocators.black).toHaveCount(1);
+    await expect(stoneLocators.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await closeContexts(...Object.values(pages));
@@ -993,7 +996,7 @@ interface PagesStoneLocators {
   spectator: Locator;
 }
 
-async function getPagesStoneLocators(
+async function getStoneLocatorsForPages(
   pages: Pages,
   stoneLocator: string
 ): Promise<PagesStoneLocators> {
