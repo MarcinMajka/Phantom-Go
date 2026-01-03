@@ -990,7 +990,7 @@ async function rejoinPage(player: Page, matchString: string) {
   await player.locator("#join-button").click();
 }
 
-interface PagesStoneLocators {
+interface StoneLocatorsByRole {
   black: Locator;
   white: Locator;
   spectator: Locator;
@@ -999,7 +999,7 @@ interface PagesStoneLocators {
 async function getStoneLocatorsForPages(
   pages: Pages,
   stoneLocator: string
-): Promise<PagesStoneLocators> {
+): Promise<StoneLocatorsByRole> {
   return {
     black: pages.black.locator(stoneLocator),
     white: pages.white.locator(stoneLocator),
