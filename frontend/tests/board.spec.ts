@@ -136,13 +136,17 @@ test.describe("Rules", () => {
     browser,
   }) => {
     const { pages } = await startGameAndGetAllPages(browser);
-    const stoneAtSelector = '.stone[data-row="5"][data-col="5"]';
+
+    const row = 5;
+    const col = 5;
+    const stoneAtSelector = `.stone[data-row="${row}"][data-col="${col}"]`;
+
     const stoneLocators = await getStoneLocatorsForPages(
       pages,
       stoneAtSelector
     );
 
-    await clickAtCoordinate(pages.black, 5, 5);
+    await clickAtCoordinate(pages.black, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
@@ -150,7 +154,7 @@ test.describe("Rules", () => {
     await expect(stoneLocators.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
-    await clickAtCoordinate(pages.white, 5, 5);
+    await clickAtCoordinate(pages.white, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
