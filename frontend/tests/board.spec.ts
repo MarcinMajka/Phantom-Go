@@ -1010,3 +1010,13 @@ async function getStoneLocatorsForPages(
     spectator: pages.spectator.locator(stoneLocator),
   };
 }
+
+function stoneAt(pages: Pages, row: number, col: number) {
+  const selector = `.stone[data-row="${row}"][data-col="${col}"]`;
+
+  return {
+    black: pages.black.locator(selector),
+    white: pages.white.locator(selector),
+    spectator: pages.spectator.locator(selector),
+  };
+}
