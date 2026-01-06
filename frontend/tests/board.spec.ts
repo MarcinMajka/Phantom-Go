@@ -139,27 +139,22 @@ test.describe("Rules", () => {
 
     const row = 5;
     const col = 5;
-    const stoneAtSelector = `.stone[data-row="${row}"][data-col="${col}"]`;
-
-    const stoneLocators = await getStoneLocatorsForPages(
-      pages,
-      stoneAtSelector
-    );
+    const stoneAtPage = stoneAt(pages, row, col);
 
     await clickAtCoordinate(pages.black, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(stoneLocators.black).toHaveCount(1);
-    await expect(stoneLocators.white).toHaveCount(0);
+    await expect(stoneAtPage.black).toHaveCount(1);
+    await expect(stoneAtPage.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await clickAtCoordinate(pages.white, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
 
-    await expect(stoneLocators.black).toHaveCount(1);
-    await expect(stoneLocators.white).toHaveCount(0);
+    await expect(stoneAtPage.black).toHaveCount(1);
+    await expect(stoneAtPage.white).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
     await closeContexts(...Object.values(pages));
