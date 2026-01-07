@@ -1015,3 +1015,16 @@ function stoneAt(pages: Pages, row: number, col: number) {
     spectator: pages.spectator.locator(selector),
   };
 }
+
+async function expectStoneState(
+  stone: ReturnType<typeof stoneAt>,
+  {
+    black = 0,
+    white = 0,
+    spectator = 0,
+  }: { black?: number; white?: number; spectator?: number }
+) {
+  await expect(stone.black).toHaveCount(black);
+  await expect(stone.white).toHaveCount(white);
+  await expect(stone.spectator).toHaveCount(spectator);
+}
