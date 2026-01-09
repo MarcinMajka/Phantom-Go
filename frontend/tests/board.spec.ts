@@ -144,12 +144,24 @@ test.describe("Rules", () => {
     await clickAtCoordinate(pages.black, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
-    await expectStoneState(stone, { black: 1, white: 0, spectator: 1 });
+    await expectStoneState(stone, {
+      black: 1,
+      white: 0,
+      spectatorMain: 1,
+      spectatorBlack: 1,
+      spectatorWhite: 0,
+    });
 
     await clickAtCoordinate(pages.white, row, col);
 
     await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
-    await expectStoneState(stone, { black: 1, white: 0, spectator: 1 });
+    await expectStoneState(stone, {
+      black: 1,
+      white: 0,
+      spectatorMain: 1,
+      spectatorBlack: 1,
+      spectatorWhite: 0,
+    });
 
     await closeContexts(...Object.values(pages));
   });
@@ -1006,7 +1018,13 @@ function stoneAt(pages: Pages, row: number, col: number) {
   return {
     black: pages.black.locator(selector),
     white: pages.white.locator(selector),
-    spectator: pages.spectator.locator(selector),
+    spectatorMain: pages.spectator.locator("#main-board").locator(selector),
+    spectatorBlack: pages.spectator
+      .locator("#black-player-board")
+      .locator(selector),
+    spectatorWhite: pages.spectator
+      .locator("#white-player-board")
+      .locator(selector),
   };
 }
 
@@ -1015,10 +1033,20 @@ async function expectStoneState(
   {
     black = 0,
     white = 0,
-    spectator = 0,
-  }: { black?: number; white?: number; spectator?: number }
+    spectatorMain = 0,
+    spectatorBlack = 0,
+    spectatorWhite = 0,
+  }: {
+    black?: number;
+    white?: number;
+    spectatorMain?: number;
+    spectatorBlack?: number;
+    spectatorWhite?: number;
+  }
 ) {
   await expect(stone.black).toHaveCount(black);
   await expect(stone.white).toHaveCount(white);
-  await expect(stone.spectator).toHaveCount(spectator);
+  await expect(stone.spectatorMain).toHaveCount(spectatorMain);
+  await expect(stone.spectatorBlack).toHaveCount(spectatorBlack);
+  await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
 }
