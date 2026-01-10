@@ -1020,6 +1020,13 @@ async fn reset_memory() {
 }
 
 #[handler]
+fn get_all_games() -> Result<Json<Vec<String>>, Error> {
+    let rooms = lock_rooms()?;
+    let match_strings: Vec<String> = rooms.keys().cloned().collect();
+    Ok(Json(match_strings))
+}
+
+#[handler]
 async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<String, Error> {
     let mut rooms = lock_rooms()?;
     let mut room = get_room(&mut rooms, &payload.match_string)?;
@@ -1095,6 +1102,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/sync-boards", poem::post(sync_boards))
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
+        .at("/get-all-games", poem::post(get_all_games))
         .at("/get-game-record", poem::post(send_game_record))
         .at("/", poem::get(index))
         .nest("/frontend", StaticEmbed)
