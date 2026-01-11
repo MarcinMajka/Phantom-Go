@@ -212,3 +212,24 @@ export function getGroupRequest(row, col) {
       console.error("Error:", error);
     });
 }
+
+export function getGamesList() {
+  fetch(`${API_URL}/get-all-games`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error("Error during loading games list:", error);
+    });
+}
