@@ -1,5 +1,5 @@
 import { getGamesList } from "./handlers.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  getGamesList();
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log(await getGamesList());
 });

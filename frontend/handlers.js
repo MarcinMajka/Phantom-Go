@@ -213,8 +213,8 @@ export function getGroupRequest(row, col) {
     });
 }
 
-export function getGamesList() {
-  fetch(`${API_URL}/get-all-games`, {
+export async function getGamesList() {
+  return fetch(`${API_URL}/get-all-games`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -226,9 +226,7 @@ export function getGamesList() {
       }
       return response.json();
     })
-    .then((data) => {
-      console.log(data);
-    })
+    .then((data) => data.toSorted())
     .catch((error) => {
       console.error("Error during loading games list:", error);
     });
