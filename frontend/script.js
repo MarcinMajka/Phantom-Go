@@ -417,6 +417,7 @@ function syncBoards() {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!getMatchString()) {
+    if (window.location.pathname.includes("games.html")) return;
     console.error("No match string provided");
     return;
   }
