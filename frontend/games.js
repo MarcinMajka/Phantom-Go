@@ -1,4 +1,5 @@
 import { getGamesList } from "./handlers.js";
+import { getAPIUrl } from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const games = await getGamesList();
@@ -10,6 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   for (const game of games) {
     const li = document.createElement("li");
     li.textContent = game;
+    li.onclick = () => {
+      window.location.href = `/frontend/main.html?match=${game}`;
+    };
     ul.appendChild(li);
   }
 });
