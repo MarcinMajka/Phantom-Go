@@ -297,12 +297,11 @@ async fn index() -> Redirect {
 
 #[handler]
 async fn get_dimensions(payload: Json<MatchStringPayload>) -> Result<Json<BoardDimensions>, Error> {
-    let mut rooms = lock_rooms()?;
+    let rooms = lock_rooms()?;
 
-    // Create room if it doesn't exist
     let room = rooms
-        .entry(payload.match_string.clone())
-        .or_insert_with(GameRoom::new);
+        .get(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
 
     let (rows, cols) = get_playable_dimensions(&room.board);
     Ok(Json(BoardDimensions { rows, cols }))
@@ -711,10 +710,11 @@ struct GameInfo {
 
 #[handler]
 async fn should_sync(payload: Json<ShouldSyncPayload>) -> Result<Json<GameInfo>, Error> {
-    let mut rooms = lock_rooms()?;
+    let rooms = lock_rooms()?;
+
     let room = rooms
-        .entry(payload.match_string.clone())
-        .or_insert_with(GameRoom::new);
+        .get(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
 
     let move_number = room.board.game_history.len();
     let board_generation_number = room.game_generation_number;
@@ -746,10 +746,9 @@ struct SyncBoardsPayload {
 async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>, Error> {
     let mut rooms = lock_rooms()?;
 
-    // Create room if it doesn't exist
     let room = rooms
-        .entry(payload.match_string.clone())
-        .or_insert_with(GameRoom::new);
+        .get_mut(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
 
     let mut guess_stones = lock_guess_stones()?;
 
