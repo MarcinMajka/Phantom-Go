@@ -517,6 +517,14 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     let score = room.board.count_score();
     room.board.set_winner(score.clone());
 
+    let match_string = payload.match_string.clone();
+    spawn(async move {
+        sleep(Duration::from_secs(60)).await;
+        if let Ok(mut rooms) = lock_rooms() {
+            rooms.remove(&match_string);
+        }
+    });
+
     Ok(Json(score.to_string()))
 }
 
