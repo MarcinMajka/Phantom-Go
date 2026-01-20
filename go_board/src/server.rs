@@ -290,6 +290,15 @@ fn lock_guess_stones() -> Result<
     })
 }
 
+fn schedule_room_cleanup(match_string: String, delay_seconds: u64) {
+    spawn(async move {
+        sleep(Duration::from_secs(delay_seconds)).await;
+        if let Ok(mut rooms) = lock_rooms() {
+            rooms.remove(&match_string);
+        }
+    });
+}
+
 #[handler]
 async fn index() -> Redirect {
     Redirect::moved_permanent("/frontend/index.html")
@@ -518,12 +527,7 @@ async fn get_score(payload: Json<GetScorePayload>) -> Result<Json<String>, Error
     room.board.set_winner(score.clone());
 
     let match_string = payload.match_string.clone();
-    spawn(async move {
-        sleep(Duration::from_secs(60)).await;
-        if let Ok(mut rooms) = lock_rooms() {
-            rooms.remove(&match_string);
-        }
-    });
+    schedule_room_cleanup(match_string, 60);
 
     Ok(Json(score.to_string()))
 }
@@ -559,12 +563,7 @@ async fn handle_resignation(payload: Json<ResignPayload>) -> Result<Json<GameSta
 
     // Schedule room cleanup after 1 hour
     let match_string = payload.match_string.clone();
-    spawn(async move {
-        sleep(Duration::from_secs(60)).await;
-        if let Ok(mut rooms) = lock_rooms() {
-            rooms.remove(&match_string);
-        }
-    });
+    schedule_room_cleanup(match_string, 60);
 
     Ok(Json(game_state))
 }
