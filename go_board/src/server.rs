@@ -484,6 +484,41 @@ fn derive_player(room: GameRoom, session_token: String) -> String {
     }
 }
 
+fn resolve_spectator_session(
+    room: &GameRoom,
+    match_string: &str,
+    payload_session_token: &Option<String>,
+) -> (String, String, String) {
+    let mut color = "spectator".to_string();
+    let mut redirect_url = format!("{}?match={}&token=", "/frontend/main.html", match_string);
+    let mut session_token = "".to_string();
+
+    if let Some(token) = payload_session_token {
+        let matches_black = room.players.black.as_ref().map(|p| &p.session_token) == Some(token);
+        let matches_white = room.players.white.as_ref().map(|p| &p.session_token) == Some(token);
+
+        if matches_black {
+            color = "black".to_string();
+            redirect_url = format!(
+                "{}?match={}&token={}",
+                "/frontend/black.html", match_string, session_token
+            );
+            session_token = room.players.black.clone().unwrap().session_token;
+        }
+
+        if matches_white {
+            color = "white".to_string();
+            redirect_url = format!(
+                "{}?match={}&token={}",
+                "/frontend/white.html", match_string, session_token
+            );
+            session_token = room.players.white.clone().unwrap().session_token;
+        }
+    }
+
+    (color, redirect_url, session_token)
+}
+
 #[derive(Deserialize)]
 struct GetScorePayload {
     match_string: String,
@@ -842,43 +877,14 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
         .entry(payload.match_string.clone())
         .or_insert_with(GameRoom::new);
 
-    let mut color = "spectator".to_string();
-    let mut redirect_url = format!(
-        "{}?match={}&token=",
-        "/frontend/main.html", payload.match_string
-    );
-    let mut session_token = "".to_string();
+    let (spectator_color, spectator_redirect_url, spectator_session_token) =
+        resolve_spectator_session(&room, &payload.match_string, &payload.session_token);
 
     if payload.is_spectator {
-        if let Some(token) = &payload.session_token {
-            let matches_black =
-                room.players.black.as_ref().map(|p| &p.session_token) == Some(token);
-            let matches_white =
-                room.players.white.as_ref().map(|p| &p.session_token) == Some(token);
-
-            if matches_black {
-                color = "black".to_string();
-                redirect_url = format!(
-                    "{}?match={}&token={}",
-                    "/frontend/black.html", payload.match_string, session_token
-                );
-                session_token = room.players.black.clone().unwrap().session_token;
-            }
-
-            if matches_white {
-                color = "white".to_string();
-                redirect_url = format!(
-                    "{}?match={}&token={}",
-                    "/frontend/white.html", payload.match_string, session_token
-                );
-                session_token = room.players.white.clone().unwrap().session_token;
-            }
-        }
-
         return Ok(Json(JoinGameResponse {
-            color,
-            redirect_url,
-            session_token,
+            color: spectator_color,
+            redirect_url: spectator_redirect_url,
+            session_token: spectator_session_token,
         }));
     }
 
