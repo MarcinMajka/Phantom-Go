@@ -983,6 +983,36 @@ async fn join_game(payload: Json<JoinGameRequest>) -> Result<Json<JoinGameRespon
     }))
 }
 
+#[derive(Deserialize)]
+struct ValidateSpectatorPayload {
+    match_string: String,
+    session_token: Option<String>,
+}
+
+// Handler used by `games.html` (or any caller) to check whether a client
+// opening a game as a spectator actually owns a seat in that game.
+// Returns same shape as `JoinGameResponse` so the frontend can decide where to
+// navigate (`main.html` for spectators or the player's specific board page).
+#[handler]
+async fn validate_spectator_open(
+    payload: Json<ValidateSpectatorPayload>,
+) -> Result<Json<JoinGameResponse>, Error> {
+    let rooms = lock_rooms()?;
+
+    let room = rooms
+        .get(&payload.match_string)
+        .ok_or_else(|| json_error("Game room not found", StatusCode::NOT_FOUND))?;
+
+    let (color, redirect_url, session_token) =
+        resolve_spectator_session(room, &payload.match_string, &payload.session_token);
+
+    Ok(Json(JoinGameResponse {
+        color,
+        redirect_url,
+        session_token,
+    }))
+}
+
 fn get_stones_mut<'a>(
     guess_stones: &'a mut HashMap<String, (Vec<Vec<usize>>, Vec<Vec<usize>>)>,
     match_string: &str,
@@ -1129,6 +1159,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/reset-memory", poem::post(reset_memory))
         .at("/get-all-games", poem::post(get_all_games))
         .at("/get-game-record", poem::post(send_game_record))
+        .at("/validate-spectator", poem::post(validate_spectator_open))
         .at("/", poem::get(index))
         .nest("/frontend", StaticEmbed)
         .with(cors);
