@@ -88,6 +88,35 @@ test.describe("Logging in", () => {
     await closeContexts(page);
   });
 
+  test("Confirm the user can't cheat by opening spectator's page: games.html", async ({
+    browser,
+  }) => {
+    const { blackPlayer, whitePlayer, ms } =
+      await startGameAndGetPlayerPages(browser);
+    const ms2 = generateMatchID();
+    const spectatorPage = await (await browser.newContext()).newPage();
+    const spectator = startGameAsSpectator(spectatorPage, ms2);
+
+    const players = [blackPlayer, whitePlayer];
+
+    for (const player of players) {
+      const playerTitle = player.locator("#player-title");
+      const playerColor = await playerTitle.textContent();
+      player.goBack();
+      await player.locator("#games-button").click();
+      await player.getByText(ms).click();
+      await expect(playerTitle).toHaveText(playerColor!);
+
+      player.goBack();
+      await player.getByText(ms2).click();
+
+      const boardContainer = player.locator("#board-container");
+
+      await expect(playerTitle).toHaveCount(0);
+      await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+    }
+  });
+
   test("Confirm subsequent joining users are spectators", async ({
     browser,
   }) => {
@@ -803,6 +832,8 @@ async function startGameAsSpectator(page: Page, matchString: string) {
   await page.locator("#match-string").fill(matchString);
   await page.locator("#spectator-checkbox").click();
   await page.locator("#join-button").click();
+
+  return page;
 }
 
 async function verifySpectatorState(page: Page) {
