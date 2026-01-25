@@ -56,13 +56,13 @@ test.describe("Logging in", () => {
     await rejoinPage(pages.black, ms);
 
     await expect(pages.black.locator("#player-title")).toHaveText(
-      "Black Player"
+      "Black Player",
     );
 
     await rejoinPage(pages.white, ms);
 
     await expect(pages.white.locator("#player-title")).toHaveText(
-      "White Player"
+      "White Player",
     );
 
     await verifySpectatorState(pages.spectator);
@@ -103,7 +103,7 @@ test.describe("Logging in", () => {
       // Create third user (spectator) and verify they're a spectator
       const spectatorSession = await createUserAndJoinMatch(
         browser,
-        matchString
+        matchString,
       );
 
       await verifySpectatorState(spectatorSession);
@@ -177,7 +177,7 @@ test.describe("Capturing stones", () => {
     await expectSameTextOnAllPages(
       pages,
       "#black-captures",
-      "Black Captures: 0"
+      "Black Captures: 0",
     );
 
     await clickAtCoordinate(pages.black, 1, 0);
@@ -185,7 +185,7 @@ test.describe("Capturing stones", () => {
     await expectSameTextOnAllPages(
       pages,
       "#black-captures",
-      "Black Captures: 1"
+      "Black Captures: 1",
     );
 
     await closeContexts(...Object.values(pages));
@@ -389,9 +389,8 @@ test.describe("Undo", () => {
 
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -411,9 +410,8 @@ test.describe("Passing", () => {
   });
 
   test("White passes", async ({ browser }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -439,9 +437,8 @@ test.describe("Passing", () => {
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -453,11 +450,11 @@ test.describe("Passing", () => {
 
     await verifyPlayerIsOnMainPage(
       blackPlayer,
-      (await getSessionToken(blackPlayer))!
+      (await getSessionToken(blackPlayer))!,
     );
     await verifyPlayerIsOnMainPage(
       whitePlayer,
-      (await getSessionToken(whitePlayer))!
+      (await getSessionToken(whitePlayer))!,
     );
 
     await closeContexts(blackPlayer, whitePlayer);
@@ -468,9 +465,8 @@ test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
@@ -486,17 +482,17 @@ test.describe("Counting", () => {
 
     await blackPlayer.waitForTimeout(1000);
     expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
 
     await whitePlayer.waitForTimeout(1000);
     expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
     await whitePlayer.locator("#count-score-button").click();
 
     expect(await whitePlayer.locator("#result").textContent()).toBe(
-      "White +2.5"
+      "White +2.5",
     );
 
     await closeContexts(blackPlayer, whitePlayer);
@@ -505,9 +501,8 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -523,12 +518,12 @@ test.describe("Counting", () => {
 
     await blackPlayer.waitForTimeout(1000);
     expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
 
     await whitePlayer.waitForTimeout(1000);
     expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
 
     const selectedStone = blackPlayer.locator(".stone").first();
@@ -536,12 +531,12 @@ test.describe("Counting", () => {
 
     await blackPlayer.waitForTimeout(1000);
     expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
 
     await whitePlayer.waitForTimeout(1000);
     expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
 
     await closeContexts(blackPlayer, whitePlayer);
@@ -550,9 +545,8 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } = await startGameAndGetPlayerPages(
-      browser
-    );
+    const { blackPlayer, whitePlayer } =
+      await startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
@@ -568,12 +562,12 @@ test.describe("Counting", () => {
 
     await blackPlayer.waitForTimeout(1000);
     expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
 
     await whitePlayer.waitForTimeout(1000);
     expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready"
+      "Black: ready",
     );
 
     const selectedStone = whitePlayer.locator(".stone").first();
@@ -581,12 +575,12 @@ test.describe("Counting", () => {
 
     await whitePlayer.waitForTimeout(1000);
     expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
 
     await blackPlayer.waitForTimeout(1000);
     expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
 
     await closeContexts(blackPlayer, whitePlayer);
@@ -604,22 +598,22 @@ test.describe("Counting", () => {
     await pages.spectator.locator("#count-score-button").click();
 
     expect(await pages.spectator.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
     expect(await pages.black.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
     expect(await pages.white.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones"
+      "Black: selecting dead stones",
     );
     expect(await pages.spectator.locator("#white-ready").textContent()).toBe(
-      "White: selecting dead stones"
+      "White: selecting dead stones",
     );
     expect(await pages.black.locator("#white-ready").textContent()).toBe(
-      "White: selecting dead stones"
+      "White: selecting dead stones",
     );
     expect(await pages.white.locator("#white-ready").textContent()).toBe(
-      "White: selecting dead stones"
+      "White: selecting dead stones",
     );
 
     await closeContexts(pages.black, pages.white, pages.spectator);
@@ -721,7 +715,7 @@ test.describe("Throttling", () => {
     const cdpSession = await context.newCDPSession(page);
     await cdpSession.send(
       "Network.emulateNetworkConditions",
-      NETWORK_PRESETS.Regular3G
+      NETWORK_PRESETS.Regular3G,
     );
 
     for (let i = 33; i < 202; i++) {
@@ -758,7 +752,7 @@ test.describe("Throttling", () => {
     const cdpSession = await context.newCDPSession(page);
     await cdpSession.send(
       "Network.emulateNetworkConditions",
-      NETWORK_PRESETS.Regular2G
+      NETWORK_PRESETS.Regular2G,
     );
 
     for (let i = 33; i < 202; i++) {
@@ -876,7 +870,7 @@ async function clickCenter(page: Page, box: BoundingBox | null) {
 
 async function clickAtCoordinate(page: Page, x: number, y: number) {
   const intersection = page.locator(
-    `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`
+    `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`,
   );
 
   await intersection.click();
@@ -912,7 +906,7 @@ async function getSessionToken(player: Page) {
 
 async function expectAny<T>(
   value: T,
-  assertions: Array<(fn: T) => void | Promise<void>>
+  assertions: Array<(fn: T) => void | Promise<void>>,
 ): Promise<void> {
   const errors = [];
 
@@ -926,7 +920,7 @@ async function expectAny<T>(
   }
 
   throw new Error(
-    "All assertions failed:\n" + errors.map((e) => e.message).join("\n")
+    "All assertions failed:\n" + errors.map((e) => e.message).join("\n"),
   );
 }
 
@@ -961,7 +955,7 @@ interface Pages {
 async function expectSameTextOnAllPages(
   pages: Pages,
   elementId: string,
-  text: string
+  text: string,
 ) {
   const blackPageElement = pages.black.locator(elementId);
   const whitePageElement = pages.white.locator(elementId);
@@ -1003,7 +997,7 @@ interface StoneLocatorsByRole {
 
 async function getStoneLocatorsForPages(
   pages: Pages,
-  stoneLocator: string
+  stoneLocator: string,
 ): Promise<StoneLocatorsByRole> {
   return {
     black: pages.black.locator(stoneLocator),
@@ -1042,7 +1036,7 @@ async function expectStoneState(
     spectatorMain?: number;
     spectatorBlack?: number;
     spectatorWhite?: number;
-  }
+  },
 ) {
   await expect(stone.black).toHaveCount(black);
   await expect(stone.white).toHaveCount(white);

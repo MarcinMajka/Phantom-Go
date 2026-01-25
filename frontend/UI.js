@@ -126,7 +126,7 @@ export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
       point.x,
       point.y,
       starPointRadius,
-      "black"
+      "black",
     );
     board.appendChild(starPoint);
   });
@@ -171,6 +171,6 @@ function getStoneToColor(loc) {
   const [row, col] = [loc.row - 1, loc.col - 1];
 
   return boards.main.querySelector(
-    `.stone[data-row="${row}"][data-col="${col}"]`
+    `.stone[data-row="${row}"][data-col="${col}"]`,
   );
 }

@@ -96,7 +96,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
         col,
         cellSize * 0.4,
         "transparent",
-        "transparent"
+        "transparent",
       );
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
@@ -329,14 +329,14 @@ function syncBoards() {
           failedAttempts++;
           console.error(
             `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
-            error
+            error,
           );
 
           if (failedAttempts < maxRetries) {
             setTimeout(sync, retryInterval);
           } else {
             console.error(
-              "Max retry attempts reached. Please refresh the page."
+              "Max retry attempts reached. Please refresh the page.",
             );
           }
         })

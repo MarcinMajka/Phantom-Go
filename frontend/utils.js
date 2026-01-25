@@ -32,7 +32,7 @@ export function getBoardSVG() {
 export function addBackground(svg, width, height) {
   const background = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "rect"
+    "rect",
   );
   background.setAttribute("width", width);
   background.setAttribute("height", height);
@@ -124,7 +124,7 @@ export function getStone(color, row, col) {
     color,
     "black",
     "1",
-    "stone"
+    "stone",
   );
   stone.dataset.row = row;
   stone.dataset.col = col;
@@ -139,12 +139,12 @@ export function createCircleSVG(
   fillColor,
   strokeColor = "black",
   strokeWidth = "1",
-  className
+  className,
 ) {
   const [x, y] = toSvgCoords(col, row);
   const circle = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "circle"
+    "circle",
   );
   circle.setAttribute("cx", x);
   circle.setAttribute("cy", y);
@@ -218,8 +218,8 @@ export function getPlayerColor() {
   return currentPage.includes("black.html")
     ? "black"
     : currentPage.includes("white.html")
-    ? "white"
-    : "spectator";
+      ? "white"
+      : "spectator";
 }
 
 export function getPlayerSessionToken() {
