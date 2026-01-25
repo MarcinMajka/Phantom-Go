@@ -70,7 +70,7 @@ test.describe("Logging in", () => {
     await closeContexts(...Object.values(pages));
   });
 
-  test("Confirm the user can't cheat by opening spectator's page", async ({
+  test("Confirm the user can't cheat by opening spectator's page: index.html", async ({
     browser,
   }) => {
     const ms = generateMatchID();
