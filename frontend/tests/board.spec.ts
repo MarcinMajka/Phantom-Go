@@ -20,7 +20,7 @@ test.describe("Logging in", () => {
   });
 
   test("Start game as a spectator", async ({ page }) => {
-    startGameAsSpectator(page, generateMatchID());
+    startGameAsSpectatorWithMatchID(page, generateMatchID());
 
     await verifySpectatorState(page);
   });
@@ -81,7 +81,7 @@ test.describe("Logging in", () => {
     const p1Color = await p1Title.textContent();
 
     await page.goBack();
-    await startGameAsSpectator(page, ms);
+    await startGameAsSpectatorWithMatchID(page, ms);
 
     expect(await p1Title.textContent()).toEqual(p1Color);
 
@@ -97,7 +97,7 @@ test.describe("Logging in", () => {
 
     const spectatorContext = await browser.newContext();
     const spectatorPage = await spectatorContext.newPage();
-    const spectator = startGameAsSpectator(spectatorPage, ms2);
+    const spectator = startGameAsSpectatorWithMatchID(spectatorPage, ms2);
 
     const players = [blackPlayer, whitePlayer];
 
@@ -829,7 +829,7 @@ async function startGameWithID(page: Page, matchString: string) {
   await page.locator("#join-button").click();
 }
 
-async function startGameAsSpectator(page: Page, matchString: string) {
+async function startGameAsSpectatorWithMatchID(page: Page, matchString: string) {
   await page.goto("/frontend/index.html");
   await page.locator("#match-string").fill(matchString);
   await page.locator("#spectator-checkbox").click();
