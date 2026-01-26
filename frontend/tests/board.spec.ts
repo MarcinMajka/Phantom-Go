@@ -94,7 +94,9 @@ test.describe("Logging in", () => {
     const { blackPlayer, whitePlayer, ms } =
       await startGameAndGetPlayerPages(browser);
     const ms2 = generateMatchID();
-    const spectatorPage = await (await browser.newContext()).newPage();
+
+    const spectatorContext = await browser.newContext();
+    const spectatorPage = await spectatorContext.newPage();
     const spectator = startGameAsSpectator(spectatorPage, ms2);
 
     const players = [blackPlayer, whitePlayer];
