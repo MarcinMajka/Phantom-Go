@@ -20,7 +20,7 @@ test.describe("Logging in", () => {
   });
 
   test("Start game as a spectator", async ({ page }) => {
-    startGameAsSpectatorWithMatchID(page, generateMatchID());
+    startGameAsSpectator(page);
 
     await verifySpectatorState(page);
   });
@@ -93,11 +93,10 @@ test.describe("Logging in", () => {
   }) => {
     const { blackPlayer, whitePlayer, ms } =
       await startGameAndGetPlayerPages(browser);
-    const ms2 = generateMatchID();
 
     const spectatorContext = await browser.newContext();
     const spectatorPage = await spectatorContext.newPage();
-    const spectator = startGameAsSpectatorWithMatchID(spectatorPage, ms2);
+    const spectator = startGameAsSpectator(spectatorPage);
 
     const players = [blackPlayer, whitePlayer];
 
@@ -110,7 +109,7 @@ test.describe("Logging in", () => {
       await expect(playerTitle).toHaveText(playerColor!);
 
       player.goBack();
-      await player.getByText(ms2).click();
+      await player.getByText((await spectator).matchString).click();
 
       const boardContainer = player.locator("#board-container");
 
