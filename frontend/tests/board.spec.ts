@@ -817,9 +817,12 @@ function generateMatchID() {
 }
 
 async function startGameWithRandomID(page: Page) {
+  const matchString = generateMatchID();
   await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(generateMatchID());
+  await page.locator("#match-string").fill(matchString);
   await page.locator("#join-button").click();
+
+  return { page, matchString };
 }
 
 async function startGameWithID(page: Page, matchString: string) {
