@@ -1094,3 +1094,8 @@ async function expectStoneState(
   await expect(stone.spectatorBlack).toHaveCount(spectatorBlack);
   await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
 }
+
+async function expectClickable(locator: Locator, timeout = 1000) {
+  await expect(locator).toBeVisible({ timeout });
+  await expect(locator).toBeEnabled({ timeout });
+}
