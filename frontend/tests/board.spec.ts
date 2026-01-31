@@ -30,7 +30,12 @@ test.describe("Logging in", () => {
   }) => {
     await startGameWithRandomID(page);
 
-    const elements = ["#pass-button", "#undo-button"];
+    const elements = [
+      "#pass-button",
+      "#undo-button",
+      "#guess-stone-button",
+      "#resign-button",
+    ];
     for (const el of elements) {
       const elementLocator = page.locator(el);
       await expectClickable(elementLocator);
