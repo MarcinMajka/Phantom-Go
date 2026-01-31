@@ -25,6 +25,18 @@ test.describe("Logging in", () => {
     await verifySpectatorState(page);
   });
 
+  test("UI elements are visible and enabled at game start", async ({
+    page,
+  }) => {
+    await startGameWithRandomID(page);
+
+    const elements = ["#pass-button", "#undo-button"];
+    for (const el of elements) {
+      const elementLocator = page.locator(el);
+      await expectClickable(elementLocator);
+    }
+  });
+
   test("Confirm the second joining user has the other color", async ({
     browser,
   }) => {
