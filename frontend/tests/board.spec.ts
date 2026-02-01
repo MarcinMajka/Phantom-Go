@@ -525,8 +525,7 @@ test.describe("Counting", () => {
     await whitePlayer.locator(".stone").first().click();
 
     const countButton = blackPlayer.locator("#count-score-button");
-    await expect(countButton).toBeEnabled({ timeout: 1000 });
-    await expect(countButton).toBeVisible({ timeout: 1000 });
+    await expectClickable(countButton);
     await countButton.click();
 
     await blackPlayer.waitForTimeout(1000);
