@@ -6,11 +6,12 @@ import {
   BrowserContext,
   Locator,
 } from "@playwright/test";
+import * as helpers from "./helpers";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 
 test.describe("Logging in", () => {
   test("Start game", async ({ page }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     const playerTitle = page.locator("#player-title");
     const boardContainer = page.locator("#board-container");
@@ -20,15 +21,15 @@ test.describe("Logging in", () => {
   });
 
   test("Start game as a spectator", async ({ page }) => {
-    startGameAsSpectator(page);
+    helpers.startGameAsSpectator(page);
 
-    await verifySpectatorState(page);
+    await helpers.verifySpectatorState(page);
   });
 
   test("UI elements are visible and enabled at game start", async ({
     page,
   }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     const elements = [
       "#pass-button",
@@ -38,7 +39,7 @@ test.describe("Logging in", () => {
     ];
     for (const el of elements) {
       const elementLocator = page.locator(el);
-      await expectClickable(elementLocator);
+      await helpers.expectClickable(elementLocator);
     }
   });
 
@@ -51,69 +52,69 @@ test.describe("Logging in", () => {
     const RUNS = 100;
 
     for (let i = 0; i < RUNS; i++) {
-      const ms = generateMatchID();
+      const ms = helpers.generateMatchID();
 
-      const p1 = await createUserAndJoinMatch(browser, ms);
-      const p2 = await createUserAndJoinMatch(browser, ms);
+      const p1 = await helpers.createUserAndJoinMatch(browser, ms);
+      const p2 = await helpers.createUserAndJoinMatch(browser, ms);
 
       const playerOne = await p1.locator("#player-title").textContent();
       const playerTwo = await p2.locator("#player-title").textContent();
 
       expect(playerOne !== playerTwo);
 
-      await closeContexts(p1, p2);
+      await helpers.closeContexts(p1, p2);
     }
   });
 
   test("Confirm the user can go back to his board view by loggin in again", async ({
     browser,
   }) => {
-    const { pages, ms } = await startGameAndGetAllPages(browser);
+    const { pages, ms } = await helpers.startGameAndGetAllPages(browser);
 
-    await rejoinPage(pages.black, ms);
+    await helpers.rejoinPage(pages.black, ms);
 
     await expect(pages.black.locator("#player-title")).toHaveText(
       "Black Player",
     );
 
-    await rejoinPage(pages.white, ms);
+    await helpers.rejoinPage(pages.white, ms);
 
     await expect(pages.white.locator("#player-title")).toHaveText(
       "White Player",
     );
 
-    await verifySpectatorState(pages.spectator);
+    await helpers.verifySpectatorState(pages.spectator);
 
-    await closeContexts(...Object.values(pages));
+    await helpers.closeContexts(...Object.values(pages));
   });
 
   test("Confirm the user can't cheat by opening spectator's page: index.html", async ({
     browser,
   }) => {
-    const ms = generateMatchID();
+    const ms = helpers.generateMatchID();
 
-    const page = await createUserAndJoinMatch(browser, ms);
+    const page = await helpers.createUserAndJoinMatch(browser, ms);
 
     const p1Title = page.locator("#player-title");
     const p1Color = await p1Title.textContent();
 
     await page.goBack();
-    await startGameAsSpectatorWithMatchID(page, ms);
+    await helpers.startGameAsSpectatorWithMatchID(page, ms);
 
     expect(await p1Title.textContent()).toEqual(p1Color);
 
-    await closeContexts(page);
+    await helpers.closeContexts(page);
   });
 
   test("Confirm the user can't cheat by opening spectator's page: games.html", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer, ms } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     const spectatorContext = await browser.newContext();
     const spectatorPage = await spectatorContext.newPage();
-    const spectator = startGameAsSpectator(spectatorPage);
+    const spectator = helpers.startGameAsSpectator(spectatorPage);
 
     const players = [blackPlayer, whitePlayer];
 
@@ -141,28 +142,32 @@ test.describe("Logging in", () => {
     const RUNS = 50;
 
     for (let i = 0; i < RUNS; i++) {
-      const matchString = generateMatchID();
+      const matchString = helpers.generateMatchID();
 
       // Create first two players (they join and leave immediately)
-      (await createUserAndJoinMatch(browser, matchString)).context().close();
-      (await createUserAndJoinMatch(browser, matchString)).context().close();
+      (await helpers.createUserAndJoinMatch(browser, matchString))
+        .context()
+        .close();
+      (await helpers.createUserAndJoinMatch(browser, matchString))
+        .context()
+        .close();
 
       // Create third user (spectator) and verify they're a spectator
-      const spectatorSession = await createUserAndJoinMatch(
+      const spectatorSession = await helpers.createUserAndJoinMatch(
         browser,
         matchString,
       );
 
-      await verifySpectatorState(spectatorSession);
+      await helpers.verifySpectatorState(spectatorSession);
       await spectatorSession.context().close();
     }
   });
 });
 
 test("Player logs in, then resigns", async ({ page }) => {
-  await startGameWithRandomID(page);
-  const sessionToken = await getSessionToken(page);
-  await expectAny(sessionToken, [
+  await helpers.startGameWithRandomID(page);
+  const sessionToken = await helpers.getSessionToken(page);
+  await helpers.expectAny(sessionToken, [
     (t) => expect(t).not.toBeNull(),
     (t) => expect(t).not.toBe(""),
   ]);
@@ -174,7 +179,7 @@ test("Player logs in, then resigns", async ({ page }) => {
   const result = page.locator("#result");
 
   // The ! tells TypeScript: "Trust me, it's not null."
-  await verifyPlayerIsOnMainPage(page, sessionToken!);
+  await helpers.verifyPlayerIsOnMainPage(page, sessionToken!);
   await expect(result).toContainText("+ R");
 });
 
@@ -182,16 +187,20 @@ test.describe("Rules", () => {
   test("Players can't place a stone on opponent's stone", async ({
     browser,
   }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const row = 5;
     const col = 5;
-    const stone = stoneAt(pages, row, col);
+    const stone = helpers.stoneAt(pages, row, col);
 
-    await clickAtCoordinate(pages.black, row, col);
+    await helpers.clickAtCoordinate(pages.black, row, col);
 
-    await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
-    await expectStoneState(stone, {
+    await helpers.expectSameTextOnAllPages(
+      pages,
+      "#player-turn",
+      "Turn: white",
+    );
+    await helpers.expectStoneState(stone, {
       black: 1,
       white: 0,
       spectatorMain: 1,
@@ -199,10 +208,14 @@ test.describe("Rules", () => {
       spectatorWhite: 0,
     });
 
-    await clickAtCoordinate(pages.white, row, col);
+    await helpers.clickAtCoordinate(pages.white, row, col);
 
-    await expectSameTextOnAllPages(pages, "#player-turn", "Turn: white");
-    await expectStoneState(stone, {
+    await helpers.expectSameTextOnAllPages(
+      pages,
+      "#player-turn",
+      "Turn: white",
+    );
+    await helpers.expectStoneState(stone, {
       black: 1,
       white: 0,
       spectatorMain: 1,
@@ -210,65 +223,65 @@ test.describe("Rules", () => {
       spectatorWhite: 0,
     });
 
-    await closeContexts(...Object.values(pages));
+    await helpers.closeContexts(...Object.values(pages));
   });
 });
 
 test.describe("Capturing stones", () => {
   test("Capturing white stones updates Black Captures", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
-    await clickAtCoordinate(pages.black, 0, 1);
-    await clickAtCoordinate(pages.white, 0, 0);
+    await helpers.clickAtCoordinate(pages.black, 0, 1);
+    await helpers.clickAtCoordinate(pages.white, 0, 0);
 
-    await expectSameTextOnAllPages(
+    await helpers.expectSameTextOnAllPages(
       pages,
       "#black-captures",
       "Black Captures: 0",
     );
 
-    await clickAtCoordinate(pages.black, 1, 0);
+    await helpers.clickAtCoordinate(pages.black, 1, 0);
 
-    await expectSameTextOnAllPages(
+    await helpers.expectSameTextOnAllPages(
       pages,
       "#black-captures",
       "Black Captures: 1",
     );
 
-    await closeContexts(...Object.values(pages));
+    await helpers.closeContexts(...Object.values(pages));
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const blackPageWhiteCaptures = pages.black.locator("#white-captures");
     const whitePageWhiteCaptures = pages.white.locator("#white-captures");
     const spectatorPageWhiteCaptures =
       pages.spectator.locator("#white-captures");
 
-    await clickAtCoordinate(pages.black, 0, 0);
-    await clickAtCoordinate(pages.white, 1, 0);
-    await clickAtCoordinate(pages.black, 0, 1);
-    await clickAtCoordinate(pages.white, 1, 1);
-    await clickAtCoordinate(pages.black, 1, 2);
+    await helpers.clickAtCoordinate(pages.black, 0, 0);
+    await helpers.clickAtCoordinate(pages.white, 1, 0);
+    await helpers.clickAtCoordinate(pages.black, 0, 1);
+    await helpers.clickAtCoordinate(pages.white, 1, 1);
+    await helpers.clickAtCoordinate(pages.black, 1, 2);
 
     await expect(blackPageWhiteCaptures).toHaveText("White Captures: 0");
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 0");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 0");
 
-    await clickAtCoordinate(pages.white, 0, 2);
+    await helpers.clickAtCoordinate(pages.white, 0, 2);
 
     await expect(blackPageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
     await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const undoButton = pages.black.locator("#undo-button");
     const turnBlack = pages.black.locator("#player-turn");
@@ -280,7 +293,7 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(pages.black.locator(".stone")).toHaveCount(0);
 
-    await clickAtCoordinate(pages.black, 1, 2);
+    await helpers.clickAtCoordinate(pages.black, 1, 2);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
@@ -294,11 +307,11 @@ test.describe("Undo", () => {
     await expect(turnSpectator).toHaveText("Turn: black");
     await expect(pages.black.locator(".stone")).toHaveCount(0);
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const passButton = pages.black.locator("#pass-button");
     const undoButton = pages.black.locator("#undo-button");
@@ -322,11 +335,11 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const passButton = pages.white.locator("#pass-button");
     const undoButton = pages.white.locator("#undo-button");
@@ -334,7 +347,7 @@ test.describe("Undo", () => {
     const turnWhite = pages.white.locator("#player-turn");
     const turnSpectator = pages.spectator.locator("#player-turn");
 
-    await clickAtCoordinate(pages.black, 5, 5);
+    await helpers.clickAtCoordinate(pages.black, 5, 5);
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
@@ -352,11 +365,11 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const undoButtonBlack = pages.black.locator("#undo-button");
     const undoButtonWhite = pages.white.locator("#undo-button");
@@ -368,8 +381,8 @@ test.describe("Undo", () => {
     await expect(pages.white.locator(".stone")).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
 
-    await clickAtCoordinate(pages.black, 1, 1);
-    await clickAtCoordinate(pages.white, 5, 5);
+    await helpers.clickAtCoordinate(pages.black, 1, 1);
+    await helpers.clickAtCoordinate(pages.white, 5, 5);
 
     await expect(pages.black.locator(".stone")).toHaveCount(1);
     await expect(pages.white.locator(".stone")).toHaveCount(1);
@@ -399,11 +412,11 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     const undoButtonBlack = pages.black.locator("#undo-button");
     const blackPageBlackCaptures = pages.black.locator("#black-captures");
@@ -411,14 +424,14 @@ test.describe("Undo", () => {
     const spectatorPageBlackCaptures =
       pages.spectator.locator("#black-captures");
 
-    await clickAtCoordinate(pages.black, 0, 1);
-    await clickAtCoordinate(pages.white, 0, 0);
+    await helpers.clickAtCoordinate(pages.black, 0, 1);
+    await helpers.clickAtCoordinate(pages.white, 0, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await clickAtCoordinate(pages.black, 1, 0);
+    await helpers.clickAtCoordinate(pages.black, 1, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
@@ -430,14 +443,14 @@ test.describe("Undo", () => {
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -448,44 +461,44 @@ test.describe("Passing", () => {
 
     await blackPassButton.click();
 
-    await boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 
   test("White passes", async ({ browser }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     const whitePassButton = whitePlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
     const whitePageBlackReady = whitePlayer.locator("#player-turn");
 
-    await clickAtCoordinate(blackPlayer, 6, 6);
+    await helpers.clickAtCoordinate(blackPlayer, 6, 6);
 
-    await boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
     await whitePassButton.click();
 
-    await boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefresh(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: black");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const whitePassButton = whitePlayer.locator("#pass-button");
@@ -493,18 +506,18 @@ test.describe("Passing", () => {
     await blackPassButton.click();
     await whitePassButton.click();
 
-    await boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefresh(blackPlayer, whitePlayer);
 
-    await verifyPlayerIsOnMainPage(
+    await helpers.verifyPlayerIsOnMainPage(
       blackPlayer,
-      (await getSessionToken(blackPlayer))!,
+      (await helpers.getSessionToken(blackPlayer))!,
     );
-    await verifyPlayerIsOnMainPage(
+    await helpers.verifyPlayerIsOnMainPage(
       whitePlayer,
-      (await getSessionToken(whitePlayer))!,
+      (await helpers.getSessionToken(whitePlayer))!,
     );
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 });
 
@@ -513,11 +526,11 @@ test.describe("Counting", () => {
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     const board = blackPlayer.locator("svg");
     const box = await board.boundingBox();
-    clickCenter(blackPlayer, box);
+    helpers.clickCenter(blackPlayer, box);
 
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
@@ -525,7 +538,7 @@ test.describe("Counting", () => {
     await whitePlayer.locator(".stone").first().click();
 
     const countButton = blackPlayer.locator("#count-score-button");
-    await expectClickable(countButton);
+    await helpers.expectClickable(countButton);
     await countButton.click();
 
     await blackPlayer.waitForTimeout(1000);
@@ -543,18 +556,18 @@ test.describe("Counting", () => {
       "White +2.5",
     );
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
-    clickCenter(blackPlayer, box);
+    helpers.clickCenter(blackPlayer, box);
 
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
@@ -587,18 +600,18 @@ test.describe("Counting", () => {
       "Black: selecting dead stones",
     );
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPages(browser);
 
     let board = blackPlayer.locator("svg");
     let box = await board.boundingBox();
-    clickCenter(blackPlayer, box);
+    helpers.clickCenter(blackPlayer, box);
 
     await whitePlayer.locator("#pass-button").click();
     await blackPlayer.locator("#pass-button").click();
@@ -631,13 +644,13 @@ test.describe("Counting", () => {
       "Black: selecting dead stones",
     );
 
-    await closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContexts(blackPlayer, whitePlayer);
   });
 
   test("Spectator counts score - doesn't affect the game", async ({
     browser,
   }) => {
-    const { pages } = await startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPages(browser);
 
     await pages.black.locator("#pass-button").click();
     await pages.white.locator("#pass-button").click();
@@ -664,7 +677,7 @@ test.describe("Counting", () => {
       "White: selecting dead stones",
     );
 
-    await closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
 });
 
@@ -672,7 +685,7 @@ test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after each click", async ({
     page,
   }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -690,7 +703,7 @@ test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after all the clicks", async ({
     page,
   }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -698,14 +711,14 @@ test.describe("Guess stones", () => {
     const box = await board.boundingBox();
 
     for (let i = 0; i < 100; i++) {
-      await clickCenter(page, box);
+      await helpers.clickCenter(page, box);
     }
 
     await page.waitForTimeout(100);
     await expect(page.locator(".stone")).toHaveCount(0);
 
     for (let i = 0; i < 101; i++) {
-      await clickCenter(page, box);
+      await helpers.clickCenter(page, box);
     }
     await page.waitForTimeout(100);
 
@@ -715,7 +728,7 @@ test.describe("Guess stones", () => {
   test("Add then remove all guess stones in quick succession", async ({
     page,
   }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     await page.locator("#guess-stone-button").click();
 
@@ -745,7 +758,7 @@ test.describe("Guess stones", () => {
 
 test.describe("Throttling", () => {
   test.beforeEach(async ({ page }) => {
-    await startGameWithRandomID(page);
+    await helpers.startGameWithRandomID(page);
 
     await page.waitForLoadState("networkidle");
 
@@ -827,291 +840,16 @@ test.describe("Throttling", () => {
   });
 });
 
-function generateMatchID() {
-  return (
-    Math.random().toString(36).substring(2) +
-    Math.random().toString(36).substring(2)
-  );
-}
-
-async function startGameWithRandomID(page: Page) {
-  const matchString = generateMatchID();
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("#join-button").click();
-
-  return { page, matchString };
-}
-
-async function startGameWithID(page: Page, matchString: string) {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("#join-button").click();
-}
-
-async function startGameAsSpectator(page: Page) {
-  const matchString = generateMatchID();
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("#spectator-checkbox").click();
-  await page.locator("#join-button").click();
-
-  return { page, matchString };
-}
-
-async function startGameAsSpectatorWithMatchID(
-  page: Page,
-  matchString: string,
-) {
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("#spectator-checkbox").click();
-  await page.locator("#join-button").click();
-
-  return page;
-}
-
-async function verifySpectatorState(page: Page) {
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
-  const sessionToken = await getSessionToken(page);
-
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
-  await expectAny(sessionToken, [
-    (t) => expect(t).toBeNull(),
-    (t) => expect(t).toBe(""),
-  ]);
-}
-
-async function verifyPlayerIsOnMainPage(page: Page, sessionToken: string) {
-  const playerTitle = page.locator("#player-title");
-  const boardContainer = page.locator("#board-container");
-
-  await expect(playerTitle).toHaveCount(0);
-  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
-  await expect(await getSessionToken(page)).toBe(sessionToken);
-}
-
-async function createUserAndJoinMatch(browser: Browser, matchString: string) {
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  await page.goto("/frontend/index.html");
-  await page.locator("#match-string").fill(matchString);
-  await page.locator("#join-button").click();
-
-  return page;
-}
-
-interface PlayerPages {
-  blackPlayer: Page;
-  whitePlayer: Page;
-}
-
-async function getPlayerPages(page1: Page, page2: Page): Promise<PlayerPages> {
-  if ((await page1.locator("#player-title").textContent()) === "Black Player") {
-    return { blackPlayer: page1, whitePlayer: page2 };
-  } else {
-    return { blackPlayer: page2, whitePlayer: page1 };
-  }
-}
-
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-// Helper: click center of provided box
-async function clickCenter(page: Page, box: BoundingBox | null) {
-  if (!box) throw new Error("Bounding box is null");
-
-  const x = box.x + box.width / 2;
-  const y = box.y + box.width / 2;
-
-  await page.mouse.click(x, y);
-}
-
-async function clickAtCoordinate(page: Page, x: number, y: number) {
-  const intersection = page.locator(
-    `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`,
-  );
-
-  await intersection.click();
-}
-
-test("Tests clickAtCoordinate()", async ({ page }) => {
-  await startGameWithRandomID(page);
+test("Tests helpers.clickAtCoordinate()", async ({ page }) => {
+  await helpers.startGameWithRandomID(page);
 
   await page.locator("#guess-stone-button").click();
 
   for (let i = 0; i < 13; i++) {
     for (let j = 0; j < 13; j++) {
-      await clickAtCoordinate(page, i, j);
+      await helpers.clickAtCoordinate(page, i, j);
       const stone = page.locator(`.stone[data-row="${i}"][data-col="${j}"]`);
       await expect(stone).toBeVisible();
     }
   }
 });
-
-async function validateStonePlacement(locator: Locator, color: string) {
-  await expect(locator).toHaveAttribute("fill", color);
-}
-
-async function getSessionToken(player: Page) {
-  try {
-    return await player.evaluate(() => localStorage.getItem("sessionToken"));
-  } catch (error) {
-    // If navigation happened, wait and retry
-    await player.waitForLoadState("domcontentloaded");
-    return await player.evaluate(() => localStorage.getItem("sessionToken"));
-  }
-}
-
-async function expectAny<T>(
-  value: T,
-  assertions: Array<(fn: T) => void | Promise<void>>,
-): Promise<void> {
-  const errors = [];
-
-  for (const assertFn of assertions) {
-    try {
-      await assertFn(value);
-      return;
-    } catch (err) {
-      errors.push(err as Error);
-    }
-  }
-
-  throw new Error(
-    "All assertions failed:\n" + errors.map((e) => e.message).join("\n"),
-  );
-}
-
-async function startGameAndGetPlayerPages(browser: Browser) {
-  const ms = generateMatchID();
-
-  const p1 = await createUserAndJoinMatch(browser, ms);
-  const p2 = await createUserAndJoinMatch(browser, ms);
-
-  const playerPages = await getPlayerPages(p1, p2);
-
-  return { ...playerPages, ms };
-}
-
-async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
-  await blackPlayer.waitForTimeout(1000);
-  await whitePlayer.waitForTimeout(1000);
-}
-
-async function closeContexts(...pages: Page[]) {
-  for (const page of pages) {
-    await page.context().close();
-  }
-}
-
-interface Pages {
-  black: Page;
-  white: Page;
-  spectator: Page;
-}
-
-async function expectSameTextOnAllPages(
-  pages: Pages,
-  elementId: string,
-  text: string,
-) {
-  const blackPageElement = pages.black.locator(elementId);
-  const whitePageElement = pages.white.locator(elementId);
-  const spectatorPageElement = pages.spectator.locator(elementId);
-
-  await expect(blackPageElement).toHaveText(text);
-  await expect(whitePageElement).toHaveText(text);
-  await expect(spectatorPageElement).toHaveText(text);
-}
-
-async function startGameAndGetAllPages(browser: Browser) {
-  const ms = generateMatchID();
-
-  const p1 = await createUserAndJoinMatch(browser, ms);
-  const p2 = await createUserAndJoinMatch(browser, ms);
-  const p3 = await createUserAndJoinMatch(browser, ms);
-
-  const playerPages = await getPlayerPages(p1, p2);
-  const pages: Pages = {
-    black: playerPages.blackPlayer,
-    white: playerPages.whitePlayer,
-    spectator: p3,
-  };
-
-  return { pages, ms };
-}
-
-async function rejoinPage(player: Page, matchString: string) {
-  await player.goBack();
-  await player.locator("#match-string").fill(matchString);
-  await player.locator("#join-button").click();
-}
-
-interface StoneLocatorsByRole {
-  black: Locator;
-  white: Locator;
-  spectator: Locator;
-}
-
-async function getStoneLocatorsForPages(
-  pages: Pages,
-  stoneLocator: string,
-): Promise<StoneLocatorsByRole> {
-  return {
-    black: pages.black.locator(stoneLocator),
-    white: pages.white.locator(stoneLocator),
-    spectator: pages.spectator.locator(stoneLocator),
-  };
-}
-
-function stoneAt(pages: Pages, row: number, col: number) {
-  const selector = `.stone[data-row="${row}"][data-col="${col}"]`;
-
-  return {
-    black: pages.black.locator(selector),
-    white: pages.white.locator(selector),
-    spectatorMain: pages.spectator.locator("#main-board").locator(selector),
-    spectatorBlack: pages.spectator
-      .locator("#black-player-board")
-      .locator(selector),
-    spectatorWhite: pages.spectator
-      .locator("#white-player-board")
-      .locator(selector),
-  };
-}
-
-async function expectStoneState(
-  stone: ReturnType<typeof stoneAt>,
-  {
-    black = 0,
-    white = 0,
-    spectatorMain = 0,
-    spectatorBlack = 0,
-    spectatorWhite = 0,
-  }: {
-    black?: number;
-    white?: number;
-    spectatorMain?: number;
-    spectatorBlack?: number;
-    spectatorWhite?: number;
-  },
-) {
-  await expect(stone.black).toHaveCount(black);
-  await expect(stone.white).toHaveCount(white);
-  await expect(stone.spectatorMain).toHaveCount(spectatorMain);
-  await expect(stone.spectatorBlack).toHaveCount(spectatorBlack);
-  await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
-}
-
-async function expectClickable(locator: Locator, timeout = 1000) {
-  await expect(locator).toBeVisible({ timeout });
-  await expect(locator).toBeEnabled({ timeout });
-}
