@@ -8,10 +8,15 @@ import {
 } from "@playwright/test";
 import * as helpers from "./helpers";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
+import { LoginPage } from "./pages/LoginPage";
 
 test.describe("Logging in", () => {
   test("Start game", async ({ page }) => {
-    await helpers.startGameWithRandomID(page);
+    const login = new LoginPage(page);
+    const matchId = helpers.generateMatchID();
+
+    await login.goto();
+    await login.joinGame(matchId);
 
     const playerTitle = page.locator("#player-title");
     const boardContainer = page.locator("#board-container");
