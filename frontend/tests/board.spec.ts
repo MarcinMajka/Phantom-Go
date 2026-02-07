@@ -26,7 +26,11 @@ test.describe("Logging in", () => {
   });
 
   test("Start game as a spectator", async ({ page }) => {
-    helpers.startGameAsSpectator(page);
+    const login = new LoginPage(page);
+    const matchId = helpers.generateMatchID();
+
+    await login.goto();
+    await login.joinGameAsSpectator(matchId);
 
     await helpers.verifySpectatorState(page);
   });
