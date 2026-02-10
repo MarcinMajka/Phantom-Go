@@ -1,4 +1,5 @@
 import { Page, Browser, Locator, expect } from "@playwright/test";
+import { PlayerPage } from "./pages/PlayerPage";
 
 export function generateMatchID() {
   return (
@@ -180,10 +181,22 @@ export async function closeContexts(...pages: Page[]) {
   }
 }
 
+export async function closeContextsPOM(...pages: PlayerPage[]) {
+  for (const playerPage of pages) {
+    await playerPage.page.context().close();
+  }
+}
+
 interface Pages {
   black: Page;
   white: Page;
   spectator: Page;
+}
+
+interface PagesPOM {
+  black: PlayerPage;
+  white: PlayerPage;
+  spectator: PlayerPage;
 }
 
 export async function expectSameTextOnAllPages(
@@ -212,6 +225,23 @@ export async function startGameAndGetAllPages(browser: Browser) {
     black: playerPages.blackPlayer,
     white: playerPages.whitePlayer,
     spectator: p3,
+  };
+
+  return { pages, ms };
+}
+
+export async function startGameAndGetAllPagesPOM(browser: Browser) {
+  const ms = generateMatchID();
+
+  const p1 = await createUserAndJoinMatch(browser, ms);
+  const p2 = await createUserAndJoinMatch(browser, ms);
+  const p3 = await createUserAndJoinMatch(browser, ms);
+
+  const playerPages = await getPlayerPages(p1, p2);
+  const pages: PagesPOM = {
+    black: new PlayerPage(playerPages.blackPlayer),
+    white: new PlayerPage(playerPages.whitePlayer),
+    spectator: new PlayerPage(p3),
   };
 
   return { pages, ms };
