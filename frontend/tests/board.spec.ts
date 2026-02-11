@@ -261,30 +261,26 @@ test.describe("Capturing stones", () => {
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
+    const { black, white, spectator } = pages;
 
-    const blackPageWhiteCaptures = pages.black.locator("#white-captures");
-    const whitePageWhiteCaptures = pages.white.locator("#white-captures");
-    const spectatorPageWhiteCaptures =
-      pages.spectator.locator("#white-captures");
+    await black.clickAtCoordinate(0, 0);
+    await white.clickAtCoordinate(1, 0);
+    await black.clickAtCoordinate(0, 1);
+    await white.clickAtCoordinate(1, 1);
+    await black.clickAtCoordinate(1, 2);
 
-    await helpers.clickAtCoordinate(pages.black, 0, 0);
-    await helpers.clickAtCoordinate(pages.white, 1, 0);
-    await helpers.clickAtCoordinate(pages.black, 0, 1);
-    await helpers.clickAtCoordinate(pages.white, 1, 1);
-    await helpers.clickAtCoordinate(pages.black, 1, 2);
+    await expect(black.whiteCaptures).toHaveText("White Captures: 0");
+    await expect(white.whiteCaptures).toHaveText("White Captures: 0");
+    await expect(spectator.whiteCaptures).toHaveText("White Captures: 0");
 
-    await expect(blackPageWhiteCaptures).toHaveText("White Captures: 0");
-    await expect(whitePageWhiteCaptures).toHaveText("White Captures: 0");
-    await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 0");
+    await white.clickAtCoordinate(0, 2);
 
-    await helpers.clickAtCoordinate(pages.white, 0, 2);
+    await expect(black.whiteCaptures).toHaveText("White Captures: 2");
+    await expect(white.whiteCaptures).toHaveText("White Captures: 2");
+    await expect(spectator.whiteCaptures).toHaveText("White Captures: 2");
 
-    await expect(blackPageWhiteCaptures).toHaveText("White Captures: 2");
-    await expect(whitePageWhiteCaptures).toHaveText("White Captures: 2");
-    await expect(spectatorPageWhiteCaptures).toHaveText("White Captures: 2");
-
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(pages.black, pages.white, pages.spectator);
   });
 });
 
