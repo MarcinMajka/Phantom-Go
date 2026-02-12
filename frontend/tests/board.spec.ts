@@ -261,8 +261,9 @@ test.describe("Capturing stones", () => {
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
-    const { black, white, spectator } = pages;
+    const {
+      pages: { black, white, spectator },
+    } = await helpers.startGameAndGetAllPagesPOM(browser);
 
     await black.clickAtCoordinate(0, 0);
     await white.clickAtCoordinate(1, 0);
@@ -280,7 +281,7 @@ test.describe("Capturing stones", () => {
     await expect(white.whiteCaptures).toHaveText("White Captures: 2");
     await expect(spectator.whiteCaptures).toHaveText("White Captures: 2");
 
-    await helpers.closeContextsPOM(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(black, white, spectator);
   });
 });
 
