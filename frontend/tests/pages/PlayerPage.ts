@@ -39,6 +39,10 @@ export class PlayerPage {
     return this.page.locator("#resign-button");
   }
 
+  locator(selector: string) {
+    return this.page.locator(selector);
+  }
+
   async clickAtCoordinate(x: number, y: number) {
     const intersection = this.page.locator(
       `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`,
