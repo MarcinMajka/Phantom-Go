@@ -213,6 +213,20 @@ export async function expectSameTextOnAllPages(
   await expect(spectatorPageElement).toHaveText(text);
 }
 
+export async function expectSameTextOnAllPagesPOM(
+  pages: PagesPOM,
+  elementId: string,
+  text: string,
+) {
+  const blackPageElement = pages.black.locator(elementId);
+  const whitePageElement = pages.white.locator(elementId);
+  const spectatorPageElement = pages.spectator.locator(elementId);
+
+  await expect(blackPageElement).toHaveText(text);
+  await expect(whitePageElement).toHaveText(text);
+  await expect(spectatorPageElement).toHaveText(text);
+}
+
 export async function startGameAndGetAllPages(browser: Browser) {
   const ms = generateMatchID();
 
