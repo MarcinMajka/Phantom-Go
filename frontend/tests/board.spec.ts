@@ -238,26 +238,28 @@ test.describe("Rules", () => {
 
 test.describe("Capturing stones", () => {
   test("Capturing white stones updates Black Captures", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const {
+      pages: { black, white, spectator },
+    } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    await helpers.clickAtCoordinate(pages.black, 0, 1);
-    await helpers.clickAtCoordinate(pages.white, 0, 0);
+    await black.clickAtCoordinate(0, 1);
+    await white.clickAtCoordinate(0, 0);
 
-    await helpers.expectSameTextOnAllPages(
-      pages,
+    await helpers.expectSameTextOnAllPagesPOM(
+      { black, white, spectator },
       "#black-captures",
       "Black Captures: 0",
     );
 
-    await helpers.clickAtCoordinate(pages.black, 1, 0);
+    await black.clickAtCoordinate(1, 0);
 
-    await helpers.expectSameTextOnAllPages(
-      pages,
+    await helpers.expectSameTextOnAllPagesPOM(
+      { black, white, spectator },
       "#black-captures",
       "Black Captures: 1",
     );
 
-    await helpers.closeContexts(...Object.values(pages));
+    await helpers.closeContextsPOM(black, white, spectator);
   });
 
   test("Capturing black stones updates White Captures", async ({ browser }) => {
