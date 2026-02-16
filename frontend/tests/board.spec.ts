@@ -289,33 +289,30 @@ test.describe("Capturing stones", () => {
 
 test.describe("Undo", () => {
   test("Black plays a move, then UNDO", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const {
+      pages: { black, white, spectator },
+    } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const undoButton = pages.black.locator("#undo-button");
-    const turnBlack = pages.black.locator("#player-turn");
-    const turnWhite = pages.white.locator("#player-turn");
-    const turnSpectator = pages.spectator.locator("#player-turn");
+    await expect(black.playerTurn).toHaveText("Turn: black");
+    await expect(white.playerTurn).toHaveText("Turn: black");
+    await expect(spectator.playerTurn).toHaveText("Turn: black");
+    await expect(black.locator(".stone")).toHaveCount(0);
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
-    await expect(pages.black.locator(".stone")).toHaveCount(0);
+    await black.clickAtCoordinate(1, 2);
 
-    await helpers.clickAtCoordinate(pages.black, 1, 2);
+    await expect(black.playerTurn).toHaveText("Turn: white");
+    await expect(white.playerTurn).toHaveText("Turn: white");
+    await expect(spectator.playerTurn).toHaveText("Turn: white");
+    await expect(black.locator(".stone")).toHaveCount(1);
 
-    await expect(turnBlack).toHaveText("Turn: white");
-    await expect(turnWhite).toHaveText("Turn: white");
-    await expect(turnSpectator).toHaveText("Turn: white");
-    await expect(pages.black.locator(".stone")).toHaveCount(1);
+    await black.undoButton.click();
 
-    await undoButton.click();
+    await expect(black.playerTurn).toHaveText("Turn: black");
+    await expect(white.playerTurn).toHaveText("Turn: black");
+    await expect(spectator.playerTurn).toHaveText("Turn: black");
+    await expect(black.locator(".stone")).toHaveCount(0);
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
-    await expect(pages.black.locator(".stone")).toHaveCount(0);
-
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(black, white, spectator);
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
