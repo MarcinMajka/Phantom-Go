@@ -324,11 +324,11 @@ test.describe("Undo", () => {
     const turnWhite = pages.white.locator("#player-turn");
     const turnSpectator = pages.spectator.locator("#player-turn");
 
-    await passButton.click();
-
     await expect(turnBlack).toHaveText("Turn: black");
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
+
+    await passButton.click();
 
     await expect(turnBlack).toHaveText("Turn: white");
     await expect(turnWhite).toHaveText("Turn: white");
