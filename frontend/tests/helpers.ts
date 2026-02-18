@@ -327,3 +327,13 @@ export async function expectClickable(locator: Locator, timeout = 1000) {
   await expect(locator).toBeVisible({ timeout });
   await expect(locator).toBeEnabled({ timeout });
 }
+
+export async function expectTurn(pages: Pages, turn: string) {
+  const turnBlack = pages.black.locator("#player-turn");
+  const turnWhite = pages.white.locator("#player-turn");
+  const turnSpectator = pages.spectator.locator("#player-turn");
+
+  await expect(turnBlack).toHaveText(`Turn: ${turn}`);
+  await expect(turnWhite).toHaveText(`Turn: ${turn}`);
+  await expect(turnSpectator).toHaveText(`Turn: ${turn}`);
+}
