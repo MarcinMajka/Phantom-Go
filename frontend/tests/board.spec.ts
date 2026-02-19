@@ -320,25 +320,16 @@ test.describe("Undo", () => {
 
     const passButton = pages.black.locator("#pass-button");
     const undoButton = pages.black.locator("#undo-button");
-    const turnBlack = pages.black.locator("#player-turn");
-    const turnWhite = pages.white.locator("#player-turn");
-    const turnSpectator = pages.spectator.locator("#player-turn");
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
+    await helpers.expectTurn(pages, "black");
 
     await passButton.click();
 
-    await expect(turnBlack).toHaveText("Turn: white");
-    await expect(turnWhite).toHaveText("Turn: white");
-    await expect(turnSpectator).toHaveText("Turn: white");
+    await helpers.expectTurn(pages, "white");
 
     await undoButton.click();
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
+    await helpers.expectTurn(pages, "black");
 
     await helpers.closeContexts(pages.black, pages.white, pages.spectator);
   });
