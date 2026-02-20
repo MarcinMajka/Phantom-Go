@@ -316,22 +316,19 @@ test.describe("Undo", () => {
   });
 
   test("Black passes, then UNDO", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const passButton = pages.black.locator("#pass-button");
-    const undoButton = pages.black.locator("#undo-button");
+    await helpers.expectTurnPOM(pages, "black");
 
-    await helpers.expectTurn(pages, "black");
+    await pages.black.passButton.click();
 
-    await passButton.click();
+    await helpers.expectTurnPOM(pages, "white");
 
-    await helpers.expectTurn(pages, "white");
+    await pages.black.undoButton.click();
 
-    await undoButton.click();
+    await helpers.expectTurnPOM(pages, "black");
 
-    await helpers.expectTurn(pages, "black");
-
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("White passes, then UNDO", async ({ browser }) => {
