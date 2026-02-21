@@ -293,23 +293,17 @@ test.describe("Undo", () => {
       pages: { black, white, spectator },
     } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    await expect(black.playerTurn).toHaveText("Turn: black");
-    await expect(white.playerTurn).toHaveText("Turn: black");
-    await expect(spectator.playerTurn).toHaveText("Turn: black");
+    await helpers.expectTurnPOM({ black, white, spectator }, "black");
     await expect(black.locator(".stone")).toHaveCount(0);
 
     await black.clickAtCoordinate(1, 2);
 
-    await expect(black.playerTurn).toHaveText("Turn: white");
-    await expect(white.playerTurn).toHaveText("Turn: white");
-    await expect(spectator.playerTurn).toHaveText("Turn: white");
+    await helpers.expectTurnPOM({ black, white, spectator }, "white");
     await expect(black.locator(".stone")).toHaveCount(1);
 
     await black.undoButton.click();
 
-    await expect(black.playerTurn).toHaveText("Turn: black");
-    await expect(white.playerTurn).toHaveText("Turn: black");
-    await expect(spectator.playerTurn).toHaveText("Turn: black");
+    await helpers.expectTurnPOM({ black, white, spectator }, "black");
     await expect(black.locator(".stone")).toHaveCount(0);
 
     await helpers.closeContextsPOM(black, white, spectator);
