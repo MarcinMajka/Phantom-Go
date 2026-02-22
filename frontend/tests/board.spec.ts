@@ -294,17 +294,17 @@ test.describe("Undo", () => {
     } = await helpers.startGameAndGetAllPagesPOM(browser);
 
     await helpers.expectTurnPOM({ black, white, spectator }, "black");
-    await expect(black.locator(".stone")).toHaveCount(0);
+    await expect(black.stones).toHaveCount(0);
 
     await black.clickAtCoordinate(1, 2);
 
     await helpers.expectTurnPOM({ black, white, spectator }, "white");
-    await expect(black.locator(".stone")).toHaveCount(1);
+    await expect(black.stones).toHaveCount(1);
 
     await black.undoButton.click();
 
     await helpers.expectTurnPOM({ black, white, spectator }, "black");
-    await expect(black.locator(".stone")).toHaveCount(0);
+    await expect(black.stones).toHaveCount(0);
 
     await helpers.closeContextsPOM(black, white, spectator);
   });

@@ -39,6 +39,10 @@ export class PlayerPage {
     return this.page.locator("#resign-button");
   }
 
+  get stones(): Locator {
+    return this.page.locator(".stone");
+  }
+
   locator(selector: string) {
     return this.page.locator(selector);
   }
