@@ -346,10 +346,6 @@ test.describe("Undo", () => {
   test("White UNDO, black UNDO", async ({ browser }) => {
     const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const turnBlack = pages.black.locator("#player-turn");
-    const turnWhite = pages.white.locator("#player-turn");
-    const turnSpectator = pages.spectator.locator("#player-turn");
-
     await expect(pages.black.stones).toHaveCount(0);
     await expect(pages.white.stones).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
@@ -361,9 +357,7 @@ test.describe("Undo", () => {
     await expect(pages.white.stones).toHaveCount(1);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(2);
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
+    await helpers.expectTurnPOM(pages, "black");
 
     await pages.white.undoButton.click();
 
@@ -371,9 +365,7 @@ test.describe("Undo", () => {
     await expect(pages.white.stones).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
 
-    await expect(turnBlack).toHaveText("Turn: white");
-    await expect(turnWhite).toHaveText("Turn: white");
-    await expect(turnSpectator).toHaveText("Turn: white");
+    await helpers.expectTurnPOM(pages, "white");
 
     await pages.black.undoButton.click();
 
@@ -381,9 +373,7 @@ test.describe("Undo", () => {
     await expect(pages.white.stones).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
 
-    await expect(turnBlack).toHaveText("Turn: black");
-    await expect(turnWhite).toHaveText("Turn: black");
-    await expect(turnSpectator).toHaveText("Turn: black");
+    await helpers.expectTurnPOM(pages, "black");
 
     await helpers.closeContextsPOM(...Object.values(pages));
   });
