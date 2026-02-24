@@ -344,10 +344,8 @@ test.describe("Undo", () => {
   });
 
   test("White UNDO, black UNDO", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const undoButtonBlack = pages.black.locator("#undo-button");
-    const undoButtonWhite = pages.white.locator("#undo-button");
     const turnBlack = pages.black.locator("#player-turn");
     const turnWhite = pages.white.locator("#player-turn");
     const turnSpectator = pages.spectator.locator("#player-turn");
@@ -356,8 +354,8 @@ test.describe("Undo", () => {
     await expect(pages.white.locator(".stone")).toHaveCount(0);
     await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
 
-    await helpers.clickAtCoordinate(pages.black, 1, 1);
-    await helpers.clickAtCoordinate(pages.white, 5, 5);
+    await pages.black.clickAtCoordinate(1, 1);
+    await pages.white.clickAtCoordinate(5, 5);
 
     await expect(pages.black.locator(".stone")).toHaveCount(1);
     await expect(pages.white.locator(".stone")).toHaveCount(1);
@@ -367,7 +365,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await undoButtonWhite.click();
+    await pages.white.undoButton.click();
 
     await expect(pages.black.locator(".stone")).toHaveCount(1);
     await expect(pages.white.locator(".stone")).toHaveCount(0);
@@ -377,7 +375,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: white");
     await expect(turnSpectator).toHaveText("Turn: white");
 
-    await undoButtonBlack.click();
+    await pages.black.undoButton.click();
 
     await expect(pages.black.locator(".stone")).toHaveCount(0);
     await expect(pages.white.locator(".stone")).toHaveCount(0);
@@ -387,7 +385,7 @@ test.describe("Undo", () => {
     await expect(turnWhite).toHaveText("Turn: black");
     await expect(turnSpectator).toHaveText("Turn: black");
 
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
