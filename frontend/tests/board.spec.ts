@@ -348,14 +348,14 @@ test.describe("Undo", () => {
 
     await expect(pages.black.stones).toHaveCount(0);
     await expect(pages.white.stones).toHaveCount(0);
-    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
+    await expect(pages.spectator.mainBoardStones).toHaveCount(0);
 
     await pages.black.clickAtCoordinate(1, 1);
     await pages.white.clickAtCoordinate(5, 5);
 
     await expect(pages.black.stones).toHaveCount(1);
     await expect(pages.white.stones).toHaveCount(1);
-    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(2);
+    await expect(pages.spectator.mainBoardStones).toHaveCount(2);
 
     await helpers.expectTurnPOM(pages, "black");
 
@@ -363,7 +363,7 @@ test.describe("Undo", () => {
 
     await expect(pages.black.stones).toHaveCount(1);
     await expect(pages.white.stones).toHaveCount(0);
-    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(1);
+    await expect(pages.spectator.mainBoardStones).toHaveCount(1);
 
     await helpers.expectTurnPOM(pages, "white");
 
@@ -371,7 +371,7 @@ test.describe("Undo", () => {
 
     await expect(pages.black.stones).toHaveCount(0);
     await expect(pages.white.stones).toHaveCount(0);
-    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(0);
+    await expect(pages.spectator.mainBoardStones).toHaveCount(0);
 
     await helpers.expectTurnPOM(pages, "black");
 
