@@ -43,6 +43,18 @@ export class PlayerPage {
     return this.page.locator(".stone");
   }
 
+  get mainBoardStones(): Locator {
+    return this.page.locator("#main-board .stone");
+  }
+
+  get blackBoardStones(): Locator {
+    return this.page.locator("#black-player-board .stone");
+  }
+
+  get whiteBoardStones(): Locator {
+    return this.page.locator("#white-player-board .stone");
+  }
+
   locator(selector: string) {
     return this.page.locator(selector);
   }
