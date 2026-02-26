@@ -379,34 +379,33 @@ test.describe("Undo", () => {
   });
 
   test("Capturing white stone, then undo", async ({ browser }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const undoButtonBlack = pages.black.locator("#undo-button");
     const blackPageBlackCaptures = pages.black.locator("#black-captures");
     const whitePageBlackCaptures = pages.white.locator("#black-captures");
     const spectatorPageBlackCaptures =
       pages.spectator.locator("#black-captures");
 
-    await helpers.clickAtCoordinate(pages.black, 0, 1);
-    await helpers.clickAtCoordinate(pages.white, 0, 0);
+    await pages.black.clickAtCoordinate(0, 1);
+    await pages.white.clickAtCoordinate(0, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await helpers.clickAtCoordinate(pages.black, 1, 0);
+    await pages.black.clickAtCoordinate(1, 0);
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 1");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 1");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 1");
 
-    await undoButtonBlack.click();
+    await pages.black.undoButton.click();
 
     await expect(blackPageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(whitePageBlackCaptures).toHaveText("Black Captures: 0");
     await expect(spectatorPageBlackCaptures).toHaveText("Black Captures: 0");
 
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 });
 
