@@ -114,6 +114,22 @@ export async function getPlayerPages(
   }
 }
 
+interface PlayerPagesPOM {
+  blackPlayer: PlayerPage;
+  whitePlayer: PlayerPage;
+}
+
+export async function getPlayerPagesPOM(
+  page1: PlayerPage,
+  page2: PlayerPage,
+): Promise<PlayerPagesPOM> {
+  if ((await page1.locator("#player-title").textContent()) === "Black Player") {
+    return { blackPlayer: page1, whitePlayer: page2 };
+  } else {
+    return { blackPlayer: page2, whitePlayer: page1 };
+  }
+}
+
 interface BoundingBox {
   x: number;
   y: number;
