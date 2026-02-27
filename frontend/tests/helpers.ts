@@ -84,6 +84,20 @@ export async function createUserAndJoinMatch(
   return page;
 }
 
+export async function createUserAndJoinMatchPOM(
+  browser: Browser,
+  matchString: string,
+) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(matchString);
+  await page.locator("#join-button").click();
+
+  return new PlayerPage(page);
+}
+
 interface PlayerPages {
   blackPlayer: Page;
   whitePlayer: Page;
