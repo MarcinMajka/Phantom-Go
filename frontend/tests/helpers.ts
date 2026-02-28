@@ -200,6 +200,17 @@ export async function startGameAndGetPlayerPages(browser: Browser) {
   return { ...playerPages, ms };
 }
 
+export async function startGameAndGetPlayerPagesPOM(browser: Browser) {
+  const ms = generateMatchID();
+
+  const p1 = await createUserAndJoinMatchPOM(browser, ms);
+  const p2 = await createUserAndJoinMatchPOM(browser, ms);
+
+  const playerPages = await getPlayerPagesPOM(p1, p2);
+
+  return { ...playerPages, ms };
+}
+
 export async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
   await blackPlayer.waitForTimeout(1000);
   await whitePlayer.waitForTimeout(1000);
