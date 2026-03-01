@@ -412,7 +412,7 @@ test.describe("Undo", () => {
 test.describe("Passing", () => {
   test("Black passes", async ({ browser }) => {
     const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPagesPOM(browser);
 
     const blackPassButton = blackPlayer.locator("#pass-button");
     const blackPageTurn = blackPlayer.locator("#player-turn");
@@ -423,12 +423,12 @@ test.describe("Passing", () => {
 
     await blackPassButton.click();
 
-    await helpers.boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
     expect(await blackPageTurn.textContent()).toBe("Turn: white");
     expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
 
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(blackPlayer, whitePlayer);
   });
 
   test("White passes", async ({ browser }) => {

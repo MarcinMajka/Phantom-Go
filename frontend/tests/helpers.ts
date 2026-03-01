@@ -216,6 +216,14 @@ export async function boardRefresh(blackPlayer: Page, whitePlayer: Page) {
   await whitePlayer.waitForTimeout(1000);
 }
 
+export async function boardRefreshPOM(
+  blackPlayer: PlayerPage,
+  whitePlayer: PlayerPage,
+) {
+  await blackPlayer.page.waitForTimeout(1000);
+  await whitePlayer.page.waitForTimeout(1000);
+}
+
 export async function closeContexts(...pages: Page[]) {
   for (const page of pages) {
     await page.context().close();
