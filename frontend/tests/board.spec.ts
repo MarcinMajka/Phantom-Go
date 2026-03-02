@@ -414,19 +414,15 @@ test.describe("Passing", () => {
     const { blackPlayer, whitePlayer } =
       await helpers.startGameAndGetPlayerPagesPOM(browser);
 
-    const blackPassButton = blackPlayer.locator("#pass-button");
-    const blackPageTurn = blackPlayer.locator("#player-turn");
-    const whitePageBlackReady = whitePlayer.locator("#player-turn");
+    expect(await blackPlayer.playerTurn.textContent()).toBe("Turn: black");
+    expect(await whitePlayer.playerTurn.textContent()).toBe("Turn: black");
 
-    expect(await blackPageTurn.textContent()).toBe("Turn: black");
-    expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
-
-    await blackPassButton.click();
+    await blackPlayer.passButton.click();
 
     await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
-    expect(await blackPageTurn.textContent()).toBe("Turn: white");
-    expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
+    expect(await blackPlayer.playerTurn.textContent()).toBe("Turn: white");
+    expect(await whitePlayer.playerTurn.textContent()).toBe("Turn: white");
 
     await helpers.closeContextsPOM(blackPlayer, whitePlayer);
   });
