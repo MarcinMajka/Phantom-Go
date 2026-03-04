@@ -425,28 +425,21 @@ test.describe("Passing", () => {
   });
 
   test("White passes", async ({ browser }) => {
-    const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const whitePassButton = whitePlayer.locator("#pass-button");
-    const blackPageTurn = blackPlayer.locator("#player-turn");
-    const whitePageBlackReady = whitePlayer.locator("#player-turn");
+    await pages.black.clickAtCoordinate(6, 6);
 
-    await helpers.clickAtCoordinate(blackPlayer, 6, 6);
+    await helpers.boardRefreshPOM(pages.black, pages.white);
 
-    await helpers.boardRefresh(blackPlayer, whitePlayer);
+    await helpers.expectTurnPOM(pages, "white");
 
-    expect(await blackPageTurn.textContent()).toBe("Turn: white");
-    expect(await whitePageBlackReady.textContent()).toBe("Turn: white");
+    await pages.white.passButton.click();
 
-    await whitePassButton.click();
+    await helpers.boardRefreshPOM(pages.black, pages.white);
 
-    await helpers.boardRefresh(blackPlayer, whitePlayer);
+    await helpers.expectTurnPOM(pages, "black");
 
-    expect(await blackPageTurn.textContent()).toBe("Turn: black");
-    expect(await whitePageBlackReady.textContent()).toBe("Turn: black");
-
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("Both players passing consecutively results in transfer to Main Board", async ({
