@@ -273,15 +273,19 @@ test.describe("Capturing stones", () => {
     await white.clickAtCoordinate(1, 1);
     await black.clickAtCoordinate(1, 2);
 
-    await expect(black.whiteCaptures).toHaveText("White Captures: 0");
-    await expect(white.whiteCaptures).toHaveText("White Captures: 0");
-    await expect(spectator.whiteCaptures).toHaveText("White Captures: 0");
+    await helpers.expectSameTextOnAllPagesPOM(
+      { black, white, spectator },
+      "#white-captures",
+      "White Captures: 0",
+    );
 
     await white.clickAtCoordinate(0, 2);
 
-    await expect(black.whiteCaptures).toHaveText("White Captures: 2");
-    await expect(white.whiteCaptures).toHaveText("White Captures: 2");
-    await expect(spectator.whiteCaptures).toHaveText("White Captures: 2");
+    await helpers.expectSameTextOnAllPagesPOM(
+      { black, white, spectator },
+      "#white-captures",
+      "White Captures: 2",
+    );
 
     await helpers.closeContextsPOM(black, white, spectator);
   });
