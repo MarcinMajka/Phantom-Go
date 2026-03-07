@@ -60,6 +60,18 @@ export class PlayerPage {
   }
 
   async clickAtCoordinate(x: number, y: number) {
+    if (
+      await this.page.evaluate(() =>
+        window.location.pathname.includes("main.html"),
+      )
+    ) {
+      await this.page
+        .locator(`#main-board .stone[data-row="${x}"][data-col="${y}"]`)
+        .click();
+
+      return;
+    }
+
     const intersection = this.page.locator(
       `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`,
     );
