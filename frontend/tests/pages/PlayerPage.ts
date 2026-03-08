@@ -94,4 +94,8 @@ export class PlayerPage {
   async clickResign() {
     await this.resignButton.click();
   }
+
+  async waitForTimeout(timeout = 1000) {
+    await this.page.waitForTimeout(timeout);
+  }
 }
