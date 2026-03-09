@@ -478,38 +478,36 @@ test.describe("Counting", () => {
   test("Player 1 selects a dead stone, Player 2 counts score", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const board = blackPlayer.locator("svg");
-    const box = await board.boundingBox();
-    helpers.clickCenter(blackPlayer, box);
+    await pages.black.clickAtCoordinate(5, 5);
 
-    await whitePlayer.locator("#pass-button").click();
-    await blackPlayer.locator("#pass-button").click();
+    await pages.white.passButton.click();
+    await pages.black.passButton.click();
 
-    await whitePlayer.locator(".stone").first().click();
+    await pages.white.waitForTimeout();
+    await pages.white.clickAtCoordinate(5, 5);
 
-    const countButton = blackPlayer.locator("#count-score-button");
+    const countButton = pages.black.locator("#count-score-button");
     await helpers.expectClickable(countButton);
     await countButton.click();
 
-    await blackPlayer.waitForTimeout(1000);
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    await pages.black.waitForTimeout();
+    expect(await pages.black.locator("#black-ready").textContent()).toBe(
       "Black: ready",
     );
 
-    await whitePlayer.waitForTimeout(1000);
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    expect(await pages.white.locator("#black-ready").textContent()).toBe(
       "Black: ready",
     );
-    await whitePlayer.locator("#count-score-button").click();
 
-    expect(await whitePlayer.locator("#result").textContent()).toBe(
+    await pages.white.locator("#count-score-button").click();
+
+    expect(await pages.white.locator("#result").textContent()).toBe(
       "White +2.5",
     );
 
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("Player selects a dead stone, counts, then deselects", async ({
