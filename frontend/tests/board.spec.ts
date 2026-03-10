@@ -493,13 +493,7 @@ test.describe("Counting", () => {
     await countButton.click();
 
     await pages.black.waitForTimeout();
-    expect(await pages.black.locator("#black-ready").textContent()).toBe(
-      "Black: ready",
-    );
-
-    expect(await pages.white.locator("#black-ready").textContent()).toBe(
-      "Black: ready",
-    );
+    await helpers.expectSameTextOnAllPagesPOM(pages, "#black-ready", "Black: ready");
 
     await pages.white.locator("#count-score-button").click();
 
