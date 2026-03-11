@@ -599,7 +599,7 @@ test.describe("Counting", () => {
   test("Spectator counts score - doesn't affect the game", async ({
     browser,
   }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
     await pages.black.locator("#pass-button").click();
     await pages.white.locator("#pass-button").click();
@@ -626,7 +626,7 @@ test.describe("Counting", () => {
       "White: selecting dead stones",
     );
 
-    await helpers.closeContexts(pages.black, pages.white, pages.spectator);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 });
 
