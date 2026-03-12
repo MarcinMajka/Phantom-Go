@@ -607,22 +607,14 @@ test.describe("Counting", () => {
     await pages.spectator.waitForTimeout(1000);
     await pages.spectator.locator("#count-score-button").click();
 
-    expect(await pages.spectator.locator("#black-ready").textContent()).toBe(
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#black-ready",
       "Black: selecting dead stones",
     );
-    expect(await pages.black.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones",
-    );
-    expect(await pages.white.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones",
-    );
-    expect(await pages.spectator.locator("#white-ready").textContent()).toBe(
-      "White: selecting dead stones",
-    );
-    expect(await pages.black.locator("#white-ready").textContent()).toBe(
-      "White: selecting dead stones",
-    );
-    expect(await pages.white.locator("#white-ready").textContent()).toBe(
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#white-ready",
       "White: selecting dead stones",
     );
 
