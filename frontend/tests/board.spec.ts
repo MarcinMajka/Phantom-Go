@@ -512,14 +512,12 @@ test.describe("Counting", () => {
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPagesPOM(browser);
 
-    let board = blackPlayer.locator("svg");
-    let box = await board.boundingBox();
-    helpers.clickCenter(blackPlayer, box);
+    await blackPlayer.clickAtCoordinate(5, 5);
 
-    await whitePlayer.locator("#pass-button").click();
-    await blackPlayer.locator("#pass-button").click();
+    await whitePlayer.passButton.click();
+    await blackPlayer.passButton.click();
 
     await blackPlayer.locator(".stone").first().click();
 
@@ -549,7 +547,7 @@ test.describe("Counting", () => {
       "Black: selecting dead stones",
     );
 
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(blackPlayer, whitePlayer);
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
