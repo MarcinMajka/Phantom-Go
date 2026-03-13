@@ -95,6 +95,8 @@ export async function createUserAndJoinMatchPOM(
   await page.locator("#match-string").fill(matchString);
   await page.locator("#join-button").click();
 
+  await page.locator("#player-title").waitFor();
+
   return new PlayerPage(page);
 }
 
