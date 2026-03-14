@@ -511,43 +511,36 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPagesPOM(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    await blackPlayer.clickAtCoordinate(5, 5);
+    await pages.black.clickAtCoordinate(5, 5);
 
-    await whitePlayer.passButton.click();
-    await blackPlayer.passButton.click();
+    await pages.white.passButton.click();
+    await pages.black.passButton.click();
 
-    await blackPlayer.locator(".stone").first().click();
+    await pages.black.locator(".stone").first().click();
 
-    await blackPlayer.waitForTimeout(1000);
-    await blackPlayer.locator("#count-score-button").click();
+    await pages.black.waitForTimeout(1000);
+    await pages.black.locator("#count-score-button").click();
 
-    await blackPlayer.waitForTimeout(1000);
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    await pages.black.waitForTimeout(1000);
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#black-ready",
       "Black: ready",
     );
 
-    await whitePlayer.waitForTimeout(1000);
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready",
-    );
-
-    const selectedStone = blackPlayer.locator(".stone").first();
+    const selectedStone = pages.black.locator(".stone").first();
     await selectedStone.click();
 
-    await blackPlayer.waitForTimeout(1000);
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    await pages.black.waitForTimeout(1000);
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#black-ready",
       "Black: selecting dead stones",
     );
 
-    await whitePlayer.waitForTimeout(1000);
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones",
-    );
-
-    await helpers.closeContextsPOM(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("Player selects a dead stone, counts, then other player deselects", async ({
