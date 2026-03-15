@@ -546,45 +546,34 @@ test.describe("Counting", () => {
   test("Player selects a dead stone, counts, then other player deselects", async ({
     browser,
   }) => {
-    const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    let board = blackPlayer.locator("svg");
-    let box = await board.boundingBox();
-    helpers.clickCenter(blackPlayer, box);
+    await pages.black.clickAtCoordinate(5, 5);
 
-    await whitePlayer.locator("#pass-button").click();
-    await blackPlayer.locator("#pass-button").click();
+    await pages.white.passButton.click();
+    await pages.black.passButton.click();
 
-    await blackPlayer.locator(".stone").first().click();
+    await pages.black.waitForTimeout(1000);
+    await pages.black.locator("#count-score-button").click();
 
-    await blackPlayer.waitForTimeout(1000);
-    await blackPlayer.locator("#count-score-button").click();
-
-    await blackPlayer.waitForTimeout(1000);
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
+    await pages.black.waitForTimeout(1000);
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#black-ready",
       "Black: ready",
     );
 
-    await whitePlayer.waitForTimeout(1000);
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
-      "Black: ready",
-    );
-
-    const selectedStone = whitePlayer.locator(".stone").first();
+    const selectedStone = pages.white.locator(".stone").first();
     await selectedStone.click();
 
-    await whitePlayer.waitForTimeout(1000);
-    expect(await whitePlayer.locator("#black-ready").textContent()).toBe(
+    await pages.black.waitForTimeout(1000);
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#black-ready",
       "Black: selecting dead stones",
     );
 
-    await blackPlayer.waitForTimeout(1000);
-    expect(await blackPlayer.locator("#black-ready").textContent()).toBe(
-      "Black: selecting dead stones",
-    );
-
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   test("Spectator counts score - doesn't affect the game", async ({
