@@ -97,6 +97,7 @@ test.describe("Logging in", () => {
     await helpers.closeContexts(...Object.values(pages));
   });
 
+  // TODO: POMify
   test("Confirm the user can't cheat by opening spectator's page: index.html", async ({
     browser,
   }) => {
@@ -115,6 +116,7 @@ test.describe("Logging in", () => {
     await helpers.closeContexts(page);
   });
 
+  // TODO: POMify
   test("Confirm the user can't cheat by opening spectator's page: games.html", async ({
     browser,
   }) => {
@@ -193,6 +195,7 @@ test("Player logs in, then resigns", async ({ page }) => {
 });
 
 test.describe("Rules", () => {
+  // TODO: POMify
   test("Players can't place a stone on opponent's stone", async ({
     browser,
   }) => {
@@ -447,6 +450,7 @@ test.describe("Passing", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
+  // TODO: POMify
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
