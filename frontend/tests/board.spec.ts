@@ -97,23 +97,19 @@ test.describe("Logging in", () => {
     await helpers.closeContexts(...Object.values(pages));
   });
 
-  // TODO: POMify
   test("Confirm the user can't cheat by opening spectator's page: index.html", async ({
     browser,
   }) => {
-    const ms = helpers.generateMatchID();
+    const { pages, ms } = await helpers.startGameAndGetAllPagesPOM(browser);
 
-    const page = await helpers.createUserAndJoinMatch(browser, ms);
+    await pages.black.page.goBack();
 
-    const p1Title = page.locator("#player-title");
-    const p1Color = await p1Title.textContent();
+    const newPage = await pages.black.page.context().newPage();
+    await helpers.startGameAsSpectatorWithMatchID(newPage, ms);
 
-    await page.goBack();
-    await helpers.startGameAsSpectatorWithMatchID(page, ms);
+    await expect(newPage.locator("#player-title")).toHaveText("Black Player");
 
-    expect(await p1Title.textContent()).toEqual(p1Color);
-
-    await helpers.closeContexts(page);
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 
   // TODO: POMify
