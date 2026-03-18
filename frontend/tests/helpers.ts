@@ -70,6 +70,9 @@ export async function verifyPlayerIsOnMainPage(
   await expect(await getSessionToken(page)).toBe(sessionToken);
 }
 
+// TODO: finish
+export async function verifyPlayerIsOnMainPagePOM() {}
+
 export async function createUserAndJoinMatch(
   browser: Browser,
   matchString: string,
@@ -373,6 +376,9 @@ export async function expectStoneState(
   await expect(stone.spectatorBlack).toHaveCount(spectatorBlack);
   await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
 }
+
+// TODO: finish
+export async function expectStoneStatePOM() {}
 
 export async function expectClickable(locator: Locator, timeout = 1000) {
   await expect(locator).toBeVisible({ timeout });
