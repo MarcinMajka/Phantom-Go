@@ -393,8 +393,28 @@ export async function expectStoneState(
   await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
 }
 
-// TODO: finish
-export async function expectStoneStatePOM() {}
+export async function expectStoneStatePOM(
+  stone: ReturnType<typeof stoneAtPOM>,
+  {
+    black = 0,
+    white = 0,
+    spectatorMain = 0,
+    spectatorBlack = 0,
+    spectatorWhite = 0,
+  }: {
+    black?: number;
+    white?: number;
+    spectatorMain?: number;
+    spectatorBlack?: number;
+    spectatorWhite?: number;
+  },
+) {
+  await expect(stone.black).toHaveCount(black);
+  await expect(stone.white).toHaveCount(white);
+  await expect(stone.spectatorMain).toHaveCount(spectatorMain);
+  await expect(stone.spectatorBlack).toHaveCount(spectatorBlack);
+  await expect(stone.spectatorWhite).toHaveCount(spectatorWhite);
+}
 
 export async function expectClickable(locator: Locator, timeout = 1000) {
   await expect(locator).toBeVisible({ timeout });
