@@ -191,19 +191,34 @@ test("Player logs in, then resigns", async ({ page }) => {
 });
 
 test.describe("Rules", () => {
-  // TODO: POMify
   test("Players can't place a stone on opponent's stone", async ({
     browser,
   }) => {
-    const { pages } = await helpers.startGameAndGetAllPages(browser);
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
 
     const row = 5;
     const col = 5;
-    const stone = helpers.stoneAt(pages, row, col);
+    const stone = helpers.stoneAtPOM(pages, row, col);
 
-    await helpers.clickAtCoordinate(pages.black, row, col);
+    await pages.black.clickAtCoordinate(row, col);
 
-    await helpers.expectSameTextOnAllPages(
+    await helpers.expectSameTextOnAllPagesPOM(
+      pages,
+      "#player-turn",
+      "Turn: white",
+    );
+
+    await helpers.expectStoneState(stone, {
+      black: 1,
+      white: 0,
+      spectatorMain: 1,
+      spectatorBlack: 1,
+      spectatorWhite: 0,
+    });
+
+    await pages.white.clickAtCoordinate(row, col);
+
+    await helpers.expectSameTextOnAllPagesPOM(
       pages,
       "#player-turn",
       "Turn: white",
@@ -216,22 +231,7 @@ test.describe("Rules", () => {
       spectatorWhite: 0,
     });
 
-    await helpers.clickAtCoordinate(pages.white, row, col);
-
-    await helpers.expectSameTextOnAllPages(
-      pages,
-      "#player-turn",
-      "Turn: white",
-    );
-    await helpers.expectStoneState(stone, {
-      black: 1,
-      white: 0,
-      spectatorMain: 1,
-      spectatorBlack: 1,
-      spectatorWhite: 0,
-    });
-
-    await helpers.closeContexts(...Object.values(pages));
+    await helpers.closeContextsPOM(...Object.values(pages));
   });
 });
 
