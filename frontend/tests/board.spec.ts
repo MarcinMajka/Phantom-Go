@@ -202,6 +202,7 @@ test.describe("Rules", () => {
 
     await pages.black.clickAtCoordinate(row, col);
 
+    // TODO: fix - white page doesn't change #player-turn
     await helpers.expectSameTextOnAllPagesPOM(
       pages,
       "#player-turn",
