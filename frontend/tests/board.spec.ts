@@ -173,6 +173,9 @@ test.describe("Logging in", () => {
 
 test("Player logs in, then resigns", async ({ page }) => {
   await helpers.startGameWithRandomID(page);
+  // Make sure Player Page is loaded, before getting sessionToken
+  await page.waitForSelector("#player-title");
+
   const sessionToken = await helpers.getSessionToken(page);
   await helpers.expectAny(sessionToken, [
     (t) => expect(t).not.toBeNull(),
