@@ -450,31 +450,27 @@ test.describe("Passing", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
-  // TODO: POMify
   test("Both players passing consecutively results in transfer to Main Board", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer } =
-      await helpers.startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPagesPOM(browser);
 
-    const blackPassButton = blackPlayer.locator("#pass-button");
-    const whitePassButton = whitePlayer.locator("#pass-button");
+    await blackPlayer.passButton.click();
+    await whitePlayer.passButton.click();
 
-    await blackPassButton.click();
-    await whitePassButton.click();
-
-    await helpers.boardRefresh(blackPlayer, whitePlayer);
+    await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
     await helpers.verifyPlayerIsOnMainPage(
-      blackPlayer,
-      (await helpers.getSessionToken(blackPlayer))!,
+      blackPlayer.page,
+      (await helpers.getSessionToken(blackPlayer.page))!,
     );
     await helpers.verifyPlayerIsOnMainPage(
-      whitePlayer,
-      (await helpers.getSessionToken(whitePlayer))!,
+      whitePlayer.page,
+      (await helpers.getSessionToken(whitePlayer.page))!,
     );
 
-    await helpers.closeContexts(blackPlayer, whitePlayer);
+    await helpers.closeContextsPOM(blackPlayer, whitePlayer);
   });
 });
 
