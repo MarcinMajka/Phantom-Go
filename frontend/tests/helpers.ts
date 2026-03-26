@@ -70,8 +70,17 @@ export async function verifyPlayerIsOnMainPage(
   await expect(await getSessionToken(page)).toBe(sessionToken);
 }
 
-// TODO: finish
-export async function verifyPlayerIsOnMainPagePOM() {}
+export async function verifyPlayerIsOnMainPagePOM(
+  playerPage: PlayerPage,
+  sessionToken: string,
+) {
+  const page = playerPage.page;
+  const boardContainer = page.locator("#board-container");
+
+  await expect(playerPage.playerTitle).toHaveCount(0);
+  await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
+  await expect(await getSessionToken(page)).toBe(sessionToken);
+}
 
 export async function createUserAndJoinMatch(
   browser: Browser,
