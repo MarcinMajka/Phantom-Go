@@ -461,12 +461,12 @@ test.describe("Passing", () => {
 
     await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
-    await helpers.verifyPlayerIsOnMainPage(
-      blackPlayer.page,
+    await helpers.verifyPlayerIsOnMainPagePOM(
+      blackPlayer,
       (await helpers.getSessionToken(blackPlayer.page))!,
     );
-    await helpers.verifyPlayerIsOnMainPage(
-      whitePlayer.page,
+    await helpers.verifyPlayerIsOnMainPagePOM(
+      whitePlayer,
       (await helpers.getSessionToken(whitePlayer.page))!,
     );
 
