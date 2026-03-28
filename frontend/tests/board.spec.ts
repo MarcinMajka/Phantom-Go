@@ -1,11 +1,4 @@
-import {
-  test,
-  expect,
-  Page,
-  Browser,
-  BrowserContext,
-  Locator,
-} from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import * as helpers from "./helpers";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 import { LoginPage } from "./pages/LoginPage";
