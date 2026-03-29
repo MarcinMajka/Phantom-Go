@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import * as helpers from "./helpers";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 import { LoginPage } from "./pages/LoginPage";
+import { PlayerPage } from "./pages/PlayerPage";
 
 test.describe("Logging in", () => {
   test("Start game", async ({ page }) => {
@@ -105,35 +106,37 @@ test.describe("Logging in", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
-  // TODO: POMify
   test("Confirm the user can't cheat by opening spectator's page: games.html", async ({
     browser,
   }) => {
     const { blackPlayer, whitePlayer, ms } =
-      await helpers.startGameAndGetPlayerPages(browser);
+      await helpers.startGameAndGetPlayerPagesPOM(browser);
 
     const spectatorContext = await browser.newContext();
     const spectatorPage = await spectatorContext.newPage();
-    const spectator = helpers.startGameAsSpectator(spectatorPage);
+    const spectator = await helpers.startGameAsSpectator(spectatorPage);
+    const spectatorAsPlayer = new PlayerPage(spectator.page);
 
     const players = [blackPlayer, whitePlayer];
 
     for (const player of players) {
-      const playerTitle = player.locator("#player-title");
+      const playerTitle = player.playerTitle;
       const playerColor = await playerTitle.textContent();
-      player.goBack();
-      await player.locator("#games-button").click();
-      await player.getByText(ms).click();
+      await player.page.goBack();
+      await player.page.locator("#games-button").click();
+      await player.page.getByText(ms).click();
       await expect(playerTitle).toHaveText(playerColor!);
 
-      player.goBack();
-      await player.getByText((await spectator).matchString).click();
+      await player.page.goBack();
+      await player.page.getByText(spectator.matchString).click();
 
-      const boardContainer = player.locator("#board-container");
+      const boardContainer = player.page.locator("#board-container");
 
       await expect(playerTitle).toHaveCount(0);
       await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
     }
+
+    await helpers.closeContextsPOM(blackPlayer, whitePlayer, spectatorAsPlayer);
   });
 
   test("Confirm subsequent joining users are spectators", async ({
