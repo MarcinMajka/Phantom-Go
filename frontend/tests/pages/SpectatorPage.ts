@@ -1,6 +1,6 @@
 import { Page, Locator } from "playwright/test";
 
-export class PlayerPage {
+export class SpectatorPage {
   constructor(readonly page: Page) {}
 
   // Could be useful for checking if Player is on Main page
