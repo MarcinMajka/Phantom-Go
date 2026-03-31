@@ -260,7 +260,7 @@ interface Pages {
 interface PagesPOM {
   black: PlayerPage;
   white: PlayerPage;
-  spectator: PlayerPage;
+  spectator: SpectatorPage;
 }
 
 export async function expectSameTextOnAllPages(
@@ -319,7 +319,7 @@ export async function startGameAndGetAllPagesPOM(browser: Browser) {
   const pages: PagesPOM = {
     black: new PlayerPage(playerPages.blackPlayer),
     white: new PlayerPage(playerPages.whitePlayer),
-    spectator: new PlayerPage(p3),
+    spectator: new SpectatorPage(p3),
   };
 
   return { pages, ms };
