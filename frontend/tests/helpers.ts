@@ -1,5 +1,6 @@
 import { Page, Browser, Locator, expect } from "@playwright/test";
 import { PlayerPage } from "./pages/PlayerPage";
+import { SpectatorPage } from "./pages/SpectatorPage";
 
 export function generateMatchID() {
   return (
@@ -71,13 +72,13 @@ export async function verifyPlayerIsOnMainPage(
 }
 
 export async function verifyPlayerIsOnMainPagePOM(
-  playerPage: PlayerPage,
+  spectatorPage: SpectatorPage,
   sessionToken: string,
 ) {
-  const page = playerPage.page;
+  const page = spectatorPage.page;
   const boardContainer = page.locator("#board-container");
 
-  await expect(playerPage.playerTitle).toHaveCount(0);
+  await expect(spectatorPage.playerTitle).toHaveCount(0);
   await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
   await expect(await getSessionToken(page)).toBe(sessionToken);
 }
