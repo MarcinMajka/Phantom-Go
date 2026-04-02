@@ -245,7 +245,9 @@ export async function closeContexts(...pages: Page[]) {
   }
 }
 
-export async function closeContextsPOM(...pages: PlayerPage[]) {
+export async function closeContextsPOM(
+  ...pages: (PlayerPage | SpectatorPage)[]
+) {
   for (const playerPage of pages) {
     await playerPage.page.context().close();
   }
