@@ -3,6 +3,7 @@ import * as helpers from "./helpers";
 import { NETWORK_PRESETS } from "../test-data/NETWORK_PRESETS";
 import { LoginPage } from "./pages/LoginPage";
 import { PlayerPage } from "./pages/PlayerPage";
+import { SpectatorPage } from "./pages/SpectatorPage";
 
 test.describe("Logging in", () => {
   test("Start game", async ({ page }) => {
@@ -457,12 +458,15 @@ test.describe("Passing", () => {
 
     await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
+    const blackSpectator = new SpectatorPage(blackPlayer.page);
+    const whiteSpectator = new SpectatorPage(whitePlayer.page);
+
     await helpers.verifyPlayerIsOnMainPagePOM(
-      blackPlayer,
+      blackSpectator,
       (await helpers.getSessionToken(blackPlayer.page))!,
     );
     await helpers.verifyPlayerIsOnMainPagePOM(
-      whitePlayer,
+      whiteSpectator,
       (await helpers.getSessionToken(whitePlayer.page))!,
     );
 
