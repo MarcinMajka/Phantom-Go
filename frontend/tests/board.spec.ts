@@ -116,7 +116,7 @@ test.describe("Logging in", () => {
     const spectatorContext = await browser.newContext();
     const spectatorPage = await spectatorContext.newPage();
     const spectator = await helpers.startGameAsSpectator(spectatorPage);
-    const spectatorAsPlayer = new PlayerPage(spectator.page);
+    const spectatorAsPlayer = new SpectatorPage(spectator.page);
 
     const players = [blackPlayer, whitePlayer];
 
