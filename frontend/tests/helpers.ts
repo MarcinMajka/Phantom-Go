@@ -46,6 +46,21 @@ export async function startGameAsSpectatorWithMatchID(
   return page;
 }
 
+export async function startGameAsSpectatorPOM(
+  browser: Browser,
+): Promise<{ spectator: SpectatorPage; ms: string }> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const ms = generateMatchID();
+
+  await page.goto("/frontend/index.html");
+  await page.locator("#match-string").fill(ms);
+  await page.locator("#spectator-checkbox").click();
+  await page.locator("#join-button").click();
+
+  return { spectator: new SpectatorPage(page), ms };
+}
+
 export async function verifySpectatorState(page: Page) {
   const playerTitle = page.locator("#player-title");
   const boardContainer = page.locator("#board-container");
