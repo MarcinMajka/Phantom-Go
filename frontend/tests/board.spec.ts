@@ -113,10 +113,8 @@ test.describe("Logging in", () => {
     const { blackPlayer, whitePlayer, ms } =
       await helpers.startGameAndGetPlayerPagesPOM(browser);
 
-    const spectatorContext = await browser.newContext();
-    const spectatorPage = await spectatorContext.newPage();
-    const spectator = await helpers.startGameAsSpectator(spectatorPage);
-    const spectatorAsPlayer = new SpectatorPage(spectator.page);
+    const { spectator, ms: spectatorMS } =
+      await helpers.startGameAsSpectatorPOM(browser);
 
     const players = [blackPlayer, whitePlayer];
 
@@ -129,7 +127,7 @@ test.describe("Logging in", () => {
       await expect(playerTitle).toHaveText(playerColor!);
 
       await player.page.goBack();
-      await player.page.getByText(spectator.matchString).click();
+      await player.page.getByText(spectatorMS).click();
 
       const boardContainer = player.page.locator("#board-container");
 
@@ -137,7 +135,7 @@ test.describe("Logging in", () => {
       await expect(boardContainer.locator(":scope > div")).toHaveCount(3);
     }
 
-    await helpers.closeContextsPOM(blackPlayer, whitePlayer, spectatorAsPlayer);
+    await helpers.closeContextsPOM(blackPlayer, whitePlayer, spectator);
   });
 
   test("Confirm subsequent joining users are spectators", async ({
