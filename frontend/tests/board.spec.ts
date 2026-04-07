@@ -70,7 +70,7 @@ test.describe("Logging in", () => {
     }
   });
 
-  test("Confirm the user can go back to his board view by loggin in again", async ({
+  test("Confirm the user can go back to his board view by logging in again", async ({
     browser,
   }) => {
     const { pages, ms } = await helpers.startGameAndGetAllPages(browser);
