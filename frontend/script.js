@@ -9,6 +9,7 @@ import {
   drawGridLines,
   drawStarPoints,
   displayMatchIdElement,
+  toggleGroupSelection,
 } from "./UI.js";
 import {
   fetchWithErrorHandling,
@@ -23,6 +24,7 @@ import {
   getAPIUrl,
   getPlayerColor,
   getPlayerSessionToken,
+  navigateToMainBoard,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -36,7 +38,7 @@ import {
 } from "./handlers.js";
 import { boards, elements } from "./elements.js";
 
-let boardInteractionNumber = 0;
+let boardGenerationNumber = 0;
 let countingPhase = false;
 let isWinnerDecided = false;
 let boardState = [];
@@ -48,6 +50,11 @@ let stonesInAtari = {
   black: 0,
   white: 0,
 };
+let deadGroupsDuringCounting = [];
+
+export function getDeadGroups() {
+  return deadGroupsDuringCounting.selected;
+}
 
 const API_URL = getAPIUrl();
 
@@ -89,7 +96,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
         col,
         cellSize * 0.4,
         "transparent",
-        "transparent"
+        "transparent",
       );
       clickArea.dataset.row = row;
       clickArea.dataset.col = col;
@@ -110,12 +117,11 @@ function addClickAreas(board, rows, cols, playerBoard) {
             },
             // Send clicked cell coordinates as JSON payload
             body: JSON.stringify({
-              frontend_board: playerBoard,
               row: parseInt(row),
               col: parseInt(col),
               match_string: getMatchString(),
               session_token: getPlayerSessionToken(),
-              board_interaction_number: boardInteractionNumber,
+              board_generation_number: boardGenerationNumber,
             }),
           })
             .then((response) => {
@@ -126,11 +132,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
               return response.json();
             })
             .then((data) => {
-              boardInteractionNumber = data.board_interaction_number;
-              console.log(
-                "Successful move! Board interaction number: ",
-                boardInteractionNumber
-              );
+              boardGenerationNumber = data.board_generation_number;
               stonesInAtari = data.stones_in_atari;
               boardState = data.board;
 
@@ -164,7 +166,7 @@ function addClickAreas(board, rows, cols, playerBoard) {
 }
 
 function sendGuessStonesToBackend(color, stones) {
-  boardInteractionNumber++;
+  boardGenerationNumber++;
   fetch(`${API_URL}/sync-guess-stones`, {
     method: "POST",
     headers: {
@@ -174,7 +176,7 @@ function sendGuessStonesToBackend(color, stones) {
       color: color,
       stones: stones,
       match_string: getMatchString(),
-      board_interaction_number: boardInteractionNumber,
+      board_generation_number: boardGenerationNumber,
     }),
   })
     .then((response) => {
@@ -238,7 +240,7 @@ function placeStone(stoneColor, row, col) {
   stone.addEventListener("click", () => {
     if (countingPhase) {
       console.log("Row: " + row + " Col: " + col);
-      getGroupRequest(row, col);
+      deadGroupsDuringCounting = getGroupRequest(row, col);
     }
   });
 
@@ -279,10 +281,8 @@ function syncBoards() {
   let failedAttempts = 0;
   const maxRetries = 3;
 
-  const syncIntervalId = setTimeout(sync, retryInterval);
-
   function sync() {
-    fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+    fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -290,82 +290,134 @@ function syncBoards() {
       body: JSON.stringify({
         match_string: getMatchString(),
         player: playerColor,
+        frontend_board_generation_number: boardGenerationNumber,
       }),
-    })
-      .catch((error) => {
+    }).then((data) => {
+      if (data.rejoin_required) {
+        alert("Game data lost. Please rejoin via login page :)");
+        setTimeout(() => {
+          window.location.href = `${getAPIUrl()}/frontend/index.html`;
+        }, 1000);
+        return;
+      }
+
+      // if (data.winner) {
+      //   console.log("There's a winner! No board syncs from now on :)");
+      //   return;
+      // }
+
+      if (!data.should_sync && !countingPhase) {
+        console.log("Not syncing boards!");
+
         setTimeout(sync, retryInterval);
-        failedAttempts++;
-        console.error(
-          `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
-          error
-        );
-        if (failedAttempts >= maxRetries) {
-          console.error("Max retry attempts reached. Please refresh the page.");
-        }
+        return;
+      }
+
+      boardGenerationNumber = data.board_generation_number;
+
+      fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          match_string: getMatchString(),
+          player: playerColor,
+        }),
       })
-      .then((data) => {
-        console.log("Server response:", data.message);
+        .catch((error) => {
+          failedAttempts++;
+          console.error(
+            `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
+            error,
+          );
 
-        if (data.rejoin_required) {
-          clearTimeout(syncIntervalId);
-          alert("Game data lost. Please rejoin via login page :)");
-          setTimeout(() => {
-            window.location.href = `${getAPIUrl()}/frontend/index.html`;
-          }, 2000);
-        }
-
-        failedAttempts = 0; // Reset counter on success
-        console.log(
-          "Board interaction number: ",
-          data.board_interaction_number
-        );
-
-        if (boardInteractionNumber > data.board_interaction_number) {
-          console.log("boardInteractionNumber > data.board_interaction_number");
-          setTimeout(sync, retryInterval);
-          return;
-        }
-
-        if (data.winner) {
-          isWinnerDecided = true;
-          const res = createButton("resign-result", data.winner + " + R");
-          elements.infoContainer.innerHTML = "";
-          elements.infoContainer.appendChild(res);
-          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
-          document.removeEventListener;
-        }
-
-        guessStones.black = data.black_guess_stones;
-        guessStones.white = data.white_guess_stones;
-
-        updateBoard(data.board, data.stones_in_atari);
-        updateCaptures(data.black_captures, data.white_captures);
-        updateTurn(data.current_player);
-
-        if (data.counting) {
-          countingPhase = true;
-          handleGameButtonsAfterGame(getMatchString(), isWinnerDecided);
-          if (playerColor === "spectator") {
-            showElement(document.getElementById(".main-board-buttons"));
+          if (failedAttempts < maxRetries) {
+            setTimeout(sync, retryInterval);
+          } else {
+            console.error(
+              "Max retry attempts reached. Please refresh the page.",
+            );
           }
-        }
+        })
+        .then((data) => {
+          console.log("Server response:", data.message);
 
-        if (countingPhase || isWinnerDecided) {
-          clearInterval(syncIntervalId);
-          console.log(data.current_player);
-          updateTurn(data.current_player);
+          failedAttempts = 0; // Reset counter on success
 
-          console.log("Counting or game finished, stopping sync.");
-          return;
-        }
+          if (!data.winner && !data.counting) {
+            guessStones.black = data.black_guess_stones;
+            guessStones.white = data.white_guess_stones;
 
-        setTimeout(sync, retryInterval); // Schedule next sync
-      });
+            updateTurn(data.current_player);
+          }
+
+          updateCaptures(data.black_captures, data.white_captures);
+          updateBoard(data.board, data.stones_in_atari);
+
+          if (data.winner) {
+            if (getPlayerColor() !== "spectator") {
+              navigateToMainBoard();
+            }
+
+            isWinnerDecided = true;
+            const res = createButton("result", data.winner);
+            elements.infoContainer.innerHTML = "";
+            elements.infoContainer.appendChild(res);
+            handleGameButtonsAfterGame(isWinnerDecided);
+            document.removeEventListener;
+            return;
+          }
+
+          if (data.counting) {
+            if (getPlayerColor() === "spectator") {
+              if (elements.turn) {
+                delete elements.turn;
+              }
+            } else {
+              updateTurn(data.current_player);
+              navigateToMainBoard();
+              return;
+            }
+
+            const blackReady = document.getElementById("black-ready");
+            const whiteReady = document.getElementById("white-ready");
+
+            const blackReadyText = data.ready_to_count.black
+              ? "Black: ready"
+              : "Black: selecting dead stones";
+            const whiteReadyText = data.ready_to_count.white
+              ? "White: ready"
+              : "White: selecting dead stones";
+
+            if (blackReady && whiteReady) {
+              blackReady.innerText = blackReadyText;
+              whiteReady.innerText = whiteReadyText;
+            }
+
+            countingPhase = true;
+
+            handleGameButtonsAfterGame(isWinnerDecided);
+            deadGroupsDuringCounting = data.groups_selected_during_counting;
+            toggleGroupSelection(deadGroupsDuringCounting);
+
+            if (playerColor === "spectator") {
+              showElement(elements.mainBoardButtons);
+              showElement(elements.readyToCountContainer);
+            }
+          }
+
+          setTimeout(sync, retryInterval);
+        });
+    });
   }
+
+  setTimeout(sync, retryInterval);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!getMatchString()) {
+    if (window.location.pathname.includes("games.html")) return;
     console.error("No match string provided");
     return;
   }
@@ -406,7 +458,7 @@ function undoRequest() {
     body: JSON.stringify({
       match_string: getMatchString(),
       player: playerColor,
-      board_interaction_number: boardInteractionNumber,
+      board_generation_number: boardGenerationNumber,
     }),
   })
     .then((response) => {
@@ -417,16 +469,14 @@ function undoRequest() {
     })
     .then((data) => {
       console.log("Server response:", data.message);
+
       if (data.message === "It's not your turn to undo!") {
-        console.log(
-          "Board interaction number: ",
-          data.board_interaction_number
-        );
         return;
       }
-      console.log("Board interaction number: ", data.board_interaction_number);
-      boardInteractionNumber = data.board_interaction_number;
+
+      boardGenerationNumber = data.board_generation_number;
       boardState = data.board;
+
       updateBoard(boardState, data.stones_in_atari);
       updateCaptures(data.black_captures, data.white_captures);
       updateTurn(data.current_player);

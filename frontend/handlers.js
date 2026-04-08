@@ -12,6 +12,7 @@ import {
   getPlayerSessionToken,
 } from "./utils.js";
 import { elements } from "./elements.js";
+import { getDeadGroups } from "./script.js";
 
 export let addingGuessStone = false;
 export let removingGuessStone = false;
@@ -46,7 +47,7 @@ function resignRequest() {
     })
     .then((data) => {
       console.log("Resign response:", data);
-      const res = createButton("resign-result", data.winner + " + R");
+      const res = createButton("result", data.winner + " + R");
       elements.infoContainer.innerHTML = "";
       elements.infoContainer.appendChild(res);
     })
@@ -56,20 +57,24 @@ function resignRequest() {
 }
 
 export function countScoreButtonHandler() {
-  // TODO: add logic for checking if one of the players is requesting score counting
-  elements.countScore.addEventListener("click", countScoreRequest);
+  if (elements.countScore) {
+    elements.countScore.addEventListener("click", () => {
+      countScoreRequest(getDeadGroups());
+    });
+  }
 }
 
-function countScoreRequest() {
+function countScoreRequest(deadGroups) {
   fetch(`${API_URL}/get-score`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      player: getPlayerColor(),
       match_string: getMatchString(),
       session_token: getPlayerSessionToken(),
-      groups_to_remove: Object.values(groupsToRemove),
+      groups_to_remove: deadGroups,
     }),
   })
     .then((response) => {
@@ -80,13 +85,6 @@ function countScoreRequest() {
     })
     .then((data) => {
       console.log("Result:", data);
-      const res = createButton("result", `Result: ${data}`);
-      elements.infoContainer.innerHTML = "";
-      elements.infoContainer.appendChild(res);
-
-      // updateBoard(boardState);
-      // updateCaptures(data.black_captures, data.white_captures);
-      // updateTurn(data.current_player);
     })
     .catch((error) => {
       console.error("Error during count score:", error);
@@ -94,7 +92,9 @@ function countScoreRequest() {
 }
 
 export function downloadSGFButtonHandler() {
-  elements.downloadSGF.addEventListener("click", downloadSGFRequest);
+  if (elements.downloadSGF) {
+    elements.downloadSGF.addEventListener("click", downloadSGFRequest);
+  }
 }
 
 async function downloadSGFRequest() {
@@ -163,25 +163,14 @@ function passRequest() {
 }
 
 export function guessStonesButtonsHandler() {
-  if (elements.addStone) {
-    elements.addStone.addEventListener("click", () => {
-      console.log("Add stone button clicked");
-      elements.addStone.classList.toggle("clicked");
-      if (elements.addStone.classList.contains("clicked")) {
+  if (elements.guessStone) {
+    elements.guessStone.addEventListener("click", () => {
+      elements.guessStone.classList.toggle("clicked");
+      if (elements.guessStone.classList.contains("clicked")) {
         addingGuessStone = true;
-      } else {
-        addingGuessStone = false;
-      }
-    });
-  }
-
-  if (elements.removeStone) {
-    elements.removeStone.addEventListener("click", () => {
-      console.log("Remove stone button clicked");
-      elements.removeStone.classList.toggle("clicked");
-      if (elements.removeStone.classList.contains("clicked")) {
         removingGuessStone = true;
       } else {
+        addingGuessStone = false;
         removingGuessStone = false;
       }
     });
@@ -210,9 +199,35 @@ export function getGroupRequest(row, col) {
     })
     .then((data) => {
       console.log("Server response:", data);
+
+      if (data === "Waiting for other player") {
+        console.log("Waiting for other player...");
+        return;
+      }
+
       toggleGroupSelection(data);
+      return data;
     })
     .catch((error) => {
       console.error("Error:", error);
+    });
+}
+
+export async function getGamesList() {
+  return fetch(`${API_URL}/get-all-games`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => data.toSorted())
+    .catch((error) => {
+      console.error("Error during loading games list:", error);
     });
 }

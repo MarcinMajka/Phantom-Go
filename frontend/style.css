@@ -226,3 +226,11 @@ svg {
 .main-board-buttons {
     visibility: hidden;
 }
+
+#ready-to-count-container {
+  visibility: hidden;
+}
+
+li:hover {
+  color: #f2a65a;
+}

@@ -40,7 +40,7 @@ impl Player {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum GameResult {
     Points(Player, f32),
     Resignation(Player),
@@ -224,7 +224,7 @@ pub struct Board {
     komi: f32,
     black_captures: isize,
     white_captures: isize,
-    winner: Option<Player>,
+    winner: Option<GameResult>,
 }
 
 impl Board {
@@ -271,12 +271,13 @@ impl Board {
         self.current_player
     }
 
-    pub fn get_winner(&self) -> Option<Player> {
-        self.winner
+    pub fn get_winner(&self) -> Option<GameResult> {
+        let winner = self.winner.clone();
+        winner
     }
 
-    pub fn set_winner(&mut self, player: Player) {
-        self.winner = Some(player);
+    pub fn set_winner(&mut self, score: GameResult) {
+        self.winner = Some(score);
     }
 
     pub fn set_current_player(&mut self, player: Player) {
@@ -584,7 +585,6 @@ impl Board {
 
             self.stones_in_atari.black = new_black.iter().map(|group| group.len()).sum();
             self.stones_in_atari.white = new_white.iter().map(|group| group.len()).sum();
-            println!("Groups in atari: {:?}", self.groups_in_atari);
         }
     }
 

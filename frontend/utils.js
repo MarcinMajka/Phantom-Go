@@ -32,7 +32,7 @@ export function getBoardSVG() {
 export function addBackground(svg, width, height) {
   const background = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "rect"
+    "rect",
   );
   background.setAttribute("width", width);
   background.setAttribute("height", height);
@@ -124,7 +124,7 @@ export function getStone(color, row, col) {
     color,
     "black",
     "1",
-    "stone"
+    "stone",
   );
   stone.dataset.row = row;
   stone.dataset.col = col;
@@ -139,12 +139,12 @@ export function createCircleSVG(
   fillColor,
   strokeColor = "black",
   strokeWidth = "1",
-  className
+  className,
 ) {
   const [x, y] = toSvgCoords(col, row);
   const circle = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "circle"
+    "circle",
   );
   circle.setAttribute("cx", x);
   circle.setAttribute("cy", y);
@@ -189,15 +189,28 @@ export function getMatchString() {
 
 // Detect if running locally and set API URL accordingly
 export function getAPIUrl() {
-  var loc = window.location;
-  if (loc.hostname == 'localhost' || loc.hostname == '127.0.0.1') {
-    return 'http://localhost:8000';
-  } else if (loc.hostname == 'phantom-go.kraftartz.space') {
-    return 'https://phantom-go.kraftartz.space/api';
-  } else {
-    var u = new URL(loc.origin);
-    return u.toString().slice(0, -1);  // remove trailing '/'
+  const loc = window.location;
+  const host = loc.hostname;
+
+  // Common local addresses - localhost, loopback, LAN IP ranges
+  const isLocal =
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    /^192\.168\./.test(host) ||
+    /^10\./.test(host) ||
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host);
+
+  if (isLocal) {
+    return "http://localhost:8000";
   }
+
+  if (loc.hostname == "phantom-go.kraftartz.space") {
+    return "https://phantom-go.kraftartz.space/api";
+  }
+
+  const u = new URL(loc.origin);
+  return u.toString().slice(0, -1); // remove trailing '/'
 }
 
 export function getPlayerColor() {
@@ -205,10 +218,14 @@ export function getPlayerColor() {
   return currentPage.includes("black.html")
     ? "black"
     : currentPage.includes("white.html")
-    ? "white"
-    : "spectator";
+      ? "white"
+      : "spectator";
 }
 
 export function getPlayerSessionToken() {
   return localStorage.getItem("sessionToken") || "";
+}
+
+export function navigateToMainBoard() {
+  window.location.href = "/frontend/main.html?match=" + getMatchString();
 }

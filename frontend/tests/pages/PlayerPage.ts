@@ -1,0 +1,101 @@
+import { Page, Locator } from "playwright/test";
+
+export class PlayerPage {
+  constructor(readonly page: Page) {}
+
+  get playerTitle() {
+    return this.page.locator("#player-title");
+  }
+
+  get stonesInAtari() {
+    return this.page.locator("#stones-in-atari");
+  }
+
+  get playerTurn(): Locator {
+    return this.page.locator("#player-turn");
+  }
+
+  get blackCaptures(): Locator {
+    return this.page.locator("#black-captures");
+  }
+
+  get whiteCaptures(): Locator {
+    return this.page.locator("#white-captures");
+  }
+
+  get undoButton(): Locator {
+    return this.page.locator("#undo-button");
+  }
+
+  get passButton(): Locator {
+    return this.page.locator("#pass-button");
+  }
+
+  get guessStoneButton(): Locator {
+    return this.page.locator("#guess-stone-button");
+  }
+
+  get resignButton(): Locator {
+    return this.page.locator("#resign-button");
+  }
+
+  get stones(): Locator {
+    return this.page.locator(".stone");
+  }
+
+  get mainBoardStones(): Locator {
+    return this.page.locator("#main-board .stone");
+  }
+
+  get blackBoardStones(): Locator {
+    return this.page.locator("#black-player-board .stone");
+  }
+
+  get whiteBoardStones(): Locator {
+    return this.page.locator("#white-player-board .stone");
+  }
+
+  locator(selector: string) {
+    return this.page.locator(selector);
+  }
+
+  async clickAtCoordinate(x: number, y: number) {
+    if (
+      await this.page.evaluate(() =>
+        window.location.pathname.includes("main.html"),
+      )
+    ) {
+      await this.page
+        .locator(`#main-board .stone[data-row="${x}"][data-col="${y}"]`)
+        .click();
+
+      return;
+    }
+
+    const intersection = this.page.locator(
+      `circle[data-row="${x}"][data-col="${y}"][fill="transparent"]`,
+    );
+
+    await intersection.click();
+  }
+
+  async clickUndo() {
+    await this.undoButton.click();
+  }
+
+  async clickPass() {
+    await this.passButton.click();
+  }
+
+  async clickGuessStoneButton() {
+    await this.guessStoneButton.click();
+  }
+
+  async clickResign() {
+    await this.resignButton.click();
+  }
+
+  async waitForTimeout(timeout = 1000) {
+    await this.page.waitForTimeout(timeout);
+  }
+}

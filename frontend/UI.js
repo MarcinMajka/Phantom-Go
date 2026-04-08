@@ -21,7 +21,6 @@ export function displayMatchIdElement() {
 export function updateTurn(currentPlayer) {
   if (currentPlayer === "counting") {
     elements.turn.innerText = "Counting points";
-    elements.countScore.style.visibility = "visible";
   } else {
     elements.turn.innerText = "Turn: " + currentPlayer;
   }
@@ -57,7 +56,7 @@ export function createDiv(id, className) {
 
 let buttonsWereHandledAfterGame = false;
 
-export function handleGameButtonsAfterGame(matchString, isGameOver) {
+export function handleGameButtonsAfterGame(isGameOver) {
   if (buttonsWereHandledAfterGame) return;
 
   buttonsWereHandledAfterGame = true;
@@ -68,17 +67,6 @@ export function handleGameButtonsAfterGame(matchString, isGameOver) {
       elements.downloadSGF.style.visibility = "visible";
     }
   }
-
-  if (!window.location.pathname.includes("main.html")) {
-    const mainBoardButton = createLinkToMainBoard(matchString);
-    elements.infoContainer.appendChild(mainBoardButton);
-  }
-}
-
-function createLinkToMainBoard(matchString) {
-  return createButton("main-board-button", "Main Board", () => {
-    window.location.href = "/frontend/main.html?match=" + matchString;
-  });
 }
 
 export function highlightStonesInAtari(stones) {
@@ -138,32 +126,51 @@ export function drawStarPoints(board, rows, cols, starPointRadius = 3) {
       point.x,
       point.y,
       starPointRadius,
-      "black"
+      "black",
     );
     board.appendChild(starPoint);
   });
 }
 
-export function toggleGroupSelection(group) {
-  const groupKey = JSON.stringify(group);
+export function toggleGroupSelection(groups) {
+  const selected = groups.selected;
+  const toggle = groups.toggle;
 
-  for (const loc of group) {
-    const [row, col] = [loc.row - 1, loc.col - 1];
-    console.log(`Changing color of: ${row} - ${col} stone`);
+  const groupKey = JSON.stringify(toggle);
 
-    const stoneToColor = boards.main.querySelector(
-      `.stone[data-row="${row}"][data-col="${col}"]`
-    );
+  for (const loc of toggle) {
+    // checks if called from syncBoards(), so no toggle from the user happened
+    if (loc.row == 100) continue;
 
-    const color = stoneToColor.getAttribute("data-color");
+    const stoneToColor = getStoneToColor(loc);
     const currentFill = stoneToColor.getAttribute("fill");
 
     if (currentFill === "transparent") {
       delete groupsToRemove[groupKey];
+
+      const color = stoneToColor.getAttribute("data-color");
       stoneToColor.setAttribute("fill", color);
     } else {
-      groupsToRemove[groupKey] = group;
+      groupsToRemove[groupKey] = toggle;
+
       stoneToColor.setAttribute("fill", "transparent");
     }
   }
+
+  for (const group of selected) {
+    if (JSON.stringify(group) === JSON.stringify(toggle)) continue;
+
+    for (const loc of group) {
+      const stone = getStoneToColor(loc);
+      stone.setAttribute("fill", "transparent");
+    }
+  }
+}
+
+function getStoneToColor(loc) {
+  const [row, col] = [loc.row - 1, loc.col - 1];
+
+  return boards.main.querySelector(
+    `.stone[data-row="${row}"][data-col="${col}"]`,
+  );
 }

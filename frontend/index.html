@@ -30,6 +30,7 @@
         >
           Join Game
         </button>
+        <button id="games-button" class="button">Watch Games</button>
       </div>
     </div>
     <script type="module">
@@ -76,6 +77,13 @@
             console.error("Error:", error);
           }
         });
+
+        document
+            .getElementById("games-button")
+            .addEventListener("click", async () => {
+            window.location.href = "games.html";
+
+            })
     </script>
   </body>
 </html>
