@@ -467,3 +467,9 @@ export async function expectTurnPOM(pages: PagesPOM, turn: string) {
   await expect(turnWhite).toHaveText(`Turn: ${turn}`);
   await expect(turnSpectator).toHaveText(`Turn: ${turn}`);
 }
+
+export async function transformPlayerIntoSpectator(
+  playerPage: PlayerPage,
+): Promise<SpectatorPage> {
+  return new SpectatorPage(playerPage.page);
+}

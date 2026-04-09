@@ -456,8 +456,10 @@ test.describe("Passing", () => {
 
     await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
-    const blackSpectator = new SpectatorPage(blackPlayer.page);
-    const whiteSpectator = new SpectatorPage(whitePlayer.page);
+    const blackSpectator =
+      await helpers.transformPlayerIntoSpectator(blackPlayer);
+    const whiteSpectator =
+      await helpers.transformPlayerIntoSpectator(whitePlayer);
 
     await helpers.verifyPlayerIsOnMainPagePOM(
       blackSpectator,
