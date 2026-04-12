@@ -455,18 +455,12 @@ test.describe("Passing", () => {
 
     await helpers.boardRefreshPOM(blackPlayer, whitePlayer);
 
-    // TODO: investigate if possible (and feasible) to not have to create new variables, but transform playerPage -> spectatorPage in place
-    const blackSpectator =
-      await helpers.transformPlayerIntoSpectator(blackPlayer);
-    const whiteSpectator =
-      await helpers.transformPlayerIntoSpectator(whitePlayer);
-
     await helpers.verifyPlayerIsOnMainPagePOM(
-      blackSpectator,
+      blackPlayer,
       (await helpers.getSessionToken(blackPlayer.page))!,
     );
     await helpers.verifyPlayerIsOnMainPagePOM(
-      whiteSpectator,
+      whitePlayer,
       (await helpers.getSessionToken(whitePlayer.page))!,
     );
 
