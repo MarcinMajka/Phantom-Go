@@ -293,6 +293,7 @@ function syncBoards() {
         frontend_board_generation_number: boardGenerationNumber,
       }),
     }).then((data) => {
+      // TODO: Bug - Samsung S9+, Chrome, alert didn't fire and location didn't change after a few seconds and even a refresh
       if (data.rejoin_required) {
         alert("Game data lost. Please rejoin via login page :)");
         setTimeout(() => {
