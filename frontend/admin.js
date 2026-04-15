@@ -1,5 +1,10 @@
 import { createButton } from "./UI.js";
-import { getAPIUrl } from "./utils.js";
+import { getGamesList } from "./handlers.js";
+import {
+  fetchWithErrorHandling,
+  getAPIUrl,
+  getPlayerSessionToken,
+} from "./utils.js";
 
 console.log("You opened the Admin Panel!");
 // Detect if running locally and set API URL accordingly
@@ -28,6 +33,64 @@ const resetButton = createButton("admin-button", "Reset backend memory", () => {
     });
 });
 
-
-
 document.getElementById("admin-panel").appendChild(resetButton);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const games = await getGamesList();document.addEventListener("DOMContentLoaded", async () => {
+    const games = await getGamesList();
+  
+    const gamesPanel = document.getElementById("games-panel");
+    const ul = document.createElement("ul");
+    gamesPanel.append(ul);
+  
+    for (const game of games) {
+      const li = document.createElement("li");
+      li.textContent = game;
+      li.onclick = () => {
+        fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            match_string: game,
+            session_token: getPlayerSessionToken(),
+          }),
+        }).then((data) => {
+          console.log(data);
+          const href = data.redirect_url + data.session_token;
+          console.log(href);
+          window.location.href = href;
+        });
+      };
+      ul.appendChild(li);
+    }
+  })
+
+  const gamesPanel = document.getElementById("games-panel");
+  const ul = document.createElement("ul");
+  gamesPanel.append(ul);
+
+  for (const game of games) {
+    const li = document.createElement("li");
+    li.textContent = game;
+    li.onclick = () => {
+      fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          match_string: game,
+          session_token: getPlayerSessionToken(),
+        }),
+      }).then((data) => {
+        console.log(data);
+        const href = data.redirect_url + data.session_token;
+        console.log(href);
+        window.location.href = href;
+      });
+    };
+    ul.appendChild(li);
+  }
+});
