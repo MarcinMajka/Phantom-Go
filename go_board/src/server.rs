@@ -993,6 +993,7 @@ struct ValidateSpectatorPayload {
 // opening a game as a spectator actually owns a seat in that game.
 // Returns same shape as `JoinGameResponse` so the frontend can decide where to
 // navigate (`main.html` for spectators or the player's specific board page).
+// TODO: think about architecture here: why not GET? make another handler for admin?
 #[handler]
 async fn validate_spectator_open(
     payload: Json<ValidateSpectatorPayload>,
