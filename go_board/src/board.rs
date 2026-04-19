@@ -3,6 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::time::SystemTime;
 use std::{io, usize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -226,6 +227,7 @@ pub struct Board {
     white_captures: isize,
     winner: Option<GameResult>,
     // TODO: last move timestamp for admin to find inactive games
+    last_move_timestamp: SystemTime,
 }
 
 impl Board {
@@ -246,6 +248,7 @@ impl Board {
             black_captures: 0,
             white_captures: 0,
             winner: None,
+            last_move_timestamp: SystemTime::now(),
         };
         // Setting up sentinels in rows
         for i in 0..cols {
@@ -566,6 +569,9 @@ impl Board {
     #[allow(dead_code)]
     pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
+            self.last_move_timestamp = SystemTime::now();
+            println!("{:?}", self.last_move_timestamp);
+
             let old_groups_in_atari = self.groups_in_atari.clone();
 
             self.unsafe_play(mv);
