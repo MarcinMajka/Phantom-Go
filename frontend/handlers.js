@@ -246,10 +246,7 @@ export async function getGamesListAdmin() {
       }
       return response.json();
     })
-    .then((data) => {
-      console.log("getGamesListAdmin()");
-      console.log(data);
-    })
+    .then((data) => data)
     .catch((error) => {
       console.error("Error during loading games list:", error);
     });

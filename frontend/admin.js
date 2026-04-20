@@ -44,7 +44,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   for (const game of games) {
     const li = document.createElement("li");
-    li.textContent = game;
+    const matchString = game.match_string;
+    const lastMoveSinceMinutes = Math.floor(game.last_move_time_elapsed / 60);
+    li.textContent = `Game: ${matchString} - Last move: ${lastMoveSinceMinutes} minutes ago.`;
+
     li.onclick = () => {
       fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
         method: "POST",
