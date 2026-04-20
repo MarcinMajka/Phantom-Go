@@ -1082,6 +1082,41 @@ fn get_all_games() -> Result<Json<Vec<String>>, Error> {
     Ok(Json(match_strings))
 }
 
+#[derive(Debug, Serialize)]
+struct GameInfoAdmin {
+    match_string: String,
+    last_move_time_elapsed: usize,
+}
+
+#[handler]
+fn get_all_games_admin() -> Result<Json<Vec<GameInfoAdmin>>, Error> {
+    let rooms = lock_rooms()?;
+
+    let mut games_info: Vec<GameInfoAdmin> = vec![];
+    for match_string in rooms.keys() {
+        let match_string = match_string.clone();
+        let last_move_time_elapsed = rooms
+            .get(match_string.as_str())
+            .unwrap()
+            .board
+            .last_move_timestamp
+            .elapsed()
+            .unwrap()
+            .as_secs() as usize;
+
+        let game_info = GameInfoAdmin {
+            match_string,
+            last_move_time_elapsed,
+        };
+
+        println!("{:?}", game_info);
+
+        games_info.push(game_info);
+    }
+
+    Ok(Json(games_info))
+}
+
 #[handler]
 async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<String, Error> {
     let mut rooms = lock_rooms()?;
@@ -1159,6 +1194,7 @@ pub async fn start_server() -> Result<(), std::io::Error> {
         .at("/resign", poem::post(handle_resignation))
         .at("/reset-memory", poem::post(reset_memory))
         .at("/get-all-games", poem::post(get_all_games))
+        .at("/get-all-games-admin", poem::post(get_all_games_admin))
         .at("/get-game-record", poem::post(send_game_record))
         .at("/validate-spectator", poem::post(validate_spectator_open))
         .at("/", poem::get(index))

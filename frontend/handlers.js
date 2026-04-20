@@ -231,3 +231,26 @@ export async function getGamesList() {
       console.error("Error during loading games list:", error);
     });
 }
+
+export async function getGamesListAdmin() {
+  console.log("admin stuff ran");
+  return fetch(`${API_URL}/get-all-games-admin`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("getGamesListAdmin()");
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error("Error during loading games list:", error);
+    });
+}

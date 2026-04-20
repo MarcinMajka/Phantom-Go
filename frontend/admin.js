@@ -1,5 +1,5 @@
 import { createButton } from "./UI.js";
-import { getGamesList } from "./handlers.js";
+import { getGamesList, getGamesListAdmin } from "./handlers.js";
 import {
   fetchWithErrorHandling,
   getAPIUrl,
@@ -36,7 +36,7 @@ const resetButton = createButton("admin-button", "Reset backend memory", () => {
 document.getElementById("admin-panel").appendChild(resetButton);
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const games = await getGamesList();
+  const games = await getGamesListAdmin();
 
   const gamesPanel = document.getElementById("games-panel");
   const ul = document.createElement("ul");
