@@ -45,8 +45,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   for (const game of games) {
     const li = document.createElement("li");
     const matchString = game.match_string;
-    const lastMoveSinceMinutes = Math.floor(game.last_move_time_elapsed / 60);
-    li.textContent = `Game: ${matchString} - Last move: ${lastMoveSinceMinutes} minutes ago.`;
+    const lastMoveSinceDays = Math.floor(game.last_move_time_elapsed / 86400);
+    const lastMoveSinceHours = Math.floor(
+      (game.last_move_time_elapsed % 86400) / 3600,
+    );
+    const lastMoveSinceMinutes = Math.floor(
+      (game.last_move_time_elapsed % 3600) / 60,
+    );
+    const lastMoveSinceSeconds = game.last_move_time_elapsed % 60;
+    li.textContent = `Game: ${matchString} Last move: ${lastMoveSinceDays} days, ${lastMoveSinceHours} hours, ${lastMoveSinceMinutes} minutes, ${lastMoveSinceSeconds} seconds ago.`;
 
     li.onclick = () => {
       fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
