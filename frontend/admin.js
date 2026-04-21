@@ -44,17 +44,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   for (const game of games) {
     const li = document.createElement("li");
-    const matchString = game.match_string;
-    const lastMoveSinceDays = Math.floor(game.last_move_time_elapsed / 86400);
-    const lastMoveSinceHours = Math.floor(
-      (game.last_move_time_elapsed % 86400) / 3600,
-    );
-    const lastMoveSinceMinutes = Math.floor(
-      (game.last_move_time_elapsed % 3600) / 60,
-    );
-    const lastMoveSinceSeconds = game.last_move_time_elapsed % 60;
-    li.textContent = `Game: ${matchString} Last move: ${lastMoveSinceDays} days, ${lastMoveSinceHours} hours, ${lastMoveSinceMinutes} minutes, ${lastMoveSinceSeconds} seconds ago.`;
 
+    const elapsed = game.last_move_time_elapsed;
+
+    const days = Math.floor(elapsed / 86400);
+    const hours = Math.floor((elapsed % 86400) / 3600);
+    const minutes = Math.floor((elapsed % 3600) / 60);
+    const seconds = elapsed % 60;
+
+    const parts = [];
+
+    if (days) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+    if (hours) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+    if (minutes) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+    parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+
+    li.textContent = `Game: ${game.match_string} - Last move: ${parts.join(", ")} ago.`;
     li.onclick = () => {
       fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
         method: "POST",
