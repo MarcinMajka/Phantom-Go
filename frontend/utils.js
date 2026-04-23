@@ -229,3 +229,19 @@ export function getPlayerSessionToken() {
 export function navigateToMainBoard() {
   window.location.href = "/frontend/main.html?match=" + getMatchString();
 }
+
+export function getElapsedTimeString(elapsed) {
+  const days = Math.floor(elapsed / 86400);
+  const hours = Math.floor((elapsed % 86400) / 3600);
+  const minutes = Math.floor((elapsed % 3600) / 60);
+  const seconds = elapsed % 60;
+
+  const parts = [];
+
+  if (days) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+  if (hours) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+  if (minutes) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+  parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+
+  return parts;
+}

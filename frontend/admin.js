@@ -1,5 +1,6 @@
 import { createButton } from "./UI.js";
 import { getGamesList, getGamesListAdmin } from "./handlers.js";
+import { getElapsedTimeString } from "./utils.js";
 import {
   fetchWithErrorHandling,
   getAPIUrl,
@@ -45,21 +46,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   for (const game of games) {
     const li = document.createElement("li");
 
-    const elapsed = game.last_move_time_elapsed;
+    const elapsedText = getElapsedTimeString(game.last_move_time_elapsed);
 
-    const days = Math.floor(elapsed / 86400);
-    const hours = Math.floor((elapsed % 86400) / 3600);
-    const minutes = Math.floor((elapsed % 3600) / 60);
-    const seconds = elapsed % 60;
-
-    const parts = [];
-
-    if (days) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
-    if (hours) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
-    if (minutes) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
-    parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
-
-    li.textContent = `Game: ${game.match_string} - Last move: ${parts.join(", ")} ago.`;
+    li.textContent = `Game: ${game.match_string} - Last move: ${elapsedText.join(", ")} ago.`;
     li.onclick = () => {
       fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
         method: "POST",
