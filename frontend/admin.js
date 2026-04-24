@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          match_string: game,
+          match_string: game.match_string,
           session_token: getPlayerSessionToken(),
         }),
       }).then((data) => {
