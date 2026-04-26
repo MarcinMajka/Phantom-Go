@@ -251,3 +251,25 @@ export async function getGamesListAdmin() {
       console.error("Error during loading games list:", error);
     });
 }
+
+// TODO: update admin.js to facilitate #remove-game-button - righ now it's a list, so probably make it div and make a function for returning a div node with matchString, elapsedTime and this button
+export async function removeGame(matchString) {
+  console.log("Removing game: " + matchString);
+  return fetch(`${API_URL}/remove-game`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      } else {
+        console.log(`Game ${matchString} remove successfully`);
+      }
+    })
+    .catch((error) => {
+      console.error("Error resetting backend memory:", error);
+      alert("Error resetting backend memory.");
+    });
+}
