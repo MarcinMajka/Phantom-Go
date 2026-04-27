@@ -245,3 +245,19 @@ export function getElapsedTimeString(elapsed) {
 
   return parts;
 }
+
+export function createAdminGamesListNode(leftText, middleText, actionText) {
+  const container = document.createElement("div");
+
+  const leftDiv = document.createElement("div");
+  leftDiv.textContent = leftText;
+
+  const middleDiv = document.createElement("div");
+  middleDiv.textContent = middleText;
+
+  const actionDiv = document.createElement("div");
+  actionDiv.textContent = actionText;
+
+  container.append(leftDiv, middleDiv, actionDiv);
+  return container;
+}
