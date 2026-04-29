@@ -234,3 +234,14 @@ svg {
 li:hover {
   color: #f2a65a;
 }
+
+#games-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-game-record {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around
+}

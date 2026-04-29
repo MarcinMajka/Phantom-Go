@@ -248,6 +248,7 @@ export function getElapsedTimeString(elapsed) {
 
 export function createAdminGamesListNode(leftText, middleText, actionText) {
   const container = document.createElement("div");
+  container.className = "admin-game-record";
 
   const leftDiv = document.createElement("div");
   leftDiv.textContent = leftText;
