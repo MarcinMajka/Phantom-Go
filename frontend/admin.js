@@ -69,5 +69,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     };
     ul.appendChild(li);
+    gamesPanel.appendChild(g);
   }
 });
