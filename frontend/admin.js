@@ -1,6 +1,6 @@
 import { createButton } from "./UI.js";
 import { getGamesList, getGamesListAdmin } from "./handlers.js";
-import { createAdminGamesListNode, getElapsedTimeString } from "./utils.js";
+import { createAdminGamesListNode, getElapsedTimeArray } from "./utils.js";
 import {
   fetchWithErrorHandling,
   getAPIUrl,
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log(g);
     const li = document.createElement("li");
 
-    const elapsedText = getElapsedTimeString(game.last_move_time_elapsed);
+    const elapsedText = getElapsedTimeArray(game.last_move_time_elapsed);
 
     li.textContent = `Game: ${game.match_string} - Last move: ${elapsedText.join(", ")} ago.`;
     li.onclick = () => {

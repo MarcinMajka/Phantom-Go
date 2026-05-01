@@ -230,7 +230,7 @@ export function navigateToMainBoard() {
   window.location.href = "/frontend/main.html?match=" + getMatchString();
 }
 
-export function getElapsedTimeString(elapsed) {
+export function getElapsedTimeArray(elapsed) {
   const days = Math.floor(elapsed / 86400);
   const hours = Math.floor((elapsed % 86400) / 3600);
   const minutes = Math.floor((elapsed % 3600) / 60);
