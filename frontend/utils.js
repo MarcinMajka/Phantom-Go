@@ -254,7 +254,8 @@ export function createAdminGamesListNode(leftText, middleText, actionText) {
   leftDiv.textContent = leftText;
 
   const middleDiv = document.createElement("div");
-  middleDiv.textContent = middleText;
+  const elapsed = getElapsedTimeArray(middleText);
+  middleDiv.textContent = `Last move: ${elapsed.join(", ")} ago`;
 
   const actionDiv = document.createElement("div");
   actionDiv.textContent = actionText;
