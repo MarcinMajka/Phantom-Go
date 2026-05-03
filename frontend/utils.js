@@ -247,11 +247,30 @@ export function getElapsedTimeArray(elapsed) {
 }
 
 export function createAdminGamesListNode(leftText, middleText, actionText) {
+  const API_URL = getAPIUrl();
+
   const container = document.createElement("div");
   container.className = "admin-game-record";
 
   const leftDiv = document.createElement("div");
   leftDiv.textContent = leftText;
+  leftDiv.onclick = () => {
+    fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        match_string: leftText,
+        session_token: getPlayerSessionToken(),
+      }),
+    }).then((data) => {
+      console.log(data);
+      const href = data.redirect_url + data.session_token;
+      console.log(href);
+      window.location.href = href;
+    });
+  };
 
   const middleDiv = document.createElement("div");
   const elapsed = getElapsedTimeArray(middleText);
