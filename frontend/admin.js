@@ -44,7 +44,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   gamesPanel.append(ul);
 
   for (const game of games) {
-    const g = createAdminGamesListNode(...Object.values(game));
+    const g = createAdminGamesListNode(
+      game.match_string,
+      game.last_move_time_elapsed,
+      "DELETE",
+    );
     console.log(g);
     const li = document.createElement("li");
 
