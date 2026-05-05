@@ -1076,12 +1076,14 @@ async fn reset_memory() {
 }
 
 #[handler]
-async fn remove_game(match_string: String) {
+async fn remove_game(payload: Json<MatchStringPayload>) -> Result<Json<String>, Error> {
     let mut rooms = GAME_ROOMS.lock().unwrap();
-    rooms.remove(&match_string);
+    rooms.remove(&payload.match_string);
 
     let mut guess_stones = GUESS_STONES.lock().unwrap();
-    guess_stones.remove(&match_string);
+    guess_stones.remove(&payload.match_string);
+
+    Ok(Json("Game removed".to_string()))
 }
 
 #[handler]

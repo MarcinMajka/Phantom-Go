@@ -278,6 +278,19 @@ export function createAdminGamesListNode(leftText, middleText, actionText) {
 
   const actionDiv = document.createElement("div");
   actionDiv.textContent = actionText;
+  actionDiv.onclick = () => {
+    fetchWithErrorHandling(`${API_URL}/remove-game`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        match_string: leftText,
+      }),
+    }).then((data) => {
+      console.log(data);
+    });
+  };
 
   container.append(leftDiv, middleDiv, actionDiv);
   return container;
