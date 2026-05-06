@@ -40,8 +40,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const games = await getGamesListAdmin();
 
   const gamesPanel = document.getElementById("games-panel");
-  const ul = document.createElement("ul");
-  gamesPanel.append(ul);
 
   for (const game of games) {
     const g = createAdminGamesListNode(
@@ -50,29 +48,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       "DELETE",
     );
     console.log(g);
-    const li = document.createElement("li");
-
-    const elapsedText = getElapsedTimeArray(game.last_move_time_elapsed);
-
-    li.textContent = `Game: ${game.match_string} - Last move: ${elapsedText.join(", ")} ago.`;
-    li.onclick = () => {
-      fetchWithErrorHandling(`${API_URL}/validate-spectator`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          match_string: game.match_string,
-          session_token: getPlayerSessionToken(),
-        }),
-      }).then((data) => {
-        console.log(data);
-        const href = data.redirect_url + data.session_token;
-        console.log(href);
-        window.location.href = href;
-      });
-    };
-    ul.appendChild(li);
     gamesPanel.appendChild(g);
   }
 });
