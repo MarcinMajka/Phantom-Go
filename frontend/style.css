@@ -238,10 +238,26 @@ li:hover {
 #games-panel {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 .admin-game-record {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around
+  display: grid;
+  grid-template-columns: 1.8fr 1.8fr auto;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.admin-game-record > div {
+  min-width: 0;
+}
+
+.admin-game-record > div:nth-child(1),
+.admin-game-record > div:nth-child(2) {
+  text-align: left;
+}
+
+.admin-game-record > div:nth-child(3) {
+  justify-self: end;
 }
