@@ -244,6 +244,7 @@ li:hover {
 .admin-game-record {
   display: grid;
   grid-template-columns: 1.8fr 1.8fr auto;
+  grid-auto-rows: auto;
   gap: 16px;
   align-items: center;
   width: 100%;
@@ -256,6 +257,8 @@ li:hover {
 .admin-game-record > div:nth-child(1),
 .admin-game-record > div:nth-child(2) {
   text-align: left;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .admin-game-record > div:nth-child(3) {
