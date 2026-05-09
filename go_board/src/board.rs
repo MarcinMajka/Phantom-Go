@@ -570,7 +570,6 @@ impl Board {
     pub fn play(&mut self, mv: &Move) {
         if self.move_is_valid(mv) {
             self.last_move_timestamp = SystemTime::now();
-            println!("{:?}", self.last_move_timestamp);
 
             let old_groups_in_atari = self.groups_in_atari.clone();
 

@@ -12,7 +12,7 @@ console.log("You opened the Admin Panel!");
 const API_URL = getAPIUrl();
 
 // TODO: investigate how to make this panel password protected
-// TODO: show list of active games, with additional info (game status + time elapsed from last move)
+// TODO: show list of active games, with game status
 
 const resetButton = createButton("admin-button", "Reset backend memory", () => {
   fetch(`${API_URL}/reset-memory`, {

@@ -252,7 +252,6 @@ export async function getGamesListAdmin() {
     });
 }
 
-// TODO: update admin.js to facilitate #remove-game-button - righ now it's a list, so probably make it div and make a function for returning a div node with matchString, elapsedTime and this button
 export async function removeGame(matchString) {
   console.log("Removing game: " + matchString);
   return fetch(`${API_URL}/remove-game`, {
