@@ -288,7 +288,8 @@ export function createAdminGamesListNode(leftText, middleText, actionText) {
         match_string: leftText,
       }),
     }).then((data) => {
-      console.log(data);
+      alert(`Game ${leftText} has been successfully removed from database :)`);
+      window.location.reload();
     });
   };
 
