@@ -671,6 +671,14 @@ test.describe("Guess stones", () => {
   });
 });
 
+test.describe("Admin page", () => {
+  // TODO: 1. verify #admin-button functionality
+  // TODO: 2. verify active games list displays all active games
+  // TODO: 3. verify active games list displays fields
+  // TODO: 4. verify active games list DELETE button functionality
+  // TODO: 5. verify active games list matchID click navigates to the game
+});
+
 test.describe("Throttling", () => {
   test.beforeEach(async ({ page }) => {
     await helpers.startGameWithRandomID(page);
