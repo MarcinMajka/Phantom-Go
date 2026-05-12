@@ -672,6 +672,12 @@ test.describe("Guess stones", () => {
 });
 
 test.describe("Admin page", () => {
+  test("Open admin page and verify #admin-button visibility", async ({
+    page,
+  }) => {
+    await page.goto("/frontend/admin.html");
+    await expect(page.locator("#admin-button")).toBeVisible();
+  });
   // TODO: 1. verify #admin-button functionality
   // TODO: 2. verify active games list displays all active games
   // TODO: 3. verify active games list displays fields
