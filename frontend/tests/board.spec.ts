@@ -678,7 +678,26 @@ test.describe("Admin page", () => {
     await page.goto("/frontend/admin.html");
     await expect(page.locator("#admin-button")).toBeVisible();
   });
+
   // TODO: 1. verify #admin-button functionality
+  test("Verify #admin-button functionality", async ({ browser }) => {
+    const matchStrings = [];
+    for (let i = 0; i < 5; i++) {
+      const p = await browser.newPage();
+      const { matchString } = await helpers.startGameWithRandomID(p);
+      matchStrings.push(matchString);
+    }
+
+    const adminPage = await browser.newPage();
+    await adminPage.goto("/frontend/admin.html");
+
+    for (const ms of matchStrings) {
+      await expect(
+        adminPage.locator("#games-panel").getByText(ms),
+      ).toBeVisible();
+    }
+  });
+
   // TODO: 2. verify active games list displays all active games
   // TODO: 3. verify active games list displays fields
   // TODO: 4. verify active games list DELETE button functionality
