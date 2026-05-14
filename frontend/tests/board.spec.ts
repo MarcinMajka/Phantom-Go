@@ -679,8 +679,7 @@ test.describe("Admin page", () => {
     await expect(page.locator("#admin-button")).toBeVisible();
   });
 
-  // TODO: 1. verify #admin-button functionality
-  test("Verify #admin-button functionality", async ({ browser }) => {
+  test("Reset backend memory", async ({ browser }) => {
     const matchStrings = [];
     for (let i = 0; i < 5; i++) {
       const p = await browser.newPage();
@@ -696,9 +695,17 @@ test.describe("Admin page", () => {
         adminPage.locator("#games-panel").getByText(ms),
       ).toBeVisible();
     }
-  });
 
-  // TODO: 2. verify active games list displays all active games
+    const adminButton = adminPage.locator("#admin-button");
+    await adminButton.click();
+    await adminPage.reload();
+
+    for (const ms of matchStrings) {
+      await expect(
+        adminPage.locator("#games-panel").getByText(ms),
+      ).not.toBeVisible();
+    }
+  });
   // TODO: 3. verify active games list displays fields
   // TODO: 4. verify active games list DELETE button functionality
   // TODO: 5. verify active games list matchID click navigates to the game
