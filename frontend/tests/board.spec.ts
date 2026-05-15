@@ -706,8 +706,45 @@ test.describe("Admin page", () => {
       ).not.toBeVisible();
     }
   });
+
+  test("DELETE button functionality", async ({ browser }) => {
+    const matchStrings = [];
+    for (let i = 0; i < 5; i++) {
+      const p = await browser.newPage();
+      const { matchString } = await helpers.startGameWithRandomID(p);
+      matchStrings.push(matchString);
+    }
+
+    const adminPage = await browser.newPage();
+    await adminPage.goto("/frontend/admin.html");
+
+    for (const ms of matchStrings) {
+      await expect(
+        adminPage.locator("#games-panel").getByText(ms),
+      ).toBeVisible();
+    }
+
+    for (const matchStringToDelete of matchStrings) {
+      const gameRecord = adminPage
+        .locator(".admin-game-record")
+        .filter({ has: adminPage.locator("text=" + matchStringToDelete) });
+
+      await expect(gameRecord).toBeVisible();
+
+      const deleteButton = gameRecord.getByText("DELETE");
+      await deleteButton.click();
+
+      await expect(gameRecord).not.toBeVisible();
+
+      await adminPage.reload();
+
+      await expect(
+        adminPage.locator("#games-panel").getByText(matchStringToDelete),
+      ).not.toBeVisible();
+    }
+  });
+
   // TODO: 3. verify active games list displays fields
-  // TODO: 4. verify active games list DELETE button functionality
   // TODO: 5. verify active games list matchID click navigates to the game
 });
 
