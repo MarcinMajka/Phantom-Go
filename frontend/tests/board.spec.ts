@@ -745,7 +745,24 @@ test.describe("Admin page", () => {
   });
 
   // TODO: 3. verify active games list displays fields
-  // TODO: 5. verify active games list matchID click navigates to the game
+
+  test("Clicking matchID navigates to correct spectator page", async ({
+    browser,
+  }) => {
+    const p = await browser.newPage();
+    const { matchString } = await helpers.startGameWithRandomID(p);
+
+    const adminPage = await browser.newPage();
+    await adminPage.goto("/frontend/admin.html");
+
+    const gameRecord = adminPage
+      .locator(".admin-game-record")
+      .filter({ has: adminPage.locator("text=" + matchString) });
+
+    await gameRecord.locator("text=" + matchString).click();
+
+    await helpers.verifySpectatorState(adminPage);
+  });
 });
 
 test.describe("Throttling", () => {
