@@ -745,6 +745,17 @@ test.describe("Admin page", () => {
   });
 
   // TODO: 3. verify active games list displays fields
+  test("Active games list fields", async ({ browser }) => {
+    const p = await browser.newPage();
+    const { matchString } = await helpers.startGameWithRandomID(p);
+
+    const adminPage = await browser.newPage();
+    await adminPage.goto("/frontend/admin.html");
+
+    const gameRecord = adminPage.locator(".admin-game-record");
+
+    // TODO: think how to best test all the time elapsed strings
+  });
 
   test("Clicking matchID navigates to correct spectator page", async ({
     browser,
