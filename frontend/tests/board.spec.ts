@@ -744,7 +744,7 @@ test.describe("Admin page", () => {
     }
   });
 
-  // TODO: 3. verify active games list displays fields
+  // Verifying 1 game record listing
   test("Active games list fields", async ({ browser }) => {
     const p = await browser.newPage();
     const { matchString } = await helpers.startGameWithRandomID(p);
@@ -752,9 +752,23 @@ test.describe("Admin page", () => {
     const adminPage = await browser.newPage();
     await adminPage.goto("/frontend/admin.html");
 
-    const gameRecord = adminPage.locator(".admin-game-record");
+    const gameRecord = adminPage
+      .locator(".admin-game-record")
+      .filter({ has: adminPage.locator("text=" + matchString) });
 
-    // TODO: think how to best test all the time elapsed strings
+    const matchIdDiv = gameRecord.filter({
+      has: adminPage.locator("text=" + matchString),
+    });
+    const timeElapsedDiv = gameRecord.filter({
+      has: adminPage.locator("text=seconds"),
+    });
+    const deleteButtonDiv = gameRecord.filter({
+      has: adminPage.locator("text=DELETE"),
+    });
+
+    await expect(matchIdDiv).toBeVisible();
+    await expect(timeElapsedDiv).toBeVisible();
+    await expect(deleteButtonDiv).toBeVisible();
   });
 
   test("Clicking matchID navigates to correct spectator page", async ({
