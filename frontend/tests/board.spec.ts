@@ -771,6 +771,8 @@ test.describe("Admin page", () => {
     await expect(deleteButtonDiv).toBeVisible();
   });
 
+  // TODO: Time elapsed variation test - day(s), hour(s), minute(s), second(s) - how to test this nicely?
+
   test("Clicking matchID navigates to correct spectator page", async ({
     browser,
   }) => {
