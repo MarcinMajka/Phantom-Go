@@ -756,19 +756,9 @@ test.describe("Admin page", () => {
       .locator(".admin-game-record")
       .filter({ has: adminPage.locator("text=" + matchString) });
 
-    const matchIdDiv = gameRecord.filter({
-      has: adminPage.locator("text=" + matchString),
-    });
-    const timeElapsedDiv = gameRecord.filter({
-      has: adminPage.locator("text=seconds"),
-    });
-    const deleteButtonDiv = gameRecord.filter({
-      has: adminPage.locator("text=DELETE"),
-    });
-
-    await expect(matchIdDiv).toBeVisible();
-    await expect(timeElapsedDiv).toBeVisible();
-    await expect(deleteButtonDiv).toBeVisible();
+    await expect(gameRecord).toBeVisible();
+    await expect(gameRecord.getByText("seconds")).toBeVisible();
+    await expect(gameRecord.getByText("DELETE")).toBeVisible();
   });
 
   // TODO: Time elapsed variation test - day(s), hour(s), minute(s), second(s) - how to test this nicely?
