@@ -727,7 +727,7 @@ test.describe("Admin page", () => {
     for (const matchStringToDelete of matchStrings) {
       const gameRecord = adminPage
         .locator(".admin-game-record")
-        .filter({ has: adminPage.locator("text=" + matchStringToDelete) });
+        .filter({ hasText: matchStringToDelete });
 
       await expect(gameRecord).toBeVisible();
 
@@ -754,7 +754,7 @@ test.describe("Admin page", () => {
 
     const gameRecord = adminPage
       .locator(".admin-game-record")
-      .filter({ has: adminPage.locator("text=" + matchString) });
+      .filter({ hasText: matchString });
 
     await expect(gameRecord).toBeVisible();
     await expect(gameRecord.getByText("seconds")).toBeVisible();
