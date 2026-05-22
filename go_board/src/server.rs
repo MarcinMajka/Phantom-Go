@@ -1125,6 +1125,7 @@ fn get_all_games_admin() -> Result<Json<Vec<GameInfoAdmin>>, Error> {
         games_info.push(game_info);
     }
 
+    games_info.sort_by_key(|g| g.last_move_time_elapsed);
     Ok(Json(games_info))
 }
 
