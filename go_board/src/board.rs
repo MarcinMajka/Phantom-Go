@@ -226,7 +226,6 @@ pub struct Board {
     black_captures: isize,
     white_captures: isize,
     winner: Option<GameResult>,
-    // TODO: last move timestamp for admin to find inactive games
     pub last_move_timestamp: SystemTime,
 }
 
