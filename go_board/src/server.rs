@@ -1129,6 +1129,22 @@ fn get_all_games_admin() -> Result<Json<Vec<GameInfoAdmin>>, Error> {
     Ok(Json(games_info))
 }
 
+fn format_elapsed(elapsed: usize) -> String {
+    let days = elapsed / 86400;
+    let hours = (elapsed % 86400) / 3600;
+    let minutes = (elapsed % 3600) / 60;
+    let seconds = elapsed % 60;
+
+    let mut parts: Vec<String> = vec![];
+
+    if days > 0 { parts.push(format!("{} {}", days, if days == 1 { "day" } else { "days" })); }
+    if hours > 0 { parts.push(format!("{} {}", hours, if hours == 1 { "hour" } else { "hours" })); }
+    if minutes > 0 { parts.push(format!("{} {}", minutes, if minutes == 1 { "minute" } else { "minutes" })); }
+    parts.push(format!("{} {}", seconds, if seconds == 1 { "second" } else { "seconds" }));
+
+    parts.join(", ")
+}
+
 #[handler]
 async fn send_game_record(payload: Json<MatchStringPayload>) -> Result<String, Error> {
     let mut rooms = lock_rooms()?;
