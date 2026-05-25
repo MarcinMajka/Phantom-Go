@@ -1097,6 +1097,7 @@ fn get_all_games() -> Result<Json<Vec<String>>, Error> {
 struct GameInfoAdmin {
     match_string: String,
     last_move_time_elapsed: usize,
+    last_move_string: String,
 }
 
 #[handler]
@@ -1115,9 +1116,11 @@ fn get_all_games_admin() -> Result<Json<Vec<GameInfoAdmin>>, Error> {
             .unwrap()
             .as_secs() as usize;
 
+        let last_move_string = format_elapsed(last_move_time_elapsed);
         let game_info = GameInfoAdmin {
             match_string,
             last_move_time_elapsed,
+            last_move_string,
         };
 
         println!("{:?}", game_info);
@@ -1137,10 +1140,32 @@ fn format_elapsed(elapsed: usize) -> String {
 
     let mut parts: Vec<String> = vec![];
 
-    if days > 0 { parts.push(format!("{} {}", days, if days == 1 { "day" } else { "days" })); }
-    if hours > 0 { parts.push(format!("{} {}", hours, if hours == 1 { "hour" } else { "hours" })); }
-    if minutes > 0 { parts.push(format!("{} {}", minutes, if minutes == 1 { "minute" } else { "minutes" })); }
-    parts.push(format!("{} {}", seconds, if seconds == 1 { "second" } else { "seconds" }));
+    if days > 0 {
+        parts.push(format!(
+            "{} {}",
+            days,
+            if days == 1 { "day" } else { "days" }
+        ));
+    }
+    if hours > 0 {
+        parts.push(format!(
+            "{} {}",
+            hours,
+            if hours == 1 { "hour" } else { "hours" }
+        ));
+    }
+    if minutes > 0 {
+        parts.push(format!(
+            "{} {}",
+            minutes,
+            if minutes == 1 { "minute" } else { "minutes" }
+        ));
+    }
+    parts.push(format!(
+        "{} {}",
+        seconds,
+        if seconds == 1 { "second" } else { "seconds" }
+    ));
 
     parts.join(", ")
 }
