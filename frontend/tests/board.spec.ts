@@ -707,6 +707,7 @@ test.describe("Admin page", () => {
     }
   });
 
+  // TODO: investigate why this test tends to fail when run in a batch, but passess on its own
   test("DELETE button functionality", async ({ browser }) => {
     const matchStrings = [];
     for (let i = 0; i < 5; i++) {
