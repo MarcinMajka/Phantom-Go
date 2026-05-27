@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   for (const game of games) {
     const g = createAdminGamesListNode(
       game.match_string,
-      game.last_move_time_elapsed,
+      game.last_move_string,
       "DELETE",
     );
     console.log(g);
