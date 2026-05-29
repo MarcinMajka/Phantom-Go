@@ -32,6 +32,27 @@ pub enum Player {
 }
 
 impl Player {
+    fn to_color(&self) -> Color {
+        match self {
+            Player::Black => Color::Black,
+            Player::White => Color::White,
+        }
+    }
+
+    pub fn opponent(self) -> Self {
+        match self {
+            Player::Black => Player::White,
+            Player::White => Player::Black,
+        }
+    }
+
+    pub fn to_string(self) -> String {
+        match self {
+            Player::Black => "black".to_string(),
+            Player::White => "white".to_string(),
+        }
+    }
+
     pub fn from_string(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "black" => Player::Black,
@@ -60,29 +81,6 @@ impl GameResult {
                 Player::Black => format!("White + R"),
                 Player::White => format!("Black + R"),
             },
-        }
-    }
-}
-
-impl Player {
-    fn to_color(&self) -> Color {
-        match self {
-            Player::Black => Color::Black,
-            Player::White => Color::White,
-        }
-    }
-
-    pub fn opponent(self) -> Self {
-        match self {
-            Player::Black => Player::White,
-            Player::White => Player::Black,
-        }
-    }
-
-    pub fn to_string(self) -> String {
-        match self {
-            Player::Black => "black".to_string(),
-            Player::White => "white".to_string(),
         }
     }
 }
