@@ -205,6 +205,8 @@ impl StonesInAtari {
     }
 }
 
+pub struct Goban(pub Vec<Vec<Color>>);
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
