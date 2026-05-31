@@ -207,6 +207,12 @@ impl StonesInAtari {
 
 pub struct Goban(pub Vec<Vec<Color>>);
 
+impl Goban {
+    pub fn new(size: usize) -> Self {
+        Goban(vec![vec![Color::Empty; size]; size])
+    }
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
