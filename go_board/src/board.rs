@@ -3,6 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::ops::Index;
 use std::time::SystemTime;
 use std::{io, usize};
 
@@ -210,6 +211,14 @@ pub struct Goban(pub Vec<Vec<Color>>);
 impl Goban {
     pub fn new(size: usize) -> Self {
         Goban(vec![vec![Color::Empty; size]; size])
+    }
+}
+
+// Allows using [] directly on Goban instead of goban.0[i]
+impl Index<usize> for Goban {
+    type Output = Vec<Color>;
+    fn index(&self, i: usize) -> &Self::Output {
+        &self.0[i]
     }
 }
 
