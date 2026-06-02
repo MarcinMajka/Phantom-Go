@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 use std::time::SystemTime;
 use std::{io, usize};
 
@@ -219,6 +219,13 @@ impl Index<usize> for Goban {
     type Output = Vec<Color>;
     fn index(&self, i: usize) -> &Self::Output {
         &self.0[i]
+    }
+}
+
+// Allows assigning on Goban, like goban[i] = ...
+impl IndexMut<usize> for Goban {
+    fn index_mut(&mut self, i: usize) -> &mut Self::Output {
+        &mut self.0[i]
     }
 }
 
