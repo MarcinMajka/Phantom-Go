@@ -206,6 +206,7 @@ impl StonesInAtari {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Goban(pub Vec<Vec<Color>>);
 
 impl Goban {
@@ -232,13 +233,13 @@ impl IndexMut<usize> for Goban {
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
-    pub fields: Vec<Vec<Color>>,
+    pub fields: Goban,
     // TODO: improve the snapshot logic
-    // make a Vec<HashSet<Vec<Vec<Color>>>> and count the occurences of each snapshot each time, or
-    // HashMap<Vec<Vec<Color>>, usize> and store the number of occurences of each snapshot
-    snapshots: HashSet<Vec<Vec<Color>>>,
-    repeated_snapshots: HashSet<Vec<Vec<Color>>>,
-    snapshot_history: Vec<Vec<Vec<Color>>>,
+    // make a Vec<HashSet<Goban>> and count the occurences of each snapshot each time, or
+    // HashMap<Goban, usize> and store the number of occurences of each snapshot
+    snapshots: HashSet<Goban>,
+    repeated_snapshots: HashSet<Goban>,
+    snapshot_history: Vec<Goban>,
     pub groups_in_atari: GroupsInAtari,
     pub new_groups_in_atari: GroupsInAtari,
     pub stones_in_atari: StonesInAtari,
@@ -256,7 +257,7 @@ impl Board {
         // Initializing an empty board
         let mut board = Board {
             board_size: BoardSize { rows, cols },
-            fields: vec![vec![Color::Empty; cols]; rows],
+            fields: Goban(vec![vec![Color::Empty; cols]; rows]),
             snapshots: HashSet::new(),
             repeated_snapshots: HashSet::new(),
             snapshot_history: vec![],
