@@ -230,6 +230,16 @@ impl IndexMut<usize> for Goban {
     }
 }
 
+// Allows iteration over owned Goban
+impl IntoIterator for Goban {
+    type Item = Vec<Color>;
+    type IntoIter = std::vec::IntoIter<Vec<Color>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Board {
     board_size: BoardSize,
