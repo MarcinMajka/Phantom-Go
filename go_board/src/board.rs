@@ -230,6 +230,16 @@ impl IndexMut<usize> for Goban {
     }
 }
 
+// Allows iteration over &Goban
+impl<'a> IntoIterator for &'a Goban {
+    type Item = &'a Vec<Color>;
+    type IntoIter = std::slice::Iter<'a, Vec<Color>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
 // Allows iteration over owned Goban
 impl IntoIterator for Goban {
     type Item = Vec<Color>;
