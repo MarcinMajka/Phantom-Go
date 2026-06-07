@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::ops::{Deref, Index, IndexMut};
+use std::ops::{Deref, DerefMut, Index, IndexMut};
 use std::time::SystemTime;
 use std::{io, usize};
 
@@ -235,6 +235,13 @@ impl Deref for Goban {
     type Target = Vec<Vec<Color>>;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+// Allows mutable operations on Goban through deref
+impl DerefMut for Goban {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
