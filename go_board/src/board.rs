@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::ops::{Index, IndexMut};
+use std::ops::{Deref, Index, IndexMut};
 use std::time::SystemTime;
 use std::{io, usize};
 
@@ -227,6 +227,14 @@ impl Index<usize> for Goban {
 impl IndexMut<usize> for Goban {
     fn index_mut(&mut self, i: usize) -> &mut Self::Output {
         &mut self.0[i]
+    }
+}
+
+// Allows Goban to be dereferenced to Vec<Vec<Color>> for transparent access
+impl Deref for Goban {
+    type Target = Vec<Vec<Color>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
