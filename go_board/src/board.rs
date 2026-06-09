@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use std::ops::{Deref, DerefMut, Index, IndexMut, RangeInclusive};
 use std::time::SystemTime;
 use std::{io, usize};
 
@@ -242,6 +242,14 @@ impl Deref for Goban {
 impl DerefMut for Goban {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+// Allows range indexing on Goban, like goban[1..=rows]
+impl Index<RangeInclusive<usize>> for Goban {
+    type Output = [Vec<Color>];
+    fn index(&self, range: RangeInclusive<usize>) -> &Self::Output {
+        &self.0[range]
     }
 }
 
