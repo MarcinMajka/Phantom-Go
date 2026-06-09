@@ -253,6 +253,13 @@ impl Index<RangeInclusive<usize>> for Goban {
     }
 }
 
+// Allows mutable range indexing on Goban
+impl IndexMut<RangeInclusive<usize>> for Goban {
+    fn index_mut(&mut self, range: RangeInclusive<usize>) -> &mut Self::Output {
+        &mut self.0[range]
+    }
+}
+
 // Allows iteration over &Goban
 impl<'a> IntoIterator for &'a Goban {
     type Item = &'a Vec<Color>;
