@@ -502,6 +502,23 @@ test.describe("Counting", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
+  test("Spectator can see counting controls on the main board", async ({
+    browser,
+  }) => {
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
+
+    await pages.black.passButton.click();
+    await pages.white.passButton.click();
+
+    await pages.spectator.waitForTimeout(1000);
+
+    await expect(pages.spectator.playerTitle).toHaveCount(0);
+    await expect(pages.spectator.locator("#count-score-button")).toBeVisible();
+    await expect(pages.spectator.locator("#ready-to-count-container")).toBeVisible();
+
+    await helpers.closeContextsPOM(...Object.values(pages));
+  });
+
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
