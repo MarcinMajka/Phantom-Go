@@ -514,7 +514,9 @@ test.describe("Counting", () => {
 
     await expect(pages.spectator.playerTitle).toHaveCount(0);
     await expect(pages.spectator.locator("#count-score-button")).toBeVisible();
-    await expect(pages.spectator.locator("#ready-to-count-container")).toBeVisible();
+    await expect(
+      pages.spectator.locator("#ready-to-count-container"),
+    ).toBeVisible();
 
     await helpers.closeContextsPOM(...Object.values(pages));
   });
