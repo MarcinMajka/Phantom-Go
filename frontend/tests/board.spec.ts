@@ -502,6 +502,26 @@ test.describe("Counting", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
+  test("Count score button appears only after both players pass", async ({
+    browser,
+  }) => {
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
+
+    await expect(pages.black.locator("#count-score-button")).not.toBeVisible();
+    await expect(pages.white.locator("#count-score-button")).not.toBeVisible();
+
+    await pages.black.passButton.click();
+    await expect(pages.black.locator("#count-score-button")).not.toBeVisible();
+    await expect(pages.white.locator("#count-score-button")).not.toBeVisible();
+
+    await pages.white.passButton.click();
+
+    await expect(pages.black.locator("#count-score-button")).toBeVisible();
+    await expect(pages.white.locator("#count-score-button")).toBeVisible();
+
+    await helpers.closeContextsPOM(...Object.values(pages));
+  });
+
   test("Spectator can see counting controls on the main board", async ({
     browser,
   }) => {
