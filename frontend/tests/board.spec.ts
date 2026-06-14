@@ -541,6 +541,45 @@ test.describe("Counting", () => {
     await helpers.closeContextsPOM(...Object.values(pages));
   });
 
+  test("Spectator clicking a stone during counting does not change the board", async ({
+    browser,
+  }) => {
+    const { pages } = await helpers.startGameAndGetAllPagesPOM(browser);
+
+    await pages.black.clickAtCoordinate(5, 5);
+    await pages.white.passButton.click();
+    await pages.black.passButton.click();
+
+    await pages.spectator.waitForTimeout(1000);
+
+    const stone = pages.spectator.locator(
+      '#main-board .stone[data-row="5"][data-col="5"]',
+    );
+    await expect(stone).toBeVisible();
+
+    const stoneCount = await pages.spectator
+      .locator("#main-board .stone")
+      .count();
+
+    const blackReady = pages.spectator.locator("#black-ready");
+    const whiteReady = pages.spectator.locator("#white-ready");
+
+    const blackReadyText = await blackReady.textContent();
+    const whiteReadyText = await whiteReady.textContent();
+
+    await stone.click();
+
+    await expect(pages.spectator.locator("#main-board .stone")).toHaveCount(
+      stoneCount,
+    );
+
+    // Need to use nullish coalescing here, because black/whiteReady could be null or undefined if not on the page
+    await expect(blackReady).toHaveText(blackReadyText ?? "");
+    await expect(whiteReady).toHaveText(whiteReadyText ?? "");
+
+    await helpers.closeContextsPOM(...Object.values(pages));
+  });
+
   test("Player selects a dead stone, counts, then deselects", async ({
     browser,
   }) => {
