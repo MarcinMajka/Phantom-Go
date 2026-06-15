@@ -302,11 +302,6 @@ function syncBoards() {
         return;
       }
 
-      // if (data.winner) {
-      //   console.log("There's a winner! No board syncs from now on :)");
-      //   return;
-      // }
-
       if (!data.should_sync && !countingPhase) {
         console.log("Not syncing boards!");
 
