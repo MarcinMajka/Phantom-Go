@@ -275,11 +275,8 @@ export function updateBoard(boardState, atariStones = []) {
   showStonesInAtari(atariStones);
 }
 
-// Add retry logic for sync boards
 function syncBoards() {
   const retryInterval = 1000; // 1 second
-  let failedAttempts = 0;
-  const maxRetries = 3;
 
   function sync() {
     fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
@@ -304,7 +301,6 @@ function syncBoards() {
 
       if (!data.should_sync && !countingPhase) {
         console.log("Not syncing boards!");
-
         setTimeout(sync, retryInterval);
         return;
       }
@@ -322,29 +318,15 @@ function syncBoards() {
         }),
       })
         .catch((error) => {
-          failedAttempts++;
-          console.error(
-            `Error syncing boards (attempt ${failedAttempts}/${maxRetries}):`,
-            error,
-          );
-
-          if (failedAttempts < maxRetries) {
-            setTimeout(sync, retryInterval);
-          } else {
-            console.error(
-              "Max retry attempts reached. Please refresh the page.",
-            );
-          }
+          console.error("Error syncing boards:", error);
+          setTimeout(sync, retryInterval);
         })
         .then((data) => {
           console.log("Server response:", data.message);
 
-          failedAttempts = 0; // Reset counter on success
-
           if (!data.winner && !data.counting) {
             guessStones.black = data.black_guess_stones;
             guessStones.white = data.white_guess_stones;
-
             updateTurn(data.current_player);
           }
 
