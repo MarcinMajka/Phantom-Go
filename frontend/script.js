@@ -25,6 +25,7 @@ import {
   getPlayerColor,
   getPlayerSessionToken,
   navigateToMainBoard,
+  redirectToRejoinPage,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -292,10 +293,7 @@ function syncBoards() {
     }).then((data) => {
       // TODO: Bug - any device/browser: alert doesn't fire, no location change after a few seconds and even a refresh
       if (data.rejoin_required) {
-        alert("Game data lost. Please rejoin via login page :)");
-        setTimeout(() => {
-          window.location.href = `${getAPIUrl()}/frontend/index.html`;
-        }, 1000);
+        redirectToRejoinPage();
         return;
       }
 

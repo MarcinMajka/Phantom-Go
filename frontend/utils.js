@@ -296,7 +296,7 @@ export function createAdminGamesListNode(leftText, middleText, actionText) {
   return container;
 }
 
-function redirectToRejoinPage() {
+export function redirectToRejoinPage() {
   alert("Game data lost. Please rejoin via login page :)");
   setTimeout(() => {
     window.location.href = `${getAPIUrl()}/frontend/index.html`;
