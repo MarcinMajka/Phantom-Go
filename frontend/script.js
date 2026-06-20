@@ -290,102 +290,107 @@ function syncBoards() {
         player: playerColor,
         frontend_board_generation_number: boardGenerationNumber,
       }),
-    }).then((data) => {
-      // TODO: Bug - any device/browser: alert doesn't fire, no location change after a few seconds and even a refresh
-      if (data.rejoin_required) {
+    })
+      .catch((error) => {
+        console.error(`Error fetching Board Interaction Number`, error);
         redirectToRejoinPage();
-        return;
-      }
-
-      if (!data.should_sync && !countingPhase) {
-        console.log("Not syncing boards!");
-        setTimeout(sync, retryInterval);
-        return;
-      }
-
-      boardGenerationNumber = data.board_generation_number;
-
-      fetchWithErrorHandling(`${API_URL}/sync-boards`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          match_string: getMatchString(),
-          player: playerColor,
-        }),
+        throw error;
       })
-        .catch((error) => {
-          console.error("Error syncing boards:", error);
+      .then((data) => {
+        if (data.rejoin_required) {
+          redirectToRejoinPage();
+          return;
+        }
+
+        if (!data.should_sync && !countingPhase) {
+          console.log("Not syncing boards!");
           setTimeout(sync, retryInterval);
+          return;
+        }
+
+        boardGenerationNumber = data.board_generation_number;
+
+        fetchWithErrorHandling(`${API_URL}/sync-boards`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            match_string: getMatchString(),
+            player: playerColor,
+          }),
         })
-        .then((data) => {
-          console.log("Server response:", data.message);
+          .catch((error) => {
+            console.error("Error syncing boards:", error);
+            setTimeout(sync, retryInterval);
+          })
+          .then((data) => {
+            console.log("Server response:", data.message);
 
-          if (!data.winner && !data.counting) {
-            guessStones.black = data.black_guess_stones;
-            guessStones.white = data.white_guess_stones;
-            updateTurn(data.current_player);
-          }
-
-          updateCaptures(data.black_captures, data.white_captures);
-          updateBoard(data.board, data.stones_in_atari);
-
-          if (data.winner) {
-            if (getPlayerColor() !== "spectator") {
-              navigateToMainBoard();
+            if (!data.winner && !data.counting) {
+              guessStones.black = data.black_guess_stones;
+              guessStones.white = data.white_guess_stones;
+              updateTurn(data.current_player);
             }
 
-            isWinnerDecided = true;
-            const res = createButton("result", data.winner);
-            elements.infoContainer.innerHTML = "";
-            elements.infoContainer.appendChild(res);
-            handleGameButtonsAfterGame(isWinnerDecided);
-            document.removeEventListener;
-            return;
-          }
+            updateCaptures(data.black_captures, data.white_captures);
+            updateBoard(data.board, data.stones_in_atari);
 
-          if (data.counting) {
-            if (getPlayerColor() === "spectator") {
-              if (elements.turn) {
-                delete elements.turn;
+            if (data.winner) {
+              if (getPlayerColor() !== "spectator") {
+                navigateToMainBoard();
               }
-            } else {
-              updateTurn(data.current_player);
-              navigateToMainBoard();
+
+              isWinnerDecided = true;
+              const res = createButton("result", data.winner);
+              elements.infoContainer.innerHTML = "";
+              elements.infoContainer.appendChild(res);
+              handleGameButtonsAfterGame(isWinnerDecided);
+              document.removeEventListener;
               return;
             }
 
-            const blackReady = document.getElementById("black-ready");
-            const whiteReady = document.getElementById("white-ready");
+            if (data.counting) {
+              if (getPlayerColor() === "spectator") {
+                if (elements.turn) {
+                  delete elements.turn;
+                }
+              } else {
+                updateTurn(data.current_player);
+                navigateToMainBoard();
+                return;
+              }
 
-            const blackReadyText = data.ready_to_count.black
-              ? "Black: ready"
-              : "Black: selecting dead stones";
-            const whiteReadyText = data.ready_to_count.white
-              ? "White: ready"
-              : "White: selecting dead stones";
+              const blackReady = document.getElementById("black-ready");
+              const whiteReady = document.getElementById("white-ready");
 
-            if (blackReady && whiteReady) {
-              blackReady.innerText = blackReadyText;
-              whiteReady.innerText = whiteReadyText;
+              const blackReadyText = data.ready_to_count.black
+                ? "Black: ready"
+                : "Black: selecting dead stones";
+              const whiteReadyText = data.ready_to_count.white
+                ? "White: ready"
+                : "White: selecting dead stones";
+
+              if (blackReady && whiteReady) {
+                blackReady.innerText = blackReadyText;
+                whiteReady.innerText = whiteReadyText;
+              }
+
+              countingPhase = true;
+
+              handleGameButtonsAfterGame(isWinnerDecided);
+              deadGroupsDuringCounting = data.groups_selected_during_counting;
+              toggleGroupSelection(deadGroupsDuringCounting);
+
+              if (playerColor === "spectator") {
+                showElement(elements.mainBoardButtons);
+                showElement(elements.readyToCountContainer);
+              }
             }
 
-            countingPhase = true;
-
-            handleGameButtonsAfterGame(isWinnerDecided);
-            deadGroupsDuringCounting = data.groups_selected_during_counting;
-            toggleGroupSelection(deadGroupsDuringCounting);
-
-            if (playerColor === "spectator") {
-              showElement(elements.mainBoardButtons);
-              showElement(elements.readyToCountContainer);
-            }
-          }
-
-          setTimeout(sync, retryInterval);
-        });
-    });
+            setTimeout(sync, retryInterval);
+          });
+      });
   }
 
   setTimeout(sync, retryInterval);
