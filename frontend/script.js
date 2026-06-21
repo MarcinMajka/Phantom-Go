@@ -292,6 +292,7 @@ function syncBoards() {
       }),
     })
       .catch((error) => {
+        // TODO: Distinguish rejoin-worthy 404s from transient errors.
         console.error(`Error fetching Board Interaction Number`, error);
         redirectToRejoinPage();
         throw error;
@@ -321,6 +322,7 @@ function syncBoards() {
           }),
         })
           .catch((error) => {
+            // TODO: Return here after scheduling the retry so this promise chain does not fall through.
             console.error("Error syncing boards:", error);
             setTimeout(sync, retryInterval);
           })
