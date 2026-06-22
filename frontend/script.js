@@ -291,6 +291,12 @@ function syncBoards() {
         frontend_board_generation_number: boardGenerationNumber,
       }),
     })
+      /**
+       * What does this function return on success?
+       * What does it do on a non-2xx response?
+       * Does the next step receive parsed data or a raw Response?
+       * If an error happens, does the chain stop, retry, or continue with bad data?
+       */
       .catch((error) => {
         // TODO: Distinguish rejoin-worthy 404s from transient errors.
         console.error(`Error fetching Board Interaction Number`, error);
