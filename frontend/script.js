@@ -279,6 +279,7 @@ export function updateBoard(boardState, atariStones = []) {
 function syncBoards() {
   const retryInterval = 1000; // 1 second
 
+  // TODO: analyze the promise chain
   function sync() {
     fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
       method: "POST",
