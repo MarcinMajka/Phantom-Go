@@ -329,9 +329,9 @@ function syncBoards() {
           }),
         })
           .catch((error) => {
-            // TODO: Return here after scheduling the retry so this promise chain does not fall through.
             console.error("Error syncing boards:", error);
             setTimeout(sync, retryInterval);
+            throw error;
           })
           .then((data) => {
             console.log("Server response:", data.message);
