@@ -7,7 +7,11 @@ export async function fetchWithErrorHandling(url, options) {
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+        const error = new Error(
+          data.error || `HTTP error! Status: ${response.status}`,
+        );
+        error.status = response.status;
+        throw error;
       }
       return data;
     })
