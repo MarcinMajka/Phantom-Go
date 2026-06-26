@@ -299,9 +299,12 @@ function syncBoards() {
        * If an error happens, does the chain stop, retry, or continue with bad data?
        */
       .catch((error) => {
-        // TODO: Distinguish rejoin-worthy 404s from transient errors.
-        console.error(`Error fetching Board Interaction Number`, error);
-        redirectToRejoinPage();
+        if (error.status === 404) {
+          redirectToRejoinPage();
+        } else {
+          console.error(`Error fetching Board Interaction Number`, error);
+          setTimeout(sync, retryInterval);
+        }
         throw error;
       })
       .then((data) => {
