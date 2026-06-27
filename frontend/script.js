@@ -358,7 +358,6 @@ function syncBoards() {
               elements.infoContainer.innerHTML = "";
               elements.infoContainer.appendChild(res);
               handleGameButtonsAfterGame(isWinnerDecided);
-              document.removeEventListener;
               return;
             }
 
