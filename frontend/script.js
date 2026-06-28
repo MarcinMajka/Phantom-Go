@@ -279,7 +279,6 @@ export function updateBoard(boardState, atariStones = []) {
 function syncBoards() {
   const retryInterval = 1000; // 1 second
 
-  // TODO: analyze the promise chain
   function sync() {
     fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
       method: "POST",
@@ -292,12 +291,6 @@ function syncBoards() {
         frontend_board_generation_number: boardGenerationNumber,
       }),
     })
-      /**
-       * What does this function return on success?
-       * What does it do on a non-2xx response?
-       * Does the next step receive parsed data or a raw Response?
-       * If an error happens, does the chain stop, retry, or continue with bad data?
-       */
       .catch((error) => {
         if (error.status === 404) {
           redirectToRejoinPage();
