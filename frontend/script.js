@@ -342,7 +342,7 @@ function syncBoards() {
             updateBoard(data.board, data.stones_in_atari);
 
             if (data.winner) {
-              if (getPlayerColor() !== "spectator") {
+              if (playerColor !== "spectator") {
                 navigateToMainBoard();
               }
 
