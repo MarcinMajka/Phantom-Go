@@ -307,7 +307,7 @@ export function redirectToRejoinPage() {
   }, 1000);
 }
 
-function getReadyToCountTexts(blackText, whiteText) {
+export function getReadyToCountTexts(blackText, whiteText) {
   return {
     blackReadyText: blackText ? "Black: ready" : "Black: selecting dead stones",
     whiteReadyText: whiteText ? "White: ready" : "White: selecting dead stones",

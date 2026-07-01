@@ -26,6 +26,7 @@ import {
   getPlayerSessionToken,
   navigateToMainBoard,
   redirectToRejoinPage,
+  getReadyToCountTexts,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -368,14 +369,11 @@ function syncBoards() {
               const blackReady = document.getElementById("black-ready");
               const whiteReady = document.getElementById("white-ready");
 
-              const blackReadyText = data.ready_to_count.black
-                ? "Black: ready"
-                : "Black: selecting dead stones";
-              const whiteReadyText = data.ready_to_count.white
-                ? "White: ready"
-                : "White: selecting dead stones";
-
               if (blackReady && whiteReady) {
+                const { blackReadyText, whiteReadyText } = getReadyToCountTexts(
+                  data.ready_to_count.black,
+                  data.ready_to_count.white,
+                );
                 blackReady.innerText = blackReadyText;
                 whiteReady.innerText = whiteReadyText;
               }
