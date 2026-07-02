@@ -307,9 +307,13 @@ export function redirectToRejoinPage() {
   }, 1000);
 }
 
-export function getReadyToCountTexts(blackText, whiteText) {
+export function getReadyToCountTexts(readyToCountTextObject) {
   return {
-    blackReadyText: blackText ? "Black: ready" : "Black: selecting dead stones",
-    whiteReadyText: whiteText ? "White: ready" : "White: selecting dead stones",
+    blackReadyText: readyToCountTextObject.black
+      ? "Black: ready"
+      : "Black: selecting dead stones",
+    whiteReadyText: readyToCountTextObject.white
+      ? "White: ready"
+      : "White: selecting dead stones",
   };
 }

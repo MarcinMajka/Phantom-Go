@@ -371,8 +371,7 @@ function syncBoards() {
 
               if (blackReady && whiteReady) {
                 const { blackReadyText, whiteReadyText } = getReadyToCountTexts(
-                  data.ready_to_count.black,
-                  data.ready_to_count.white,
+                  data.ready_to_count,
                 );
                 blackReady.innerText = blackReadyText;
                 whiteReady.innerText = whiteReadyText;
