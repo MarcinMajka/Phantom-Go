@@ -280,6 +280,7 @@ export function updateBoard(boardState, atariStones = []) {
 function syncBoards() {
   const retryInterval = 1000; // 1 second
 
+  // TODO: need some refresh after game finishes, so that the rejoin required flow happens without needind user page refresh
   function sync() {
     fetchWithErrorHandling(`${API_URL}/get-board-interaction-number`, {
       method: "POST",
