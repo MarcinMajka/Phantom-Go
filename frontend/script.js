@@ -357,7 +357,7 @@ function syncBoards() {
             }
 
             if (data.counting) {
-              if (getPlayerColor() === "spectator") {
+              if (playerColor === "spectator") {
                 if (elements.turn) {
                   delete elements.turn;
                 }
