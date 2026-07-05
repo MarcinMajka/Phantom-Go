@@ -329,9 +329,14 @@ function syncBoards() {
           .catch((error) => {
             console.error("Error syncing boards:", error);
             setTimeout(sync, retryInterval);
-            throw error;
+            // Recover locally by skipping the board update on this failed attempt.
+            return null;
           })
           .then((data) => {
+            // If the sync failed, do not try to update the UI with invalid data.
+            if (!data) {
+              return;
+            }
             console.log("Server response:", data.message);
 
             if (!data.winner && !data.counting) {
