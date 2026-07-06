@@ -674,6 +674,7 @@ test.describe("Counting", () => {
   });
 });
 
+// TODO: investigate the reason of flakiness of these tests
 test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after each click", async ({
     page,
