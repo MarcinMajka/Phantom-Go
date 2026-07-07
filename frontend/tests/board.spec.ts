@@ -674,7 +674,6 @@ test.describe("Counting", () => {
   });
 });
 
-// TODO: investigate the reason of flakiness of these tests
 test.describe("Guess stones", () => {
   test("Add/remove guess stone and check its status after each click", async ({
     page,
@@ -688,9 +687,9 @@ test.describe("Guess stones", () => {
 
     for (let i = 0; i < 100; i++) {
       await emptyField.click();
-      expect(guessStone).toBeVisible();
+      await expect(guessStone).toBeVisible();
       await guessStone.click();
-      expect(emptyField).toBeVisible();
+      await expect(emptyField).toBeVisible();
     }
   });
 
