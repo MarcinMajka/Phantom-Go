@@ -861,6 +861,7 @@ test.describe("Admin page", () => {
   });
 });
 
+// TODO: fix flakiness - it's likely related to board generation number (already placed guess stones are removed all at once "randomly" and the test continues)
 test.describe("Throttling", () => {
   test.beforeEach(async ({ page }) => {
     await helpers.startGameWithRandomID(page);
