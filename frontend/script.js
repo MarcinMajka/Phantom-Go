@@ -277,6 +277,7 @@ export function updateBoard(boardState, atariStones = []) {
   showStonesInAtari(atariStones);
 }
 
+// TODO: make more readable
 function syncBoards() {
   const retryInterval = 1000; // 1 second
 
