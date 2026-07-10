@@ -373,6 +373,8 @@ function syncBoards() {
                 return;
               }
 
+              // TODO: investigate why extracting this part to a function fails most Counting tests
+              // From here
               const blackReady = document.getElementById("black-ready");
               const whiteReady = document.getElementById("white-ready");
 
@@ -383,6 +385,7 @@ function syncBoards() {
                 blackReady.innerText = blackReadyText;
                 whiteReady.innerText = whiteReadyText;
               }
+              // To here
 
               countingPhase = true;
 
