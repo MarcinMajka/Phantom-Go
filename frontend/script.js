@@ -27,6 +27,7 @@ import {
   navigateToMainBoard,
   redirectToRejoinPage,
   getReadyToCountTexts,
+  handleReadyToCount,
 } from "./utils.js";
 import {
   resignButtonHandler,
@@ -373,19 +374,7 @@ function syncBoards() {
                 return;
               }
 
-              // TODO: investigate why extracting this part to a function fails most Counting tests
-              // From here
-              const blackReady = document.getElementById("black-ready");
-              const whiteReady = document.getElementById("white-ready");
-
-              if (blackReady && whiteReady) {
-                const { blackReadyText, whiteReadyText } = getReadyToCountTexts(
-                  data.ready_to_count,
-                );
-                blackReady.innerText = blackReadyText;
-                whiteReady.innerText = whiteReadyText;
-              }
-              // To here
+              handleReadyToCount(data.ready_to_count);
 
               countingPhase = true;
 

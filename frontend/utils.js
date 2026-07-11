@@ -317,3 +317,20 @@ export function getReadyToCountTexts(readyToCountTextObject) {
       : "White: selecting dead stones",
   };
 }
+
+export function handleReadyToCount(readyToCount) {
+  console.log("handleReadyToCount() running");
+  const blackReady = document.getElementById("black-ready");
+  const whiteReady = document.getElementById("white-ready");
+
+  if (blackReady && whiteReady) {
+    console.log("Inside if");
+    const { blackReadyText, whiteReadyText } =
+      getReadyToCountTexts(readyToCount);
+    console.log(
+      `blackReadyText: ${blackReadyText}, whiteReadyText: ${whiteReadyText}`,
+    );
+    blackReady.innerText = blackReadyText;
+    whiteReady.innerText = whiteReadyText;
+  }
+}
