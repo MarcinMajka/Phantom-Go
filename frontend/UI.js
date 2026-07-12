@@ -54,6 +54,12 @@ export function createDiv(id, className) {
   return div;
 }
 
+function showResult(winner) {
+  const res = createButton("result", winner);
+  elements.infoContainer.innerHTML = "";
+  elements.infoContainer.appendChild(res);
+}
+
 let buttonsWereHandledAfterGame = false;
 
 export function handleGameButtonsAfterGame(isGameOver) {
