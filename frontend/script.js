@@ -10,6 +10,7 @@ import {
   drawStarPoints,
   displayMatchIdElement,
   toggleGroupSelection,
+  showResult,
 } from "./UI.js";
 import {
   fetchWithErrorHandling,
@@ -356,9 +357,7 @@ function syncBoards() {
               }
 
               isWinnerDecided = true;
-              const res = createButton("result", data.winner);
-              elements.infoContainer.innerHTML = "";
-              elements.infoContainer.appendChild(res);
+              showResult(data.winner);
               handleGameButtonsAfterGame(isWinnerDecided);
               return;
             }

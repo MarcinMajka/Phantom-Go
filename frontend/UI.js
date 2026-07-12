@@ -54,7 +54,7 @@ export function createDiv(id, className) {
   return div;
 }
 
-function showResult(winner) {
+export function showResult(winner) {
   const res = createButton("result", winner);
   elements.infoContainer.innerHTML = "";
   elements.infoContainer.appendChild(res);
