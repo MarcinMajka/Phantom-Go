@@ -363,6 +363,8 @@ function syncBoards() {
             }
 
             if (data.counting) {
+              countingPhase = true;
+
               if (playerColor === "spectator") {
                 if (elements.turn) {
                   delete elements.turn;
@@ -374,10 +376,8 @@ function syncBoards() {
               }
 
               handleReadyToCount(data.ready_to_count);
-
-              countingPhase = true;
-
               handleGameButtonsAfterGame(isWinnerDecided);
+
               deadGroupsDuringCounting = data.groups_selected_during_counting;
               toggleGroupSelection(deadGroupsDuringCounting);
 
