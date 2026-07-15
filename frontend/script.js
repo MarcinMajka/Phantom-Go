@@ -369,21 +369,19 @@ function syncBoards() {
                 if (elements.turn) {
                   delete elements.turn;
                 }
+
+                handleReadyToCount(data.ready_to_count);
+                handleGameButtonsAfterGame(isWinnerDecided);
+
+                deadGroupsDuringCounting = data.groups_selected_during_counting;
+                toggleGroupSelection(deadGroupsDuringCounting);
+
+                showElement(elements.mainBoardButtons);
+                showElement(elements.readyToCountContainer);
               } else {
                 updateTurn(data.current_player);
                 navigateToMainBoard();
                 return;
-              }
-
-              handleReadyToCount(data.ready_to_count);
-              handleGameButtonsAfterGame(isWinnerDecided);
-
-              deadGroupsDuringCounting = data.groups_selected_during_counting;
-              toggleGroupSelection(deadGroupsDuringCounting);
-
-              if (playerColor === "spectator") {
-                showElement(elements.mainBoardButtons);
-                showElement(elements.readyToCountContainer);
               }
             }
 
