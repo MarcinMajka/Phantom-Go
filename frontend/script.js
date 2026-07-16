@@ -365,24 +365,24 @@ function syncBoards() {
             if (data.counting) {
               countingPhase = true;
 
-              if (playerColor === "spectator") {
-                if (elements.turn) {
-                  delete elements.turn;
-                }
-
-                handleReadyToCount(data.ready_to_count);
-                handleGameButtonsAfterGame(isWinnerDecided);
-
-                deadGroupsDuringCounting = data.groups_selected_during_counting;
-                toggleGroupSelection(deadGroupsDuringCounting);
-
-                showElement(elements.mainBoardButtons);
-                showElement(elements.readyToCountContainer);
-              } else {
+              if (playerColor !== "spectator") {
                 updateTurn(data.current_player);
                 navigateToMainBoard();
                 return;
               }
+
+              if (elements.turn) {
+                delete elements.turn;
+              }
+
+              handleReadyToCount(data.ready_to_count);
+              handleGameButtonsAfterGame(isWinnerDecided);
+
+              deadGroupsDuringCounting = data.groups_selected_during_counting;
+              toggleGroupSelection(deadGroupsDuringCounting);
+
+              showElement(elements.mainBoardButtons);
+              showElement(elements.readyToCountContainer);
             }
 
             setTimeout(sync, retryInterval);
