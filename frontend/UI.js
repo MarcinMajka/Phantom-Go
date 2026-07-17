@@ -180,3 +180,9 @@ function getStoneToColor(loc) {
     `.stone[data-row="${row}"][data-col="${col}"]`,
   );
 }
+
+function safeDeleteUIElement(element) {
+  if (element) {
+    delete element;
+  }
+}
