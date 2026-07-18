@@ -11,6 +11,7 @@ import {
   displayMatchIdElement,
   toggleGroupSelection,
   showResult,
+  safeDeleteUIElement,
 } from "./UI.js";
 import {
   fetchWithErrorHandling,
@@ -371,9 +372,7 @@ function syncBoards() {
                 return;
               }
 
-              if (elements.turn) {
-                delete elements.turn;
-              }
+              safeDeleteUIElement(elements.turn);
 
               handleReadyToCount(data.ready_to_count);
               handleGameButtonsAfterGame(isWinnerDecided);
