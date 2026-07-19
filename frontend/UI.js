@@ -181,8 +181,8 @@ function getStoneToColor(loc) {
   );
 }
 
-export function safeDeleteUIElement(element) {
-  if (element) {
-    delete element;
+export function safeDeleteUIElement(elements) {
+  if (elements.turn) {
+    delete elements.turn;
   }
 }

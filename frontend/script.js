@@ -372,7 +372,7 @@ function syncBoards() {
                 return;
               }
 
-              safeDeleteUIElement(elements.turn);
+              safeDeleteUIElement(elements);
 
               handleReadyToCount(data.ready_to_count);
               handleGameButtonsAfterGame(isWinnerDecided);
