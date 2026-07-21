@@ -282,6 +282,7 @@ export function updateBoard(boardState, atariStones = []) {
 
 function syncBoards() {
   const retryInterval = 1000; // 1 second
+  let syncErrorsCounter = 0;
 
   // TODO: need some refresh after game finishes, so that the rejoin required flow happens without needind user page refresh
   function sync() {
@@ -297,12 +298,13 @@ function syncBoards() {
       }),
     })
       .catch((error) => {
-        if (error.status === 404) {
+        console.error(`Error fetching Board Interaction Number`, error);
+        syncErrorsCounter++;
+        if (syncErrorsCounter === 3) {
           redirectToRejoinPage();
-        } else {
-          console.error(`Error fetching Board Interaction Number`, error);
-          setTimeout(sync, retryInterval);
         }
+
+        setTimeout(sync, retryInterval);
         throw error;
       })
       .then((data) => {
