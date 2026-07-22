@@ -818,6 +818,7 @@ async fn sync_boards(payload: Json<SyncBoardsPayload>) -> Result<Json<GameState>
             0,
         )
         .with_winner(winner.to_string()),
+        // TODO: analyze this arm for it's possibility in producing bugs with adding/removing Guess Stones tests
         None => {
             let board_int_num = match payload.player.as_ref() {
                 "black" => {
