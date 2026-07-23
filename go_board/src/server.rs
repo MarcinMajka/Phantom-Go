@@ -1030,6 +1030,7 @@ fn get_stones_mut<'a>(
     }
 }
 
+// TODO: analyze this handler usage for potentially incorrect generation number counting
 #[handler]
 async fn sync_guess_stones(payload: Json<GuessStonesSync>) -> Result<Json<String>, Error> {
     {
