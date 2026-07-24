@@ -300,6 +300,8 @@ function syncBoards() {
       .catch((error) => {
         console.error(`Error fetching Board Interaction Number`, error);
         syncErrorsCounter++;
+        console.log("Current sync error count: ", syncErrorsCounter);
+
         if (syncErrorsCounter === 3) {
           redirectToRejoinPage();
         }
@@ -309,6 +311,7 @@ function syncBoards() {
       })
       .then((data) => {
         if (data.rejoin_required) {
+          console.log("Backend said rejoin is required");
           redirectToRejoinPage();
           return;
         }
